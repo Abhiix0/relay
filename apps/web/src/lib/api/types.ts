@@ -36,6 +36,13 @@ export const projectSchema = z.object({
     releases: z.number(),
     files: z.number(),
   }),
+  health: z
+    .object({
+      overall: z.number().min(0).max(100),
+      documentation: z.number().min(0).max(100),
+      activity: z.enum(["high", "medium", "low"]),
+    })
+    .optional(),
   healthLabel: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

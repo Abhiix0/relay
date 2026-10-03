@@ -9,11 +9,13 @@ import { StatCard } from "@/components/ui/stat-card";
 import { useProject } from "@/lib/api/hooks";
 import { ProjectActivityTimeline } from "./ProjectActivityTimeline";
 import { ProjectArchitectureCard } from "./ProjectArchitectureCard";
+import { ProjectHealthCard } from "./ProjectHealthCard";
 import { ProjectHero } from "./ProjectHero";
+import { SuggestedActionsCard } from "./SuggestedActionsCard";
 
 export function ProjectOverviewPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading, error } = useProject(id);
+  const { data: project, isLoading, error, refetch } = useProject(id);
 
   if (isLoading) {
     return (
@@ -38,10 +40,23 @@ export function ProjectOverviewPage() {
           <ErrorState
             title="Repository not found"
             description="Could not load project context or repository metadata."
-          />
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => refetch()}
+              className="bg-copper text-paper"
+            >
+              Retry
+            </Button>
+          </ErrorState>
           <div className="flex justify-center">
-            <Link to="/dashboard">
-              <Button size="sm" variant="primary" className="bg-copper text-paper">
+            <Link to="/app">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="border-border text-paper"
+              >
                 Return to Dashboard
               </Button>
             </Link>
@@ -75,12 +90,12 @@ export function ProjectOverviewPage() {
             value={project.stats.pullRequests.toLocaleString()}
           />
           <StatCard
-            label="Indexed Files"
-            value={project.stats.files.toLocaleString()}
-          />
-          <StatCard
             label="Active Issues"
             value={project.stats.issues.toLocaleString()}
+          />
+          <StatCard
+            label="Releases"
+            value={project.stats.releases.toLocaleString()}
           />
         </div>
 
@@ -95,11 +110,16 @@ export function ProjectOverviewPage() {
                 </h3>
               </div>
               <p className="text-xs text-text-muted">
-                Every answer is grounded in AST nodes, source files, and commit history with line citations.
+                Every answer is grounded in AST nodes, source files, and commit
+                history with line citations.
               </p>
             </div>
-            <Link to={`/projects/${project.id}/ask`}>
-              <Button size="sm" variant="primary" className="bg-copper hover:bg-copper-dark text-paper text-xs gap-2 font-mono">
+            <Link to={`/app/projects/${project.id}/ask`}>
+              <Button
+                size="sm"
+                variant="primary"
+                className="bg-copper hover:bg-copper-dark text-paper text-xs gap-2 font-mono"
+              >
                 <span>Start Agent Conversation</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
@@ -107,11 +127,13 @@ export function ProjectOverviewPage() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/40 pt-4">
-            <span className="text-[10px] font-mono uppercase text-text-muted">Sample Inquiries:</span>
+            <span className="text-[10px] font-mono uppercase text-text-muted">
+              Sample Inquiries:
+            </span>
             {promptSuggestions.map((prompt) => (
               <Link
                 key={prompt}
-                to={`/projects/${project.id}/ask?q=${encodeURIComponent(prompt)}`}
+                to={`/app/projects/${project.id}/ask?q=${encodeURIComponent(prompt)}`}
                 className="text-xs font-mono text-copper hover:underline bg-surface px-2.5 py-1 rounded border border-border/60"
               >
                 "{prompt}"
@@ -120,10 +142,19 @@ export function ProjectOverviewPage() {
           </div>
         </Card>
 
-        {/* Split Grid: Architecture on Left, Recent Events on Right */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ProjectArchitectureCard projectId={project.id} />
-          <ProjectActivityTimeline projectId={project.id} />
+        {/* Two-Column Layout: Main content + Sidebar */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Main Content - Left Column (2/3) */}
+          <div className="lg:col-span-2 space-y-6">
+            <ProjectArchitectureCard projectId={project.id} />
+            <ProjectActivityTimeline projectId={project.id} />
+          </div>
+
+          {/* Sidebar - Right Column (1/3) */}
+          <div className="space-y-6">
+            <ProjectHealthCard project={project} />
+            <SuggestedActionsCard projectId={project.id} />
+          </div>
         </div>
       </div>
     </AppShell>

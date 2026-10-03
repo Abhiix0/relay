@@ -32,8 +32,51 @@ const router = createBrowserRouter([
     element: <DashboardPage />,
   },
   {
+    path: "/app/projects",
+    lazy: async () => {
+      const { ProjectsListPage } = await import("@/features/projects/ProjectsListPage");
+      return { Component: ProjectsListPage };
+    },
+  },
+  {
     path: "/projects",
     element: <DashboardPage />,
+  },
+  {
+    path: "/app/projects/:id",
+    element: <ProjectOverviewPage />,
+  },
+  {
+    path: "/projects/:id",
+    element: <ProjectOverviewPage />,
+  },
+  {
+    path: "/app/projects/:id/ask",
+    element: <AskPage />,
+  },
+  {
+    path: "/app/projects/:id/explorer",
+    element: <ExplorerPage />,
+  },
+  {
+    path: "/app/projects/:id/onboarding",
+    element: <OnboardingPage />,
+  },
+  {
+    path: "/app/projects/:id/handoff",
+    element: <HandoffPage />,
+  },
+  {
+    path: "/app/projects/:id/decisions",
+    element: <DecisionsPage />,
+  },
+  {
+    path: "/app/projects/:id/search",
+    element: <SearchPage />,
+  },
+  {
+    path: "/app/projects/:id/settings",
+    element: <ProjectSettingsPage />,
   },
   {
     path: "/projects/:id",

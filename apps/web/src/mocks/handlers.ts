@@ -64,6 +64,11 @@ export const handlers = [
         releases: 1,
         files: 240,
       },
+      health: {
+        overall: 0,
+        documentation: 0,
+        activity: "low",
+      },
       healthLabel: "Indexing in progress",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -217,16 +222,49 @@ export const handlers = [
     return HttpResponse.json(currentSyncJob);
   }),
 
-  http.post("/api/v1/projects/:id/sync", () => {
+  http.post("/api/v1/projects/:id/sync", ({ params }) => {
+    const projectId = String(params.id);
     currentSyncJob = {
       id: `sync_${Date.now()}`,
-      projectId: "turborepo",
-      status: "running",
-      progress: 45,
+      projectId,
+      status: "queued",
+      progress: 0,
       error: null,
       startedAt: new Date().toISOString(),
       completedAt: null,
     };
+
+    // Simulate sync progression
+    setTimeout(() => {
+      currentSyncJob.status = "running";
+      currentSyncJob.progress = 25;
+    }, 500);
+
+    setTimeout(() => {
+      currentSyncJob.progress = 50;
+    }, 1500);
+
+    setTimeout(() => {
+      currentSyncJob.progress = 75;
+    }, 2500);
+
+    setTimeout(() => {
+      currentSyncJob.status = "succeeded";
+      currentSyncJob.progress = 100;
+      currentSyncJob.completedAt = new Date().toISOString();
+      
+      // Update project status and lastSyncedAt
+      const project = projects.find((p) => p.id === projectId);
+      if (project) {
+        project.syncStatus = "succeeded";
+        project.lastSyncedAt = new Date().toISOString();
+        if (project.health) {
+          project.health.overall = Math.min(100, (project.health.overall || 0) + 10);
+          project.health.documentation = Math.min(100, (project.health.documentation || 0) + 5);
+        }
+      }
+    }, 3500);
+
     return HttpResponse.json(currentSyncJob);
   }),
 ];

@@ -6,29 +6,27 @@ interface DashboardStatsProps {
 }
 
 export function DashboardStats({ projects }: DashboardStatsProps) {
-  const totalFiles = projects.reduce((acc, p) => acc + (p.stats?.files || 0), 0);
-  const totalCommits = projects.reduce((acc, p) => acc + (p.stats?.commits || 0), 0);
-  const healthyCount = projects.filter((p) => p.syncStatus === "succeeded").length;
+  // Calculate total projects
+  const totalProjects = projects.length;
+
+  // Calculate total open issues across all projects
+  const totalIssues = projects.reduce((acc, p) => acc + (p.stats?.issues || 0), 0);
+
+  // Calculate total active PRs across all projects
+  const totalPRs = projects.reduce(
+    (acc, p) => acc + (p.stats?.pullRequests || 0),
+    0
+  );
+
+  // Calculate CI failures (projects with failed sync status)
+  const ciFailures = projects.filter((p) => p.syncStatus === "failed").length;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard
-        label="Connected Repos"
-        value={projects.length}
-        accent="active"
-      />
-      <StatCard
-        label="AST & Source Files"
-        value={totalFiles.toLocaleString()}
-      />
-      <StatCard
-        label="Historical Commits"
-        value={totalCommits.toLocaleString()}
-      />
-      <StatCard
-        label="Index Health"
-        value={`${Math.round((healthyCount / (projects.length || 1)) * 100)}%`}
-      />
+      <StatCard label="Total Projects" value={totalProjects} accent="active" />
+      <StatCard label="Open Issues" value={totalIssues.toLocaleString()} />
+      <StatCard label="Active PRs" value={totalPRs.toLocaleString()} />
+      <StatCard label="CI Failures" value={ciFailures} />
     </div>
   );
 }
