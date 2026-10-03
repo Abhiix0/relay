@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 
-export default function NotFound() {
+export function NotFoundPage() {
   return (
     <main className="not-found-page">
       <div className="not-found-rule" />
@@ -11,7 +11,7 @@ export default function NotFound() {
         <em>out of context.</em>
       </h1>
       <p className="not-found-copy">
-        The page you’re looking for doesn’t exist or has moved somewhere else.
+        The page you're looking for doesn't exist or has moved somewhere else.
       </p>
       <a className="button button-copper" href="/">
         Return to Relay <ArrowUpRight size={15} />

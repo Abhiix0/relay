@@ -1,5 +1,5 @@
+import { type ReactNode, Component } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import { Component, type ReactNode } from "react";
 
 type ErrorBoundaryProps = { children: ReactNode };
 type ErrorBoundaryState = { hasError: boolean; error: Error | null };

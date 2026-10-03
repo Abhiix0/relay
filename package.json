@@ -1,29 +1,18 @@
 {
-  "name": "relay",
+  "name": "relay-monorepo",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
-  "license": "MIT",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "tsc --noEmit",
-    "format": "prettier --write ."
-  },
-  "dependencies": {
-    "lucide-react": "^0.453.0",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "wouter": "^3.3.5"
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "preview": "pnpm --filter web preview",
+    "check": "pnpm --filter web check",
+    "lint": "pnpm --filter web lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "devDependencies": {
-    "@types/node": "^24.7.0",
-    "@types/react": "^19.2.1",
-    "@types/react-dom": "^19.2.1",
-    "@vitejs/plugin-react": "^5.0.4",
-    "prettier": "^3.6.2",
-    "typescript": "5.9.3",
-    "vite": "^7.1.7"
+    "prettier": "^3.6.2"
   },
   "packageManager": "pnpm@10.18.0"
 }

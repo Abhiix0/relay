@@ -501,11 +501,14 @@ function DashboardPreview() {
   );
 }
 
-export default function Home() {
+export default function HomePage() {
   const [activeFeature, setActiveFeature] = useState("context");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const active =
-    features.find(feature => feature.id === activeFeature) ?? features[0];
+  const active = features.find(feature => feature.id === activeFeature);
+
+  if (!active) {
+    return null;
+  }
 
   const closeMenu = () => setMobileOpen(false);
   const scrollTo = (id: string) => {
