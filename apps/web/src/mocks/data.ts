@@ -441,3 +441,533 @@ export const mockActivityEvents: ActivityEvent[] = [
     createdAt: "2026-10-03T17:30:00Z",
   },
 ];
+
+import type {
+  FileContent,
+  RepositoryTree,
+  SearchResults,
+} from "@/lib/api/types";
+
+/* ── Repository Tree Mock Data ──────────────────────────────── */
+export const mockRepositoryTree: RepositoryTree = {
+  projectId: "turborepo",
+  repository: "vercel/turbo",
+  tree: [
+    {
+      id: "root-crates",
+      name: "crates",
+      path: "crates",
+      type: "folder",
+      children: [
+        {
+          id: "crates-turborepo-lib",
+          name: "turborepo-lib",
+          path: "crates/turborepo-lib",
+          type: "folder",
+          children: [
+            {
+              id: "crates-turborepo-lib-src",
+              name: "src",
+              path: "crates/turborepo-lib/src",
+              type: "folder",
+              children: [
+                {
+                  id: "file-engine-builder",
+                  name: "builder.rs",
+                  path: "crates/turborepo-lib/src/engine/builder.rs",
+                  type: "file",
+                  language: "rust",
+                  size: 15420,
+                },
+                {
+                  id: "file-engine-mod",
+                  name: "mod.rs",
+                  path: "crates/turborepo-lib/src/engine/mod.rs",
+                  type: "file",
+                  language: "rust",
+                  size: 2890,
+                },
+              ],
+            },
+            {
+              id: "file-lib-rs",
+              name: "lib.rs",
+              path: "crates/turborepo-lib/src/lib.rs",
+              type: "file",
+              language: "rust",
+              size: 4120,
+            },
+          ],
+        },
+        {
+          id: "crates-turborepo-cache",
+          name: "turborepo-cache",
+          path: "crates/turborepo-cache",
+          type: "folder",
+          children: [
+            {
+              id: "crates-turborepo-cache-src",
+              name: "src",
+              path: "crates/turborepo-cache/src",
+              type: "folder",
+              children: [
+                {
+                  id: "file-http-rs",
+                  name: "http.rs",
+                  path: "crates/turborepo-cache/src/http.rs",
+                  type: "file",
+                  language: "rust",
+                  size: 8720,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "root-packages",
+      name: "packages",
+      path: "packages",
+      type: "folder",
+      children: [
+        {
+          id: "packages-turbo",
+          name: "turbo",
+          path: "packages/turbo",
+          type: "folder",
+          children: [
+            {
+              id: "packages-turbo-src",
+              name: "src",
+              path: "packages/turbo/src",
+              type: "folder",
+              children: [
+                {
+                  id: "packages-turbo-src-commands",
+                  name: "commands",
+                  path: "packages/turbo/src/commands",
+                  type: "folder",
+                  children: [
+                    {
+                      id: "file-run-ts",
+                      name: "run.ts",
+                      path: "packages/turbo/src/commands/run.ts",
+                      type: "file",
+                      language: "typescript",
+                      size: 6420,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "file-package-json",
+              name: "package.json",
+              path: "packages/turbo/package.json",
+              type: "file",
+              language: "json",
+              size: 1240,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "root-docs",
+      name: "docs",
+      path: "docs",
+      type: "folder",
+      children: [
+        {
+          id: "docs-decisions",
+          name: "decisions",
+          path: "docs/decisions",
+          type: "folder",
+          children: [
+            {
+              id: "file-001-rust-core",
+              name: "001-rust-core.md",
+              path: "docs/decisions/001-rust-core.md",
+              type: "file",
+              language: "markdown",
+              size: 3420,
+            },
+            {
+              id: "file-002-remote-cache",
+              name: "002-remote-cache.md",
+              path: "docs/decisions/002-remote-cache.md",
+              type: "file",
+              language: "markdown",
+              size: 2810,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "root-readme",
+      name: "README.md",
+      path: "README.md",
+      type: "file",
+      language: "markdown",
+      size: 8940,
+    },
+    {
+      id: "root-cargo-toml",
+      name: "Cargo.toml",
+      path: "Cargo.toml",
+      type: "file",
+      language: "toml",
+      size: 1580,
+    },
+    {
+      id: "root-gitignore",
+      name: ".gitignore",
+      path: ".gitignore",
+      type: "file",
+      language: null,
+      size: 420,
+    },
+  ],
+};
+
+/* ── File Content Mock Data ─────────────────────────────────── */
+export const mockFileContents: Record<string, FileContent> = {
+  "crates/turborepo-lib/src/engine/builder.rs": {
+    projectId: "turborepo",
+    path: "crates/turborepo-lib/src/engine/builder.rs",
+    name: "builder.rs",
+    language: "rust",
+    size: 15420,
+    content: `use std::collections::{HashMap, HashSet};
+use petgraph::graph::{DiGraph, NodeIndex};
+use crate::engine::{Engine, Task, TaskGraph};
+
+/// Builds the execution graph (DAG) from workspace package definitions
+/// and task configurations specified in turbo.json.
+pub struct EngineBuilder {
+    graph: DiGraph<Task, ()>,
+    task_map: HashMap<String, NodeIndex>,
+}
+
+impl EngineBuilder {
+    pub fn new() -> Self {
+        Self {
+            graph: DiGraph::new(),
+            task_map: HashMap::new(),
+        }
+    }
+
+    /// Adds a task node to the execution graph
+    pub fn add_task(&mut self, task: Task) -> NodeIndex {
+        let node = self.graph.add_node(task.clone());
+        self.task_map.insert(task.id.clone(), node);
+        node
+    }
+
+    /// Establishes a dependency edge between two tasks
+    pub fn add_dependency(&mut self, from: &str, to: &str) {
+        if let (Some(&from_node), Some(&to_node)) = 
+            (self.task_map.get(from), self.task_map.get(to)) {
+            self.graph.add_edge(from_node, to_node, ());
+        }
+    }
+
+    /// Builds and validates the execution graph
+    pub fn build_execution_graph(&self) -> Result<TaskGraph, EngineError> {
+        // Detect cycles using Tarjan's SCC algorithm
+        if self.has_cycles() {
+            return Err(EngineError::CyclicDependency);
+        }
+
+        Ok(TaskGraph {
+            graph: self.graph.clone(),
+            task_map: self.task_map.clone(),
+        })
+    }
+
+    fn has_cycles(&self) -> bool {
+        use petgraph::algo::tarjan_scc;
+        let sccs = tarjan_scc(&self.graph);
+        sccs.iter().any(|scc| scc.len() > 1)
+    }
+}
+
+#[derive(Debug)]
+pub enum EngineError {
+    CyclicDependency,
+    InvalidTask,
+}`,
+  },
+  "crates/turborepo-cache/src/http.rs": {
+    projectId: "turborepo",
+    path: "crates/turborepo-cache/src/http.rs",
+    name: "http.rs",
+    language: "rust",
+    size: 8720,
+    content: `use reqwest::{Client, StatusCode};
+use std::time::Duration;
+
+/// HTTP/2 client for Vercel Remote Caching
+/// Handles multiplexed artifact upload and download with gzip compression
+pub struct RemoteCacheClient {
+    client: Client,
+    base_url: String,
+    token: String,
+}
+
+impl RemoteCacheClient {
+    pub fn new(base_url: String, token: String) -> Result<Self, CacheError> {
+        let client = Client::builder()
+            .http2_prior_knowledge()
+            .pool_max_idle_per_host(32)
+            .timeout(Duration::from_secs(30))
+            .build()?;
+
+        Ok(Self {
+            client,
+            base_url,
+            token,
+        })
+    }
+
+    /// Fetches an artifact by hash from the remote cache
+    pub async fn fetch_artifact(&self, hash: &str) -> Result<Option<ArtifactStream>, CacheError> {
+        let url = format!("{}/v8/artifacts/{}", self.base_url, hash);
+        
+        let response = self.client
+            .get(&url)
+            .header("Authorization", format!("Bearer {}", self.token))
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::OK => {
+                let stream = response.bytes_stream();
+                Ok(Some(ArtifactStream::new(stream)))
+            }
+            StatusCode::NOT_FOUND => Ok(None),
+            _ => Err(CacheError::RequestFailed(response.status())),
+        }
+    }
+
+    /// Uploads an artifact to the remote cache
+    pub async fn put_artifact(&self, hash: &str, data: Vec<u8>) -> Result<(), CacheError> {
+        let url = format!("{}/v8/artifacts/{}", self.base_url, hash);
+        
+        let response = self.client
+            .put(&url)
+            .header("Authorization", format!("Bearer {}", self.token))
+            .header("Content-Type", "application/octet-stream")
+            .body(data)
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            Ok(())
+        } else {
+            Err(CacheError::UploadFailed(response.status()))
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum CacheError {
+    RequestFailed(StatusCode),
+    UploadFailed(StatusCode),
+    NetworkError,
+}`,
+  },
+  "packages/turbo/src/commands/run.ts": {
+    projectId: "turborepo",
+    path: "packages/turbo/src/commands/run.ts",
+    name: "run.ts",
+    language: "typescript",
+    size: 6420,
+    content: `import { connectOrSpawnDaemon } from '../daemon/client';
+import { TaskExecutor } from '../engine/executor';
+
+/**
+ * Node CLI entrypoint for \`turbo run <tasks>\`
+ * Executes daemon communication and task orchestration
+ */
+export async function runCommand(tasks: string[], options: RunOptions): Promise<void> {
+  const { workspaceRoot, timeoutMs = 2500 } = options;
+
+  console.log(\`Turborepo \${require('../../package.json').version}\`);
+  console.log(\`Running tasks: \${tasks.join(', ')}\`);
+
+  // Connect to or spawn the background daemon
+  const daemonClient = await connectOrSpawnDaemon({
+    workspaceRoot,
+    timeoutMs,
+  });
+
+  try {
+    // Request the execution graph from the daemon
+    const graph = await daemonClient.getExecutionGraph(tasks);
+
+    // Execute tasks according to the DAG
+    const executor = new TaskExecutor({
+      graph,
+      parallel: options.parallel ?? true,
+      cache: options.cache ?? true,
+    });
+
+    const result = await executor.execute();
+
+    if (result.failed.length > 0) {
+      console.error(\`\nTasks failed:\`);
+      result.failed.forEach((task) => {
+        console.error(\`  - \${task}\`);
+      });
+      process.exit(1);
+    }
+
+    console.log(\`\n✓ All tasks completed successfully\`);
+  } finally {
+    await daemonClient.close();
+  }
+}
+
+interface RunOptions {
+  workspaceRoot: string;
+  timeoutMs?: number;
+  parallel?: boolean;
+  cache?: boolean;
+}`,
+  },
+  "README.md": {
+    projectId: "turborepo",
+    path: "README.md",
+    name: "README.md",
+    language: "markdown",
+    size: 8940,
+    content: `# Turborepo
+
+Turborepo is a high-performance build system for JavaScript and TypeScript codebases.
+
+## Features
+
+- **Incremental builds** - Never do the same work twice
+- **Remote caching** - Share cache artifacts across your team and CI
+- **Parallel execution** - Run tasks in parallel with maximum efficiency
+- **Task pipelines** - Define relationships between tasks
+- **Monorepo support** - First-class support for monorepos
+
+## Quick Start
+
+\`\`\`bash
+npm install turbo --global
+turbo run build test lint
+\`\`\`
+
+## Documentation
+
+Visit [turbo.build/repo](https://turbo.build/repo) for complete documentation.
+
+## Architecture
+
+Turborepo consists of:
+
+1. **Rust Core** - High-performance task execution engine
+2. **Node CLI** - Developer-friendly command-line interface
+3. **Daemon** - Background process for incremental builds
+4. **Remote Cache** - Distributed artifact storage
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.`,
+  },
+  "Cargo.toml": {
+    projectId: "turborepo",
+    path: "Cargo.toml",
+    name: "Cargo.toml",
+    language: "toml",
+    size: 1580,
+    content: `[workspace]
+members = [
+  "crates/turborepo-lib",
+  "crates/turborepo-cache",
+  "crates/turborepo-daemon",
+]
+
+[workspace.package]
+version = "1.11.0"
+edition = "2021"
+rust-version = "1.76"
+
+[workspace.dependencies]
+petgraph = "0.6"
+reqwest = { version = "0.11", features = ["http2", "stream"] }
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }`,
+  },
+  ".gitignore": {
+    projectId: "turborepo",
+    path: ".gitignore",
+    name: ".gitignore",
+    language: null,
+    size: 420,
+    content: `# Dependencies
+node_modules/
+target/
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db`,
+  },
+};
+
+/* ── Search Results Mock Data ───────────────────────────────── */
+export const mockSearchResults: SearchResults = {
+  query: "authentication",
+  projectId: "turborepo",
+  language: null,
+  results: [
+    {
+      id: "search-1",
+      projectId: "turborepo",
+      type: "file",
+      filePath: "crates/turborepo-cache/src/http.rs",
+      fileName: "http.rs",
+      lineNumber: 25,
+      snippet: '.header("Authorization", format!("Bearer {}", self.token))',
+      matchedText: "Authorization",
+      language: "rust",
+    },
+    {
+      id: "search-2",
+      projectId: "turborepo",
+      type: "file",
+      filePath: "crates/turborepo-cache/src/http.rs",
+      lineNumber: 46,
+      fileName: "http.rs",
+      snippet: '.header("Authorization", format!("Bearer {}", self.token))',
+      matchedText: "Authorization",
+      language: "rust",
+    },
+    {
+      id: "search-3",
+      projectId: "turborepo",
+      type: "decision",
+      filePath: "docs/decisions/002-remote-cache.md",
+      fileName: "002-remote-cache.md",
+      lineNumber: 18,
+      snippet: "Authentication is handled via bearer tokens with HMAC signatures",
+      matchedText: "Authentication",
+      language: "markdown",
+    },
+  ],
+  totalCount: 3,
+};

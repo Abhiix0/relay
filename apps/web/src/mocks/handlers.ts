@@ -4,13 +4,22 @@ import {
   mockArtifacts,
   mockAskAnswers,
   mockDecisions,
+  mockFileContents,
   mockHandoffs,
   mockOnboardingPlan,
   mockProjects,
+  mockRepositoryTree,
+  mockSearchResults,
   mockSyncJob,
   mockUser,
 } from "./data";
-import type { AskAnswer, Decision, Handoff, Project } from "@/lib/api/types";
+import type {
+  AskAnswer,
+  Decision,
+  Handoff,
+  Project,
+  SearchResults,
+} from "@/lib/api/types";
 
 // In-memory state
 const projects = [...mockProjects];
@@ -266,5 +275,63 @@ export const handlers = [
     }, 3500);
 
     return HttpResponse.json(currentSyncJob);
+  }),
+
+  // Repository Tree
+  http.get("/api/v1/projects/:id/repository/tree", () => {
+    return HttpResponse.json(mockRepositoryTree);
+  }),
+
+  // File Content
+  http.get("/api/v1/projects/:id/repository/files/*", ({ params }) => {
+    const filePath = String(params["*"]);
+    const fileContent = mockFileContents[filePath];
+    
+    if (!fileContent) {
+      return new HttpResponse(
+        JSON.stringify({ message: "File not found" }),
+        { status: 404 }
+      );
+    }
+    
+    return HttpResponse.json(fileContent);
+  }),
+
+  // Global Search
+  http.get("/api/v1/search", ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("q") || "";
+    const projectId = url.searchParams.get("projectId");
+    const language = url.searchParams.get("language");
+
+    // Filter results based on query params
+    let results = mockSearchResults.results;
+
+    if (projectId && projectId !== "all") {
+      results = results.filter((r) => r.projectId === projectId);
+    }
+
+    if (language && language !== "all") {
+      results = results.filter((r) => r.language === language);
+    }
+
+    if (query) {
+      results = results.filter(
+        (r) =>
+          r.snippet.toLowerCase().includes(query.toLowerCase()) ||
+          r.filePath.toLowerCase().includes(query.toLowerCase()) ||
+          (r.matchedText && r.matchedText.toLowerCase().includes(query.toLowerCase()))
+      );
+    }
+
+    const searchResults: SearchResults = {
+      query,
+      projectId,
+      language,
+      results,
+      totalCount: results.length,
+    };
+
+    return HttpResponse.json(searchResults);
   }),
 ];

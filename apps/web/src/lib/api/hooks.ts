@@ -190,3 +190,40 @@ export function useTriggerSync(id?: string) {
     },
   });
 }
+
+/* ── Repository Tree & Files ────────────────────────────────── */
+export function useRepositoryTree(id?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.detail(id || ""), "repository", "tree"] as const,
+    queryFn: () => api.get<import("./types").RepositoryTree>(`/projects/${id}/repository/tree`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useFileContent(id?: string, filePath?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.detail(id || ""), "repository", "files", filePath] as const,
+    queryFn: () => api.get<import("./types").FileContent>(`/projects/${id}/repository/files/${filePath}`),
+    enabled: Boolean(id && filePath),
+  });
+}
+
+/* ── Global Search ──────────────────────────────────────────── */
+export function useGlobalSearch(
+  query: string,
+  projectId?: string | null,
+  language?: string | null
+) {
+  return useQuery({
+    queryKey: ["search", query, projectId, language] as const,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (query) params.set("q", query);
+      if (projectId) params.set("projectId", projectId);
+      if (language) params.set("language", language);
+      const qs = params.toString();
+      return api.get<import("./types").SearchResults>(`/search${qs ? `?${qs}` : ""}`);
+    },
+    enabled: Boolean(query),
+  });
+}

@@ -32,6 +32,10 @@ const router = createBrowserRouter([
     element: <DashboardPage />,
   },
   {
+    path: "/app/search",
+    element: <SearchPage />,
+  },
+  {
     path: "/app/projects",
     lazy: async () => {
       const { ProjectsListPage } = await import("@/features/projects/ProjectsListPage");
@@ -49,6 +53,13 @@ const router = createBrowserRouter([
   {
     path: "/projects/:id",
     element: <ProjectOverviewPage />,
+  },
+  {
+    path: "/app/projects/:id/files",
+    lazy: async () => {
+      const { RepositoryExplorerPage } = await import("@/features/repository/RepositoryExplorerPage");
+      return { Component: RepositoryExplorerPage };
+    },
   },
   {
     path: "/app/projects/:id/ask",

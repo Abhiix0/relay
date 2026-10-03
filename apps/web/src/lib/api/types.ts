@@ -175,3 +175,72 @@ export const activityEventSchema = z.object({
   createdAt: z.string().datetime(),
 });
 export type ActivityEvent = z.infer<typeof activityEventSchema>;
+
+/* ── Repository Tree ──────────────────────────────────────── */
+export const repositoryFileTypeSchema = z.enum(["file", "folder"]);
+export type RepositoryFileType = z.infer<typeof repositoryFileTypeSchema>;
+
+export interface RepositoryTreeItem {
+  id: string;
+  name: string;
+  path: string;
+  type: "file" | "folder";
+  children?: RepositoryTreeItem[];
+  language?: string | null;
+  size?: number;
+}
+
+export const repositoryTreeItemSchema: z.ZodType<RepositoryTreeItem> = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    path: z.string(),
+    type: repositoryFileTypeSchema,
+    children: z.array(repositoryTreeItemSchema).optional(),
+    language: z.string().nullable().optional(),
+    size: z.number().optional(),
+  })
+);
+
+export const repositoryTreeSchema = z.object({
+  projectId: z.string(),
+  repository: z.string(),
+  tree: z.array(repositoryTreeItemSchema),
+});
+export type RepositoryTree = z.infer<typeof repositoryTreeSchema>;
+
+/* ── File Content ─────────────────────────────────────────── */
+export const fileContentSchema = z.object({
+  projectId: z.string(),
+  path: z.string(),
+  name: z.string(),
+  language: z.string().nullable(),
+  content: z.string(),
+  size: z.number(),
+  isBinary: z.boolean().optional(),
+  isLarge: z.boolean().optional(),
+});
+export type FileContent = z.infer<typeof fileContentSchema>;
+
+/* ── Search Result ────────────────────────────────────────── */
+export const searchResultItemSchema = z.object({
+  id: z.string(),
+  projectId: z.string(),
+  type: artifactTypeSchema,
+  filePath: z.string(),
+  fileName: z.string(),
+  lineNumber: z.number().nullable(),
+  snippet: z.string(),
+  matchedText: z.string().optional(),
+  language: z.string().nullable(),
+});
+export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
+
+export const searchResultsSchema = z.object({
+  query: z.string(),
+  projectId: z.string().nullable(),
+  language: z.string().nullable(),
+  results: z.array(searchResultItemSchema),
+  totalCount: z.number(),
+});
+export type SearchResults = z.infer<typeof searchResultsSchema>;

@@ -17,6 +17,7 @@ export function ProjectNav() {
 
   const tabs = [
     { label: "Overview", to: `/app/projects/${id}`, end: true, icon: GitBranch },
+    { label: "Files", to: `/app/projects/${id}/files`, end: false, icon: FileCode2 },
     { label: "Ask AI", to: `/app/projects/${id}/ask`, end: false, icon: Sparkles },
     { label: "Explorer", to: `/app/projects/${id}/explorer`, end: false, icon: FileCode2 },
     { label: "Onboarding", to: `/app/projects/${id}/onboarding`, end: false, icon: Compass },
