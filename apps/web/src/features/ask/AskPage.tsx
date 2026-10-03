@@ -12,6 +12,7 @@ export function AskPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const [question, setQuestion] = useState("");
+  const [newAnswerIds, setNewAnswerIds] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: project } = useProject(id);
@@ -31,7 +32,18 @@ export function AskPage() {
     if (!question.trim() || askMutation.isPending) return;
 
     askMutation.mutate(question.trim(), {
-      onSuccess: () => {
+      onSuccess: (newAnswer) => {
+        // Track this answer as new to trigger streaming
+        setNewAnswerIds((prev) => new Set(prev).add(newAnswer.id));
+        // Remove from new set after streaming completes (3 seconds)
+        setTimeout(() => {
+          setNewAnswerIds((prev) => {
+            const next = new Set(prev);
+            next.delete(newAnswer.id);
+            return next;
+          });
+        }, 3000);
+        
         setQuestion("");
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -93,7 +105,13 @@ export function AskPage() {
               <Skeleton className="h-40 w-full" />
             </div>
           ) : (
-            history.map((ans) => <AnswerItem key={ans.id} answer={ans} />)
+            history.map((ans) => (
+              <AnswerItem 
+                key={ans.id} 
+                answer={ans} 
+                isNew={newAnswerIds.has(ans.id)}
+              />
+            ))
           )}
 
           {askMutation.isPending && (

@@ -216,6 +216,7 @@ export const mockAskAnswers: AskAnswer[] = [
       },
     ],
     confidence: "high",
+    insufficientEvidence: false,
     createdAt: "2026-10-03T17:10:00Z",
   },
   {
@@ -241,7 +242,38 @@ export const mockAskAnswers: AskAnswer[] = [
       },
     ],
     confidence: "high",
+    insufficientEvidence: false,
     createdAt: "2026-10-03T17:45:00Z",
+  },
+  {
+    id: "ask_3",
+    projectId: "turborepo",
+    question: "How does the authentication system work?",
+    answer:
+      "I couldn't find enough information in the indexed repository to answer this confidently. The repository focuses on build system functionality rather than user authentication.",
+    sources: [],
+    confidence: "insufficient",
+    insufficientEvidence: true,
+    createdAt: "2026-10-03T18:20:00Z",
+  },
+  {
+    id: "ask_4",
+    projectId: "turborepo",
+    question: "How are workspace package dependencies resolved in the DAG?",
+    answer:
+      "The engine builder constructs a directed acyclic graph (DAG) using the Petgraph library. It reads workspace package definitions and task configurations from turbo.json, then:\n\n1. Adds each task as a node in the graph\n2. Establishes dependency edges between tasks based on `dependsOn` declarations\n3. Validates the graph for cycles using Tarjan's strongly connected components algorithm\n4. Returns a TaskGraph ready for parallel execution\n\nIf cycles are detected, the builder returns a CyclicDependency error to prevent infinite loops.",
+    sources: [
+      {
+        id: "src_6",
+        type: "file",
+        path: "crates/turborepo-lib/src/engine/builder.rs",
+        url: "https://github.com/vercel/turbo/blob/main/crates/turborepo-lib/src/engine/builder.rs",
+        snippet: "pub fn build_execution_graph(&self) -> Result<TaskGraph, EngineError> {\n    // Detect cycles using Tarjan's SCC algorithm\n    if self.has_cycles() {\n        return Err(EngineError::CyclicDependency);\n    }\n    Ok(TaskGraph { graph: self.graph.clone() })\n}",
+      },
+    ],
+    confidence: "high",
+    insufficientEvidence: false,
+    createdAt: "2026-10-03T18:45:00Z",
   },
 ];
 

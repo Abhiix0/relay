@@ -1,14 +1,20 @@
+import { useState } from "react";
 import { CheckCircle2, HelpCircle, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { AskAnswer } from "@/lib/api/types";
 import { EvidenceCitations } from "./EvidenceCitations";
+import { InsufficientEvidenceState } from "./InsufficientEvidenceState";
+import { StreamingText } from "./StreamingText";
 
 interface AnswerItemProps {
   answer: AskAnswer;
+  isNew?: boolean;
 }
 
-export function AnswerItem({ answer }: AnswerItemProps) {
+export function AnswerItem({ answer, isNew = false }: AnswerItemProps) {
+  const [streamComplete, setStreamComplete] = useState(!isNew);
+
   const getConfidenceBadge = (confidence: AskAnswer["confidence"]) => {
     switch (confidence) {
       case "high":
@@ -21,6 +27,12 @@ export function AnswerItem({ answer }: AnswerItemProps) {
         return (
           <Badge variant="warning" className="text-[10px] font-mono">
             Medium Confidence
+          </Badge>
+        );
+      case "insufficient":
+        return (
+          <Badge variant="default" className="text-[10px] font-mono border-sun text-sun">
+            Insufficient Evidence
           </Badge>
         );
       default:
@@ -50,15 +62,29 @@ export function AnswerItem({ answer }: AnswerItemProps) {
 
       {/* Answer Content */}
       <CardContent className="p-4 sm:p-5 space-y-4">
-        <div className="flex items-start gap-3">
-          <Sparkles className="h-4 w-4 text-copper shrink-0 mt-1" />
-          <div className="flex-1 space-y-3 text-xs sm:text-sm text-paper leading-relaxed whitespace-pre-line font-sans">
-            {answer.answer}
-          </div>
-        </div>
+        {answer.insufficientEvidence ? (
+          <InsufficientEvidenceState question={answer.question} />
+        ) : (
+          <>
+            <div className="flex items-start gap-3">
+              <Sparkles className="h-4 w-4 text-copper shrink-0 mt-1" />
+              <div className="flex-1 space-y-3 text-xs sm:text-sm text-paper leading-relaxed font-sans">
+                {isNew && !streamComplete ? (
+                  <StreamingText
+                    text={answer.answer}
+                    speed={15}
+                    onComplete={() => setStreamComplete(true)}
+                  />
+                ) : (
+                  <span className="whitespace-pre-line">{answer.answer}</span>
+                )}
+              </div>
+            </div>
 
-        {/* Evidence Drawer */}
-        <EvidenceCitations sources={answer.sources} />
+            {/* Evidence Drawer - show when streaming complete */}
+            {streamComplete && <EvidenceCitations sources={answer.sources} projectId={answer.projectId} />}
+          </>
+        )}
       </CardContent>
     </Card>
   );

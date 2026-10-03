@@ -98,7 +98,9 @@ export const askAnswerSchema = z.object({
   answer: z.string(),
   sources: z.array(sourceSchema),
   confidence: confidenceSchema,
+  insufficientEvidence: z.boolean().optional(),
   createdAt: z.string().datetime(),
+  isStreaming: z.boolean().optional(),
 });
 export type AskAnswer = z.infer<typeof askAnswerSchema>;
 

@@ -131,6 +131,39 @@ export const handlers = [
     const { question } = (await request.json()) as { question: string };
     const projectId = String(params.id);
 
+    // Simulate delay for streaming
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Check for insufficient evidence question
+    const insufficientQuestions = [
+      "authentication",
+      "auth",
+      "login",
+      "database",
+      "db connection",
+      "payment",
+    ];
+    
+    const isInsufficientEvidence = insufficientQuestions.some((kw) =>
+      question.toLowerCase().includes(kw)
+    );
+
+    if (isInsufficientEvidence) {
+      const newAnswer: AskAnswer = {
+        id: `ask_${Date.now()}`,
+        projectId,
+        question,
+        answer: "I couldn't find enough information in the indexed repository to answer this confidently. The repository focuses on build system functionality and doesn't contain extensive information about this topic.",
+        sources: [],
+        confidence: "insufficient",
+        insufficientEvidence: true,
+        createdAt: new Date().toISOString(),
+      };
+      askAnswers.unshift(newAnswer);
+      return HttpResponse.json(newAnswer, { status: 201 });
+    }
+
+    // Normal answer with evidence
     const newAnswer: AskAnswer = {
       id: `ask_${Date.now()}`,
       projectId,
@@ -153,6 +186,7 @@ export const handlers = [
         },
       ],
       confidence: "high",
+      insufficientEvidence: false,
       createdAt: new Date().toISOString(),
     };
 
