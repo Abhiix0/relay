@@ -1,0 +1,192 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "./client";
+import { queryKeys } from "./query-keys";
+import type {
+  ActivityEvent,
+  Artifact,
+  AskAnswer,
+  Decision,
+  Handoff,
+  OnboardingPlan,
+  Project,
+  SyncJob,
+  User,
+} from "./types";
+
+/* ── Auth Hooks ─────────────────────────────────────────────── */
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: queryKeys.auth.me,
+    queryFn: () => api.get<User>("/auth/me"),
+  });
+}
+
+/* ── Project Hooks ──────────────────────────────────────────── */
+export function useProjects() {
+  return useQuery({
+    queryKey: queryKeys.projects.all,
+    queryFn: () => api.get<Project[]>("/projects"),
+  });
+}
+
+export function useProject(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.detail(id || ""),
+    queryFn: () => api.get<Project>(`/projects/${id}`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { fullName: string; description?: string; language?: string }) =>
+      api.post<Project>("/projects", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+    },
+  });
+}
+
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete<undefined>(`/projects/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+    },
+  });
+}
+
+/* ── Artifacts & Activity ────────────────────────────────────── */
+export function useProjectArtifacts(id?: string, type?: string, query?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.artifacts(id || ""), { type, query }] as const,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (type) params.set("type", type);
+      if (query) params.set("q", query);
+      const qs = params.toString();
+      return api.get<Artifact[]>(`/projects/${id}/artifacts${qs ? `?${qs}` : ""}`);
+    },
+    enabled: Boolean(id),
+  });
+}
+
+export function useProjectActivity(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.activity(id || ""),
+    queryFn: () => api.get<ActivityEvent[]>(`/projects/${id}/activity`),
+    enabled: Boolean(id),
+  });
+}
+
+/* ── Ask AI Agent ───────────────────────────────────────────── */
+export function useAskHistory(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.ask(id || ""),
+    queryFn: () => api.get<AskAnswer[]>(`/projects/${id}/ask`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useAskQuestion(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (question: string) =>
+      api.post<AskAnswer>(`/projects/${id}/ask`, { question }),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.ask(id) });
+      }
+    },
+  });
+}
+
+/* ── Architecture Decisions ─────────────────────────────────── */
+export function useDecisions(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.decisions(id || ""),
+    queryFn: () => api.get<Decision[]>(`/projects/${id}/decisions`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateDecision(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Decision>) =>
+      api.post<Decision>(`/projects/${id}/decisions`, data),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.decisions(id) });
+      }
+    },
+  });
+}
+
+/* ── Onboarding Guide ───────────────────────────────────────── */
+export function useOnboarding(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.onboarding(id || ""),
+    queryFn: () => api.get<OnboardingPlan>(`/projects/${id}/onboarding`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useToggleOnboardingItem(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, completed }: { itemId: string; completed: boolean }) =>
+      api.patch<OnboardingPlan>(`/projects/${id}/onboarding/items/${itemId}`, { completed }),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.onboarding(id) });
+      }
+    },
+  });
+}
+
+/* ── Handoff Briefings ──────────────────────────────────────── */
+export function useHandoffs(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.handoffs(id || ""),
+    queryFn: () => api.get<Handoff[]>(`/projects/${id}/handoffs`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateHandoff(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Handoff>) =>
+      api.post<Handoff>(`/projects/${id}/handoffs`, data),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.handoffs(id) });
+      }
+    },
+  });
+}
+
+/* ── Sync Status ────────────────────────────────────────────── */
+export function useSyncStatus(id?: string) {
+  return useQuery({
+    queryKey: queryKeys.projects.sync(id || ""),
+    queryFn: () => api.get<SyncJob>(`/projects/${id}/sync`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useTriggerSync(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post<SyncJob>(`/projects/${id}/sync`),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.sync(id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(id) });
+      }
+    },
+  });
+}
