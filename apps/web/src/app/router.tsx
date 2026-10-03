@@ -9,6 +9,13 @@ const router = createBrowserRouter([
     errorElement: <NotFoundPage />,
   },
   {
+    path: "/design-system",
+    lazy: async () => {
+      const { DesignSystemPage } = await import("@/pages/DesignSystemPage");
+      return { Component: DesignSystemPage };
+    },
+  },
+  {
     path: "/404",
     element: <NotFoundPage />,
   },
