@@ -14,7 +14,6 @@ import "@fontsource/jetbrains-mono/600.css";
 
 // Import styles
 import "@/styles/globals.css";
-import "@/styles/legacy-landing.css";
 
 const root = document.getElementById("root");
 

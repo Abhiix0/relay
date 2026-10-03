@@ -18,17 +18,21 @@ export default class ErrorBoundary extends Component<
     if (!this.state.hasError) return this.props.children;
 
     return (
-      <main className="error-page">
-        <AlertTriangle size={36} />
-        <p className="not-found-kicker">RELAY / RUNTIME ERROR</p>
-        <h1>
+      <main className="min-h-screen w-full bg-surface text-text flex flex-col items-center justify-center p-6">
+        <AlertTriangle size={36} className="text-copper mb-4" />
+        <p className="font-mono text-[10px] uppercase tracking-widest text-text-muted mb-2">
+          RELAY / RUNTIME ERROR
+        </p>
+        <h1 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-text mb-4 text-center">
           Something went
           <br />
-          <em>off track.</em>
+          <em className="text-copper">off track.</em>
         </h1>
-        <pre>{this.state.error?.stack}</pre>
+        <pre className="max-w-lg overflow-auto rounded-md border border-border bg-surface-raised p-4 text-xs text-text-muted mb-6 font-mono">
+          {this.state.error?.stack}
+        </pre>
         <button
-          className="button button-copper"
+          className="inline-flex items-center gap-2 rounded-sm bg-copper px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-white transition-colors hover:bg-copper-dark"
           onClick={() => window.location.reload()}
         >
           <RotateCcw size={15} /> Reload page

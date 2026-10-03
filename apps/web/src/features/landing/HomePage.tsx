@@ -543,15 +543,15 @@ export default function HomePage() {
           </a>
         </nav>
         <div className="header-actions">
-          <a className="text-link hide-mobile" href="#demo">
+          <a className="text-link hide-mobile" href="/sign-in">
             Sign in <ArrowUpRight size={14} />
           </a>
-          <button
+          <a
             className="button button-copper button-small"
-            onClick={() => scrollTo("demo")}
+            href="/sign-in"
           >
             Get started <ArrowUpRight size={14} />
-          </button>
+          </a>
         </div>
         <button
           className="menu-button"
@@ -579,12 +579,12 @@ export default function HomePage() {
             use AI to onboard, search, and handoff — all in one place.
           </p>
           <div className="hero-actions">
-            <button
+            <a
               className="button button-copper"
-              onClick={() => scrollTo("demo")}
+              href="/sign-in"
             >
               Start with your repo <ArrowRight size={15} />
-            </button>
+            </a>
             <button
               className="button button-ghost"
               onClick={() => scrollTo("product")}
@@ -814,12 +814,12 @@ export default function HomePage() {
             Connect a repository and let Relay show you what’s already there.
           </p>
           <div className="final-actions">
-            <button
+            <a
               className="button button-copper"
-              onClick={() => scrollTo("top")}
+              href="/sign-in"
             >
               Bring your repo <ArrowRight size={15} />
-            </button>
+            </a>
             <span className="final-note">
               <span className="live-dot" /> No credit card. Just context.
             </span>
