@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AlertTriangle, Loader2, RefreshCw, Trash2 } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
+import { ProjectGuard } from "@/components/layout/ProjectGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ export function ProjectSettingsPage() {
   };
 
   return (
-    <AppShell>
+    <ProjectGuard>
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="border-b border-border pb-4">
           <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
@@ -135,6 +135,6 @@ export function ProjectSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </AppShell>
+    </ProjectGuard>
   );
 }

@@ -1,10 +1,8 @@
 import { Link, useParams } from "react-router";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
+import { ProjectGuard } from "@/components/layout/ProjectGuard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ErrorState } from "@/components/ui/error-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/ui/stat-card";
 import { useProject } from "@/lib/api/hooks";
 import { ProjectActivityTimeline } from "./ProjectActivityTimeline";
@@ -15,56 +13,7 @@ import { SuggestedActionsCard } from "./SuggestedActionsCard";
 
 export function ProjectOverviewPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading, error, refetch } = useProject(id);
-
-  if (isLoading) {
-    return (
-      <AppShell>
-        <div className="space-y-6">
-          <Skeleton className="h-36 w-full" />
-          <div className="grid gap-4 sm:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))}
-          </div>
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </AppShell>
-    );
-  }
-
-  if (error || !project) {
-    return (
-      <AppShell>
-        <div className="space-y-4">
-          <ErrorState
-            title="Repository not found"
-            description="Could not load project context or repository metadata."
-          >
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => refetch()}
-              className="bg-copper text-paper"
-            >
-              Retry
-            </Button>
-          </ErrorState>
-          <div className="flex justify-center">
-            <Link to="/app">
-              <Button
-                size="sm"
-                variant="secondary"
-                className="border-border text-paper"
-              >
-                Return to Dashboard
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </AppShell>
-    );
-  }
+  const { data: project } = useProject(id);
 
   const promptSuggestions = [
     "How does the caching algorithm compute hash keys?",
@@ -72,91 +21,94 @@ export function ProjectOverviewPage() {
     "Explain package DAG resolution during build.",
   ];
 
+  // ProjectGuard handles loading, error, and not-found states
   return (
-    <AppShell>
-      <div className="space-y-8">
-        {/* Project Header Banner */}
-        <ProjectHero project={project} />
+    <ProjectGuard>
+      {project && (
+        <div className="space-y-8">
+          {/* Project Header Banner */}
+          <ProjectHero project={project} />
 
-        {/* Project Key Metrics */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Total Commits"
-            value={project.stats.commits.toLocaleString()}
-            accent="git"
-          />
-          <StatCard
-            label="Pull Requests"
-            value={project.stats.pullRequests.toLocaleString()}
-          />
-          <StatCard
-            label="Active Issues"
-            value={project.stats.issues.toLocaleString()}
-          />
-          <StatCard
-            label="Releases"
-            value={project.stats.releases.toLocaleString()}
-          />
-        </div>
+          {/* Project Key Metrics */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="Total Commits"
+              value={project.stats.commits.toLocaleString()}
+              accent="git"
+            />
+            <StatCard
+              label="Pull Requests"
+              value={project.stats.pullRequests.toLocaleString()}
+            />
+            <StatCard
+              label="Active Issues"
+              value={project.stats.issues.toLocaleString()}
+            />
+            <StatCard
+              label="Releases"
+              value={project.stats.releases.toLocaleString()}
+            />
+          </div>
 
-        {/* Quick Grounded AI Query Bar */}
-        <Card className="border-border bg-gradient-to-r from-surface-accent via-surface-accent to-surface p-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-copper" />
-                <h3 className="font-serif text-lg font-normal text-paper">
-                  Ask Relay about {project.name}
-                </h3>
+          {/* Quick Grounded AI Query Bar */}
+          <Card className="border-border bg-gradient-to-r from-surface-accent via-surface-accent to-surface p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-copper" />
+                  <h3 className="font-serif text-lg font-normal text-paper">
+                    Ask Relay about {project.name}
+                  </h3>
+                </div>
+                <p className="text-xs text-text-muted">
+                  Every answer is grounded in AST nodes, source files, and commit
+                  history with line citations.
+                </p>
               </div>
-              <p className="text-xs text-text-muted">
-                Every answer is grounded in AST nodes, source files, and commit
-                history with line citations.
-              </p>
-            </div>
-            <Link to={`/app/projects/${project.id}/ask`}>
-              <Button
-                size="sm"
-                variant="primary"
-                className="bg-copper hover:bg-copper-dark text-paper text-xs gap-2 font-mono"
-              >
-                <span>Start Agent Conversation</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/40 pt-4">
-            <span className="text-[10px] font-mono uppercase text-text-muted">
-              Sample Inquiries:
-            </span>
-            {promptSuggestions.map((prompt) => (
-              <Link
-                key={prompt}
-                to={`/app/projects/${project.id}/ask?q=${encodeURIComponent(prompt)}`}
-                className="text-xs font-mono text-copper hover:underline bg-surface px-2.5 py-1 rounded border border-border/60"
-              >
-                "{prompt}"
+              <Link to={`/app/projects/${project.id}/ask`}>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  className="bg-copper hover:bg-copper-dark text-paper text-xs gap-2 font-mono"
+                >
+                  <span>Start Agent Conversation</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
               </Link>
-            ))}
-          </div>
-        </Card>
+            </div>
 
-        {/* Two-Column Layout: Main content + Sidebar */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Main Content - Left Column (2/3) */}
-          <div className="lg:col-span-2 space-y-6">
-            <ProjectArchitectureCard projectId={project.id} />
-            <ProjectActivityTimeline projectId={project.id} />
-          </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/40 pt-4">
+              <span className="text-[10px] font-mono uppercase text-text-muted">
+                Sample Inquiries:
+              </span>
+              {promptSuggestions.map((prompt) => (
+                <Link
+                  key={prompt}
+                  to={`/app/projects/${project.id}/ask?q=${encodeURIComponent(prompt)}`}
+                  className="text-xs font-mono text-copper hover:underline bg-surface px-2.5 py-1 rounded border border-border/60"
+                >
+                  "{prompt}"
+                </Link>
+              ))}
+            </div>
+          </Card>
 
-          {/* Sidebar - Right Column (1/3) */}
-          <div className="space-y-6">
-            <ProjectHealthCard project={project} />
-            <SuggestedActionsCard projectId={project.id} />
+          {/* Two-Column Layout: Main content + Sidebar */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Main Content - Left Column (2/3) */}
+            <div className="lg:col-span-2 space-y-6">
+              <ProjectArchitectureCard projectId={project.id} />
+              <ProjectActivityTimeline projectId={project.id} />
+            </div>
+
+            {/* Sidebar - Right Column (1/3) */}
+            <div className="space-y-6">
+              <ProjectHealthCard project={project} />
+              <SuggestedActionsCard projectId={project.id} />
+            </div>
           </div>
         </div>
-      </div>
-    </AppShell>
+      )}
+    </ProjectGuard>
   );
 }

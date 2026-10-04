@@ -157,6 +157,13 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                   <span>Profile & Tokens</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  onClick={() => navigate("/app/settings")}
+                  className="flex items-center gap-2 text-xs cursor-pointer"
+                >
+                  <Settings className="h-3.5 w-3.5 text-text-muted" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => navigate(currentProjectId ? `/projects/${currentProjectId}/settings` : "/dashboard")}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >

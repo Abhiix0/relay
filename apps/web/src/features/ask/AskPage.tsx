@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
 import { CornerDownLeft, Loader2, Sparkles } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
+import { ProjectGuard } from "@/components/layout/ProjectGuard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAskHistory, useAskQuestion, useProject } from "@/lib/api/hooks";
+import { useNetworkAware } from "@/lib/hooks/useNetworkAware";
 import { AnswerItem } from "./AnswerItem";
 
 export function AskPage() {
@@ -18,6 +19,7 @@ export function AskPage() {
   const { data: project } = useProject(id);
   const { data: history = [], isLoading } = useAskHistory(id);
   const askMutation = useAskQuestion(id);
+  const { isDisabled, getOfflineMessage } = useNetworkAware();
 
   // Pre-fill question from search param if present
   useEffect(() => {
@@ -67,7 +69,7 @@ export function AskPage() {
   ];
 
   return (
-    <AppShell>
+    <ProjectGuard>
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="border-b border-border pb-4">
@@ -145,7 +147,8 @@ export function AskPage() {
             <Button
               type="submit"
               size="sm"
-              disabled={!question.trim() || askMutation.isPending}
+              disabled={isDisabled(!question.trim() || askMutation.isPending)}
+              title={getOfflineMessage()}
               className="bg-copper hover:bg-copper-dark text-paper text-xs gap-1.5 font-mono"
             >
               {askMutation.isPending ? (
@@ -161,6 +164,6 @@ export function AskPage() {
           </div>
         </form>
       </div>
-    </AppShell>
+    </ProjectGuard>
   );
 }

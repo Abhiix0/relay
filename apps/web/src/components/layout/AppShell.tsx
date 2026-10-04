@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { useParams } from "react-router";
+import { OfflineBanner } from "@/components/ui/offline-banner";
 import { AppHeader } from "./AppHeader";
 import { ProjectNav } from "./ProjectNav";
 
@@ -14,6 +15,7 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
   return (
     <div className="dark-product min-h-screen bg-surface text-text flex flex-col font-sans selection:bg-copper selection:text-paper">
       <AppHeader currentProjectId={id} />
+      <OfflineBanner />
       {showProjectNav && id && <ProjectNav />}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {children}
