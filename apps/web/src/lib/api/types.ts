@@ -126,6 +126,44 @@ export const onboardingItemSchema = z.object({
 });
 export type OnboardingItem = z.infer<typeof onboardingItemSchema>;
 
+export const onboardingDataSchema = z.object({
+  id: z.string(),
+  projectId: z.string(),
+  projectOverview: z.object({
+    name: z.string(),
+    description: z.string(),
+    repository: z.string(),
+    primaryLanguage: z.string().nullable(),
+    technologies: z.array(z.string()),
+  }),
+  architecture: z.object({
+    summary: z.string(),
+    mainModules: z.array(z.object({
+      name: z.string(),
+      path: z.string(),
+      description: z.string(),
+    })),
+  }),
+  keyFiles: z.array(z.object({
+    id: z.string(),
+    path: z.string(),
+    description: z.string(),
+    category: z.enum(["readme", "config", "entry", "important"]),
+  })),
+  gettingStarted: z.array(z.object({
+    step: z.number(),
+    title: z.string(),
+    description: z.string(),
+  })),
+  progress: z.object({
+    repositoryConnected: z.boolean(),
+    repositoryIndexed: z.boolean(),
+    structureAnalyzed: z.boolean(),
+    handoffReady: z.boolean(),
+  }),
+});
+export type OnboardingData = z.infer<typeof onboardingDataSchema>;
+
 export const onboardingPlanSchema = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -137,23 +175,40 @@ export const onboardingPlanSchema = z.object({
 export type OnboardingPlan = z.infer<typeof onboardingPlanSchema>;
 
 /* ── Handoff ──────────────────────────────────────────────── */
+export const handoffSectionSchema = z.object({
+  id: z.string(),
+  heading: z.string(),
+  body: z.string(),
+  sources: z.array(sourceSchema),
+  insufficientEvidence: z.boolean().optional(),
+});
+export type HandoffSection = z.infer<typeof handoffSectionSchema>;
+
+export const handoffVersionMetadataSchema = z.object({
+  version: z.number(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  description: z.string().optional(),
+});
+export type HandoffVersionMetadata = z.infer<typeof handoffVersionMetadataSchema>;
+
 export const handoffSchema = z.object({
   id: z.string(),
   projectId: z.string(),
   title: z.string(),
   summary: z.string(),
-  sections: z.array(
-    z.object({
-      heading: z.string(),
-      body: z.string(),
-      sources: z.array(sourceSchema),
-    })
-  ),
+  sections: z.array(handoffSectionSchema),
   version: z.number(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 export type Handoff = z.infer<typeof handoffSchema>;
+
+export const handoffGenerateRequestSchema = z.object({
+  projectId: z.string(),
+  regenerate: z.boolean().optional(),
+});
+export type HandoffGenerateRequest = z.infer<typeof handoffGenerateRequestSchema>;
 
 /* ── SyncJob ──────────────────────────────────────────────── */
 export const syncJobSchema = z.object({

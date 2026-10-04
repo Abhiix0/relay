@@ -4,6 +4,7 @@ import type {
   AskAnswer,
   Decision,
   Handoff,
+  OnboardingData,
   OnboardingPlan,
   Project,
   SyncJob,
@@ -368,17 +369,185 @@ export const mockOnboardingPlan: OnboardingPlan = {
   updatedAt: "2026-10-03T18:00:00Z",
 };
 
+export const mockOnboardingData: OnboardingData = {
+  id: "onboarding_turbo_1",
+  projectId: "turborepo",
+  projectOverview: {
+    name: "Turborepo",
+    description: "High-performance build system for JavaScript and TypeScript codebases written in Rust.",
+    repository: "vercel/turbo",
+    primaryLanguage: "Rust",
+    technologies: [
+      "Rust",
+      "TypeScript",
+      "Node.js",
+      "Cargo",
+      "pnpm",
+      "Go (legacy components)",
+    ],
+  },
+  architecture: {
+    summary: "Turborepo is built as a hybrid Rust/Node.js application. The core engine (task scheduling, graph resolution, caching, hashing) is written in Rust for performance. The CLI wrapper and workspace detection logic is in TypeScript/Node.js.",
+    mainModules: [
+      {
+        name: "Engine & DAG Builder",
+        path: "crates/turborepo-lib/src/engine",
+        description: "Constructs directed acyclic graph (DAG) of task dependencies from workspace configurations. Uses Petgraph for cycle detection.",
+      },
+      {
+        name: "Cache System",
+        path: "crates/turborepo-cache/src",
+        description: "Local and remote caching with deterministic hash computation. HTTP/2 client for Vercel Remote Cache protocol.",
+      },
+      {
+        name: "Daemon (Turbod)",
+        path: "crates/turborepo-daemon/src",
+        description: "Background daemon for persistent file watching and incremental builds. Uses Unix domain sockets (POSIX) and named pipes (Windows).",
+      },
+      {
+        name: "CLI Wrapper",
+        path: "packages/turbo/src",
+        description: "TypeScript CLI that discovers workspaces, parses turbo.json, and invokes the Rust binary.",
+      },
+    ],
+  },
+  keyFiles: [
+    {
+      id: "key_readme",
+      path: "README.md",
+      description: "Project overview, installation instructions, and quick start guide.",
+      category: "readme",
+    },
+    {
+      id: "key_cargo_toml",
+      path: "Cargo.toml",
+      description: "Rust workspace configuration defining all crates and dependencies.",
+      category: "config",
+    },
+    {
+      id: "key_package_json",
+      path: "package.json",
+      description: "Root package.json with pnpm workspace configuration and build scripts.",
+      category: "config",
+    },
+    {
+      id: "key_turbo_json",
+      path: "turbo.json",
+      description: "Turborepo pipeline configuration defining task relationships and caching rules.",
+      category: "config",
+    },
+    {
+      id: "key_engine_builder",
+      path: "crates/turborepo-lib/src/engine/builder.rs",
+      description: "Core DAG builder - transforms workspace tasks into execution graph.",
+      category: "entry",
+    },
+    {
+      id: "key_cache_http",
+      path: "crates/turborepo-cache/src/http.rs",
+      description: "HTTP/2 remote cache client with authentication and compression.",
+      category: "important",
+    },
+    {
+      id: "key_cli_main",
+      path: "packages/turbo/src/commands/run.ts",
+      description: "Main CLI entry point for 'turbo run' command execution.",
+      category: "entry",
+    },
+    {
+      id: "key_daemon_main",
+      path: "crates/turborepo-daemon/src/main.rs",
+      description: "Daemon process entry point and socket lifecycle management.",
+      category: "important",
+    },
+  ],
+  gettingStarted: [
+    {
+      step: 1,
+      title: "Read the README",
+      description: "Familiarize yourself with project goals, architecture overview, and contribution guidelines.",
+    },
+    {
+      step: 2,
+      title: "Set up development environment",
+      description: "Install Rust toolchain (1.80+), Node.js (18+), and pnpm. Run 'cargo build' to compile Rust crates.",
+    },
+    {
+      step: 3,
+      title: "Explore the engine architecture",
+      description: "Review crates/turborepo-lib/src/engine/builder.rs to understand task DAG construction.",
+    },
+    {
+      step: 4,
+      title: "Understand caching mechanism",
+      description: "Study crates/turborepo-cache to see how deterministic hashes are computed and cached.",
+    },
+    {
+      step: 5,
+      title: "Run tests",
+      description: "Execute 'cargo test --workspace' for Rust tests and 'pnpm test' for TypeScript tests.",
+    },
+    {
+      step: 6,
+      title: "Ask questions",
+      description: "Use Ask Relay to query specific implementation details or architectural decisions.",
+    },
+  ],
+  progress: {
+    repositoryConnected: true,
+    repositoryIndexed: true,
+    structureAnalyzed: true,
+    handoffReady: true,
+  },
+};
+
 export const mockHandoffs: Handoff[] = [
   {
-    id: "handoff_1",
+    id: "handoff_1_v3",
     projectId: "turborepo",
     title: "Lead Architect Handoff: Rust Core & Remote Cache Engine",
-    summary: "Critical architectural invariants, daemon lifecycle, and operational gotchas for maintainers.",
+    summary: "Critical architectural invariants, daemon lifecycle, and operational gotchas for maintainers taking over Turborepo development.",
     version: 3,
     sections: [
       {
-        heading: "1. Core Architectural Invariant: Deterministic Hashing",
-        body: "Never add an unstamped input into `compute_task_hash`. All file system reads must pass through the Git ignore filter. If a file is modified without git tracking, it will produce cache drift.",
+        id: "section_1",
+        heading: "Project Overview",
+        body: "Turborepo is a high-performance build system for JavaScript/TypeScript monorepos. The core engine is written in Rust for speed, with a TypeScript CLI wrapper. It uses intelligent caching, task scheduling, and parallel execution to dramatically speed up builds in large codebases.",
+        sources: [
+          {
+            id: "h_src_readme",
+            type: "readme",
+            path: "README.md",
+            url: "https://github.com/vercel/turbo/blob/main/README.md",
+            snippet: "Turborepo is a high-performance build system for JavaScript and TypeScript codebases.",
+          },
+        ],
+      },
+      {
+        id: "section_2",
+        heading: "Architecture: Rust Core + TypeScript CLI",
+        body: "The architecture is split into two main layers:\n\n1. Rust Core (crates/*): Engine, DAG builder, cache system, daemon\n2. TypeScript CLI (packages/turbo): Workspace discovery, turbo.json parsing, Rust binary invocation\n\nThe Rust core handles all performance-critical operations while the CLI provides user-facing commands and configuration.",
+        sources: [
+          {
+            id: "h_src_cargo",
+            type: "file",
+            path: "Cargo.toml",
+            url: "https://github.com/vercel/turbo/blob/main/Cargo.toml",
+            snippet: "[workspace]\nmembers = [\n  \"crates/turborepo-lib\",\n  \"crates/turborepo-cache\",\n  \"crates/turborepo-daemon\",\n]",
+          },
+          {
+            id: "h_src_pkg",
+            type: "file",
+            path: "packages/turbo/package.json",
+            url: "https://github.com/vercel/turbo/blob/main/packages/turbo/package.json",
+            snippet: "\"scripts\": {\n  \"build\": \"cargo build --release\"\n}",
+          },
+        ],
+      },
+      {
+        id: "section_3",
+        heading: "Core Architectural Invariant: Deterministic Hashing",
+        body: "Never add an unstamped input into `compute_task_hash`. All file system reads must pass through the Git ignore filter. If a file is modified without git tracking, it will produce cache drift.\n\nThe hash computation includes:\n- Task configuration from turbo.json\n- Input file contents (gitignored files excluded)\n- Environment variables declared as inputs\n- Dependency hashes (transitive)\n\nAny deviation breaks the cache correctness guarantee.",
         sources: [
           {
             id: "h_src_1",
@@ -390,8 +559,9 @@ export const mockHandoffs: Handoff[] = [
         ],
       },
       {
-        heading: "2. Daemon Socket Management & Deadlock Prevention",
-        body: "The Turbod daemon runs as an unprivileged background daemon. On POSIX it writes a lockfile with PID validation; on Windows it registers a named pipe. If the daemon crashes unexpectedly, the client automatically falls back to standalone execution.",
+        id: "section_4",
+        heading: "Daemon Socket Management & Deadlock Prevention",
+        body: "The Turbod daemon runs as an unprivileged background daemon. On POSIX it writes a lockfile with PID validation; on Windows it registers a named pipe. If the daemon crashes unexpectedly, the client automatically falls back to standalone execution.\n\nKey invariants:\n- Single daemon per workspace root\n- Graceful degradation on daemon failure\n- No blocking waits on daemon responses > 5s",
         sources: [
           {
             id: "h_src_2",
@@ -403,8 +573,51 @@ export const mockHandoffs: Handoff[] = [
         ],
       },
       {
-        heading: "3. Known Tech Debt: Petgraph Memory Allocation",
-        body: "During monorepos with >20,000 internal edges, cloning `GraphMap` causes transient heap spikes. PR #8492 mitigated this, but future work should transition to index-backed flat vectors.",
+        id: "section_5",
+        heading: "Repository Structure",
+        body: "Key directories:\n\n- crates/turborepo-lib: Core engine and DAG builder\n- crates/turborepo-cache: Local and remote caching\n- crates/turborepo-daemon: Background daemon process\n- packages/turbo: TypeScript CLI wrapper\n- packages/turbo-codemod: Code transformation tools\n- docs/: Documentation site\n- examples/: Sample monorepo configurations",
+        sources: [
+          {
+            id: "h_src_structure",
+            type: "file",
+            path: "Cargo.toml",
+            url: "https://github.com/vercel/turbo/blob/main/Cargo.toml",
+            snippet: "[workspace]\nmembers = [\"crates/*\", \"packages/*\"]",
+          },
+        ],
+      },
+      {
+        id: "section_6",
+        heading: "Technology Stack",
+        body: "Primary technologies:\n\n- Rust 1.80+ (core engine)\n- TypeScript 5.x (CLI)\n- Node.js 18+ (runtime)\n- Cargo (Rust package manager)\n- pnpm (Node package manager)\n- Petgraph (graph algorithms)\n- Tokio (async runtime)\n- Hyper (HTTP/2 client)",
+        sources: [
+          {
+            id: "h_src_rust",
+            type: "file",
+            path: "rust-toolchain.toml",
+            url: "https://github.com/vercel/turbo/blob/main/rust-toolchain.toml",
+            snippet: "[toolchain]\nchannel = \"1.80\"",
+          },
+        ],
+      },
+      {
+        id: "section_7",
+        heading: "How to Run Locally",
+        body: "Development setup:\n\n1. Install Rust 1.80+ and Node.js 18+\n2. Install pnpm: `npm install -g pnpm`\n3. Clone repository\n4. Build Rust crates: `cargo build --workspace`\n5. Install dependencies: `pnpm install`\n6. Run tests: `cargo test --workspace && pnpm test`\n7. Build CLI: `pnpm build`\n\nThe development binary will be at `target/debug/turbo`.",
+        sources: [
+          {
+            id: "h_src_contributing",
+            type: "file",
+            path: "CONTRIBUTING.md",
+            url: "https://github.com/vercel/turbo/blob/main/CONTRIBUTING.md",
+            snippet: "cargo build --workspace\npnpm install\npnpm build",
+          },
+        ],
+      },
+      {
+        id: "section_8",
+        heading: "Known Tech Debt: Petgraph Memory Allocation",
+        body: "During monorepos with >20,000 internal edges, cloning `GraphMap` causes transient heap spikes. PR #8492 mitigated this, but future work should transition to index-backed flat vectors.\n\nWorkaround: Use `--graph-format=json` to inspect graph structure before execution for large monorepos.",
         sources: [
           {
             id: "h_src_3",
@@ -415,9 +628,109 @@ export const mockHandoffs: Handoff[] = [
           },
         ],
       },
+      {
+        id: "section_9",
+        heading: "Key Files to Understand",
+        body: "Essential files for new maintainers:\n\n1. crates/turborepo-lib/src/engine/builder.rs - DAG construction\n2. crates/turborepo-cache/src/http.rs - Remote cache protocol\n3. crates/turborepo-daemon/src/main.rs - Daemon lifecycle\n4. packages/turbo/src/commands/run.ts - CLI entry point\n5. turbo.json - Pipeline configuration schema",
+        sources: [
+          {
+            id: "h_src_builder",
+            type: "file",
+            path: "crates/turborepo-lib/src/engine/builder.rs",
+            url: "https://github.com/vercel/turbo/blob/main/crates/turborepo-lib/src/engine/builder.rs",
+            snippet: "pub struct EngineBuilder { /* DAG construction */ }",
+          },
+        ],
+      },
+      {
+        id: "section_10",
+        heading: "Authentication & Security Model",
+        body: "Insufficient repository evidence to confidently document authentication implementation.",
+        sources: [],
+        insufficientEvidence: true,
+      },
+      {
+        id: "section_11",
+        heading: "Getting Started for New Contributors",
+        body: "Recommended path:\n\n1. Read README.md and CONTRIBUTING.md\n2. Set up development environment (Rust + Node.js)\n3. Run the test suite to verify setup\n4. Review crates/turborepo-lib/src/engine/builder.rs to understand core DAG logic\n5. Pick a 'good first issue' from GitHub\n6. Ask questions in Discord or GitHub Discussions\n7. Submit PR with tests",
+        sources: [
+          {
+            id: "h_src_readme2",
+            type: "readme",
+            path: "README.md",
+            url: "https://github.com/vercel/turbo/blob/main/README.md",
+            snippet: "## Contributing\n\nSee CONTRIBUTING.md for development setup.",
+          },
+        ],
+      },
+      {
+        id: "section_12",
+        heading: "Open Questions",
+        body: "Areas where repository evidence is insufficient:\n\n- Detailed authentication/authorization model for remote cache\n- Production deployment architecture\n- Monitoring and observability setup\n- Rate limiting and quota management\n- Multi-tenant isolation strategies\n\nThese should be documented through direct knowledge transfer or additional documentation.",
+        sources: [],
+        insufficientEvidence: true,
+      },
     ],
     createdAt: "2026-09-20T11:00:00Z",
     updatedAt: "2026-10-03T17:30:00Z",
+  },
+  // Version 2 (previous version)
+  {
+    id: "handoff_1_v2",
+    projectId: "turborepo",
+    title: "Lead Architect Handoff: Rust Core & Remote Cache Engine",
+    summary: "Architectural invariants and daemon lifecycle for maintainers.",
+    version: 2,
+    sections: [
+      {
+        id: "section_v2_1",
+        heading: "Core Architectural Invariant: Deterministic Hashing",
+        body: "Never add an unstamped input into `compute_task_hash`. All file system reads must pass through the Git ignore filter.",
+        sources: [
+          {
+            id: "h_src_v2_1",
+            type: "file",
+            path: "crates/turborepo-lib/src/engine/builder.rs",
+            url: "https://github.com/vercel/turbo/blob/main/crates/turborepo-lib/src/engine/builder.rs",
+            snippet: "assert!(task_hash.is_deterministic(), 'Hash drift detected');",
+          },
+        ],
+      },
+      {
+        id: "section_v2_2",
+        heading: "Daemon Socket Management",
+        body: "The Turbod daemon runs as an unprivileged background daemon with automatic fallback on failure.",
+        sources: [
+          {
+            id: "h_src_v2_2",
+            type: "commit",
+            path: "commit/9f8c12a",
+            url: "https://github.com/vercel/turbo/commit/9f8c12a",
+            snippet: "Named pipe reconnect with exponential backoff.",
+          },
+        ],
+      },
+    ],
+    createdAt: "2026-09-20T11:00:00Z",
+    updatedAt: "2026-09-25T14:00:00Z",
+  },
+  // Version 1 (initial version)
+  {
+    id: "handoff_1_v1",
+    projectId: "turborepo",
+    title: "Turborepo Maintainer Handoff",
+    summary: "Initial handoff documentation.",
+    version: 1,
+    sections: [
+      {
+        id: "section_v1_1",
+        heading: "Core Architecture",
+        body: "Turborepo uses Rust for the core engine and TypeScript for the CLI.",
+        sources: [],
+      },
+    ],
+    createdAt: "2026-09-20T11:00:00Z",
+    updatedAt: "2026-09-20T11:00:00Z",
   },
 ];
 
