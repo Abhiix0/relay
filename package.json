@@ -9,6 +9,7 @@
     "preview": "pnpm --filter web preview",
     "check": "pnpm --filter web check",
     "lint": "pnpm --filter web lint",
+    "test": "pnpm --filter web test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "devDependencies": {

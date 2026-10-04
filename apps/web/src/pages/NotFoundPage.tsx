@@ -96,7 +96,7 @@ export function NotFoundPage() {
 
         {/* Title */}
         <h1 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-text mb-4">
-          404 Page not found
+          Page not found
         </h1>
 
         {/* Description */}

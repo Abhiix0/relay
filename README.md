@@ -1,94 +1,218 @@
-# Relay — Understand any codebase faster
+# Relay
 
-Relay is a developer tool that connects GitHub repositories and gives instant project context, an evidence-grounded AI agent, onboarding, handoff, and search. **North star: "Understand any codebase faster."**
+**Understand any codebase faster.**
 
-This is a pnpm workspace monorepo containing the Relay frontend application.
+Relay is a developer tool that connects to GitHub repositories and provides instant project context through an evidence-grounded AI agent, interactive onboarding guides, architectural handoffs, and intelligent search. Every answer is backed by AST nodes, commit history, and PR evidence—no hallucinations.
 
-## Stack
+## What Relay Does
 
-**Frontend (apps/web):**
+- **Evidence-Grounded AI**: Ask questions about any codebase and get answers backed by actual source code, commits, and PR reviews
+- **Smart Onboarding**: Interactive guides that help developers understand unfamiliar codebases quickly
+- **Architecture Handoffs**: Generate and maintain comprehensive project documentation with evidence citations
+- **Intelligent Search**: Find code, documentation, and architectural decisions across repositories
+- **Project Context**: Understand repository health, sync status, and development patterns
+
+## Features
+
+✅ **Completed (Phase 0-9)**
+- Landing page with responsive design
+- Project dashboard and management  
+- GitHub repository connection and indexing
+- File browser with syntax highlighting
+- Global search across projects and files
+- Evidence-grounded AI chat agent
+- Interactive onboarding workflows
+- Architecture handoff generation and editing  
+- Version-controlled handoff documents
+- Markdown export functionality
+- User profile and authentication
+- Project-level and app-level settings
+- Architecture decision records (ADRs)
+- Comprehensive system states (loading, empty, error, offline, 404)
+- Keyboard accessibility and focus management
+- Responsive design across all screen sizes
+
+## Tech Stack
+
+**Frontend:**
 - React 19 with TypeScript (strict mode)
-- Vite for build tooling
-- Tailwind CSS v3 with design tokens
-- shadcn/ui patterns
-- TanStack Query for data fetching
-- React Router v7
-- Self-hosted fonts (Inter + JetBrains Mono)
+- Vite for build tooling and development
+- Tailwind CSS v3 with custom design tokens
+- Radix UI primitives for accessibility
+- TanStack Query for data fetching and caching
+- React Router v7 for client-side routing
+- MSW (Mock Service Worker) for API mocking
+- Vitest + Testing Library for unit tests
 
-## Getting Started
+**Development:**
+- pnpm workspace monorepo
+- ESLint + TypeScript strict mode
+- Prettier code formatting
+- GitHub Actions CI/CD
+- Docker containerization
 
-Install dependencies:
+## Requirements
+
+- **Node.js**: 22.x or later
+- **pnpm**: 10.18.0 or later
+- **Git**: For version control
+
+## Installation
 
 ```bash
+git clone <repository-url>
+cd relay
 pnpm install
 ```
 
-Run the development server:
+## Development
+
+Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-The app runs on [http://localhost:3000](http://localhost:3000).
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-## Scripts
-
-**Root workspace:**
-- `pnpm dev` — Start development server
-- `pnpm build` — Build for production
-- `pnpm preview` — Preview production build
+**Available Scripts:**
+- `pnpm dev` — Start development server with hot reload
+- `pnpm build` — Build for production  
+- `pnpm preview` — Preview production build locally
 - `pnpm check` — TypeScript type checking
-- `pnpm lint` — ESLint validation
-- `pnpm format` — Format with Prettier
+- `pnpm lint` — ESLint code quality checks
+- `pnpm test` — Run unit tests
+- `pnpm format` — Format code with Prettier
 
-**Web app specific:**
+## Validation
+
+Verify everything works correctly:
+
 ```bash
-cd apps/web
-pnpm dev      # Start dev server
-pnpm build    # Build for production
-pnpm check    # Type check
-pnpm lint     # Run ESLint
+# Type checking
+pnpm check
+
+# Code quality
+pnpm lint  
+
+# Unit tests
+pnpm test
+
+# Production build
+pnpm build
 ```
+
+All commands should exit with code 0 (success).
+
+## Docker
+
+For containerized deployment:
+
+```bash
+# Build and start the application
+docker compose up
+
+# Or build only
+docker compose build
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
+
+The Docker setup uses:
+- Multi-stage build for optimized production image
+- Nginx for efficient static file serving
+- Gzip compression and security headers
+- Health checks for container monitoring
 
 ## Project Structure
 
 ```
 relay/
 ├── apps/
-│   └── web/                # Main frontend application
+│   └── web/                    # Main React application
 │       ├── src/
-│       │   ├── app/        # Providers, router, layouts
-│       │   ├── pages/      # Route components
-│       │   ├── features/   # Feature modules (landing, dashboard, etc.)
-│       │   ├── components/ # UI primitives and common components
-│       │   ├── lib/        # Utilities (cn, format, api client)
-│       │   ├── styles/     # Design tokens and global styles
-│       │   └── types/      # TypeScript types
-│       ├── public/         # Static assets
-│       └── index.html      # Entry HTML
-├── packages/               # Shared packages (future)
+│       │   ├── app/           # App shell, router, providers
+│       │   ├── pages/         # Route-level pages (404, etc.)
+│       │   ├── features/      # Feature modules
+│       │   │   ├── ask/       # AI chat interface  
+│       │   │   ├── dashboard/ # Project management
+│       │   │   ├── explorer/  # File browser
+│       │   │   ├── handoff/   # Architecture docs
+│       │   │   ├── onboarding/# Interactive guides
+│       │   │   ├── profile/   # User management
+│       │   │   ├── search/    # Global search
+│       │   │   └── settings/  # Configuration
+│       │   ├── components/    # Reusable UI components
+│       │   ├── lib/          # Utilities and API client
+│       │   ├── mocks/        # MSW API mocking
+│       │   ├── styles/       # Global CSS and design tokens
+│       │   └── types/        # TypeScript definitions
+│       ├── public/           # Static assets
+│       └── index.html        # Entry HTML
+├── .github/workflows/        # GitHub Actions CI
+├── docker-compose.yml        # Docker orchestration
+├── Dockerfile               # Container definition
 └── pnpm-workspace.yaml     # Workspace configuration
 ```
 
-## Design System
+## Environment Variables
 
-The Relay visual identity follows an editorial design language with:
-- **Warm linen surfaces** for marketing/landing
-- **Charcoal/carbon product surfaces** for the application
-- **Copper accent** for primary actions
-- **Typography:** Serif headings (Georgia) + Monospace labels (JetBrains Mono)
-- **Design tokens:** All colors are CSS variables mapped to Tailwind theme
+No environment variables are required for development. The application uses MSW to mock all API calls locally.
 
-See `apps/web/src/styles/tokens.css` for the complete token system.
+For production deployment, you may want to configure:
+- Custom API endpoints (when backend is available)  
+- Authentication providers
+- Analytics tracking
+
+## Troubleshooting
+
+**Common Issues:**
+
+1. **pnpm not installed**
+   ```bash
+   npm install -g pnpm@10.18.0
+   ```
+
+2. **Dependencies won't install**
+   ```bash
+   rm -rf node_modules apps/web/node_modules
+   pnpm install --frozen-lockfile
+   ```
+
+3. **Port 3000 already in use**
+   ```bash
+   # Kill process using port 3000
+   npx kill-port 3000
+   # Or use different port
+   PORT=3001 pnpm dev
+   ```
+
+4. **Docker build fails**
+   - Ensure Docker Desktop is running
+   - Check available disk space (>2GB recommended)
+   - Try `docker system prune` to free space
+
+5. **TypeScript errors after updates**
+   ```bash
+   pnpm check
+   # Fix any type errors before continuing
+   ```
+
+**Need help?** Check the existing issues or create a new one with:
+- Your operating system
+- Node.js and pnpm versions (`node --version && pnpm --version`)
+- Full error message
+- Steps to reproduce
 
 ## Development Guidelines
 
-- TypeScript strict mode with `noUncheckedIndexedAccess`
-- Components under 200 lines
-- Design tokens only (no hardcoded colors)
-- Accessible HTML with proper ARIA labels
-- Evidence-first UX patterns
+- **TypeScript**: Strict mode enabled with `noUncheckedIndexedAccess`
+- **Components**: Keep under 200 lines, extract utilities to `/lib`
+- **Styling**: Use design tokens only (no hardcoded colors)
+- **Accessibility**: Semantic HTML with proper ARIA attributes
+- **Testing**: Focus on behavior, not implementation details
+- **Performance**: Leverage React Query caching, avoid unnecessary re-renders
 
-## Status
+## License
 
-Frontend in active development. Backend API and database integration coming soon.
+MIT License - see LICENSE file for details.

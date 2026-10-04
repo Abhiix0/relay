@@ -9,9 +9,13 @@ export function OfflineBanner() {
   }
 
   return (
-    <div className="bg-warning/10 border-b border-warning/20 px-4 py-2">
+    <div 
+      className="bg-warning/10 border-b border-warning/20 px-4 py-2"
+      role="alert"
+      aria-live="polite"
+    >
       <div className="mx-auto max-w-7xl flex items-center justify-center gap-2 text-sm">
-        <WifiOff className="h-4 w-4 text-warning" />
+        <WifiOff className="h-4 w-4 text-warning" aria-hidden="true" />
         <span className="text-warning font-mono">
           You appear to be offline.
         </span>
