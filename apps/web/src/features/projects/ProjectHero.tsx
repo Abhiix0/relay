@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { StatusPill } from "@/components/ui/status-pill";
-import { useTriggerSync } from "@/lib/api/hooks";
+import { useSyncStatus, useTriggerSync } from "@/lib/api/hooks";
 import type { Project } from "@/lib/api/types";
 
 interface ProjectHeroProps {
@@ -10,8 +12,24 @@ interface ProjectHeroProps {
 
 export function ProjectHero({ project }: ProjectHeroProps) {
   const triggerSync = useTriggerSync(project.id);
+  const { data: syncJob, refetch: refetchSyncStatus } = useSyncStatus(project.id);
 
-  const getSyncStatus = (status: Project["syncStatus"]): "healthy" | "indexing" | "error" | "idle" => {
+  const isSyncing = project.syncStatus === "running" || syncJob?.status === "running";
+
+  // Poll sync status when syncing
+  useEffect(() => {
+    if (!isSyncing) return;
+
+    const interval = setInterval(() => {
+      refetchSyncStatus();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isSyncing, refetchSyncStatus]);
+
+  const getSyncStatus = (
+    status: Project["syncStatus"]
+  ): "healthy" | "indexing" | "error" | "idle" => {
     switch (status) {
       case "succeeded":
         return "healthy";
@@ -36,7 +54,7 @@ export function ProjectHero({ project }: ProjectHeroProps) {
   return (
     <div className="border border-border bg-surface-accent p-6 rounded">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-copper">
               Repository Context
@@ -68,6 +86,21 @@ export function ProjectHero({ project }: ProjectHeroProps) {
           <p className="text-xs text-text-muted max-w-2xl leading-relaxed">
             {project.description}
           </p>
+
+          {/* Show sync progress */}
+          {isSyncing && syncJob && (
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-text-muted font-mono">
+                  Indexing progress...
+                </span>
+                <span className="text-copper font-mono font-semibold">
+                  {syncJob.progress}%
+                </span>
+              </div>
+              <Progress value={syncJob.progress} variant="copper" className="h-1.5" />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3 self-start md:self-auto">
@@ -75,10 +108,10 @@ export function ProjectHero({ project }: ProjectHeroProps) {
             variant="secondary"
             size="sm"
             onClick={() => triggerSync.mutate()}
-            disabled={triggerSync.isPending || project.syncStatus === "running"}
+            disabled={triggerSync.isPending || isSyncing}
             className="gap-2 border-border text-xs text-paper bg-surface hover:bg-surface-accent font-mono"
           >
-            {triggerSync.isPending || project.syncStatus === "running" ? (
+            {triggerSync.isPending || isSyncing ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-copper" />
                 <span>Syncing...</span>

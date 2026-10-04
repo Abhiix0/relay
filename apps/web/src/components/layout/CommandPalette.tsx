@@ -97,6 +97,7 @@ export function CommandPalette({ open, onOpenChange, currentProjectId }: Command
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command, screen, or search..."
             className="flex-1 bg-transparent text-sm text-paper placeholder:text-text-muted focus:outline-none"
+            aria-label="Search commands and screens"
           />
           <Kbd>ESC</Kbd>
         </div>

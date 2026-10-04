@@ -1,22 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
 import { CornerDownLeft, Loader2, Sparkles } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
+import { ProjectGuard } from "@/components/layout/ProjectGuard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAskHistory, useAskQuestion, useProject } from "@/lib/api/hooks";
+import { useNetworkAware } from "@/lib/hooks/useNetworkAware";
 import { AnswerItem } from "./AnswerItem";
 
 export function AskPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const [question, setQuestion] = useState("");
+  const [newAnswerIds, setNewAnswerIds] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: project } = useProject(id);
   const { data: history = [], isLoading } = useAskHistory(id);
   const askMutation = useAskQuestion(id);
+  const { isDisabled, getOfflineMessage } = useNetworkAware();
 
   // Pre-fill question from search param if present
   useEffect(() => {
@@ -31,7 +34,18 @@ export function AskPage() {
     if (!question.trim() || askMutation.isPending) return;
 
     askMutation.mutate(question.trim(), {
-      onSuccess: () => {
+      onSuccess: (newAnswer) => {
+        // Track this answer as new to trigger streaming
+        setNewAnswerIds((prev) => new Set(prev).add(newAnswer.id));
+        // Remove from new set after streaming completes (3 seconds)
+        setTimeout(() => {
+          setNewAnswerIds((prev) => {
+            const next = new Set(prev);
+            next.delete(newAnswer.id);
+            return next;
+          });
+        }, 3000);
+        
         setQuestion("");
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,7 +69,7 @@ export function AskPage() {
   ];
 
   return (
-    <AppShell>
+    <ProjectGuard>
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="border-b border-border pb-4">
@@ -93,7 +107,13 @@ export function AskPage() {
               <Skeleton className="h-40 w-full" />
             </div>
           ) : (
-            history.map((ans) => <AnswerItem key={ans.id} answer={ans} />)
+            history.map((ans) => (
+              <AnswerItem 
+                key={ans.id} 
+                answer={ans} 
+                isNew={newAnswerIds.has(ans.id)}
+              />
+            ))
           )}
 
           {askMutation.isPending && (
@@ -127,7 +147,8 @@ export function AskPage() {
             <Button
               type="submit"
               size="sm"
-              disabled={!question.trim() || askMutation.isPending}
+              disabled={isDisabled(!question.trim() || askMutation.isPending)}
+              title={getOfflineMessage()}
               className="bg-copper hover:bg-copper-dark text-paper text-xs gap-1.5 font-mono"
             >
               {askMutation.isPending ? (
@@ -143,6 +164,6 @@ export function AskPage() {
           </div>
         </form>
       </div>
-    </AppShell>
+    </ProjectGuard>
   );
 }

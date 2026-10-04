@@ -36,7 +36,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Card
-      onClick={() => navigate(`/projects/${project.id}`)}
+      onClick={() => navigate(`/app/projects/${project.id}`)}
       className="cursor-pointer border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-lg flex flex-col justify-between group"
     >
       <CardHeader className="space-y-2 p-5 pb-3">
@@ -100,7 +100,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <CardFooter className="flex items-center justify-between border-t border-border/40 px-5 py-3 text-xs bg-charcoal/40">
         <div className="flex items-center gap-3">
           <Link
-            to={`/projects/${project.id}/ask`}
+            to={`/app/projects/${project.id}/ask`}
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-copper hover:underline text-[11px] font-mono"
           >
@@ -108,7 +108,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <span>Ask AI</span>
           </Link>
           <Link
-            to={`/projects/${project.id}/explorer`}
+            to={`/app/projects/${project.id}/explorer`}
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-text-muted hover:text-paper text-[11px] font-mono"
           >

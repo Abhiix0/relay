@@ -41,7 +41,7 @@ export function ProjectArchitectureCard({ projectId }: ProjectArchitectureCardPr
             </CardTitle>
           </div>
           <Link
-            to={`/projects/${projectId}/explorer`}
+            to={`/app/projects/${projectId}/explorer`}
             className="text-[11px] font-mono text-copper hover:underline"
           >
             View full tree →
@@ -59,7 +59,7 @@ export function ProjectArchitectureCard({ projectId }: ProjectArchitectureCardPr
             </div>
             <p className="text-xs text-text-muted leading-relaxed">{mod.description}</p>
             <div className="pt-1">
-              <Link to={`/projects/${projectId}/explorer`}>
+              <Link to={`/app/projects/${projectId}/explorer`}>
                 <FilePath path={mod.path} className="text-copper hover:underline" />
               </Link>
             </div>

@@ -39,7 +39,8 @@ export function ConnectRepoModal() {
           setOpen(false);
           setRepoName("");
           setDescription("");
-          navigate(`/projects/${newProj.id}`);
+          // Navigate to the new project
+          navigate(`/app/projects/${newProj.id}`);
         },
       }
     );

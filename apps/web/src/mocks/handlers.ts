@@ -4,13 +4,23 @@ import {
   mockArtifacts,
   mockAskAnswers,
   mockDecisions,
+  mockFileContents,
   mockHandoffs,
+  mockOnboardingData,
   mockOnboardingPlan,
   mockProjects,
+  mockRepositoryTree,
+  mockSearchResults,
   mockSyncJob,
   mockUser,
 } from "./data";
-import type { AskAnswer, Decision, Handoff, Project } from "@/lib/api/types";
+import type {
+  AskAnswer,
+  Decision,
+  Handoff,
+  Project,
+  SearchResults,
+} from "@/lib/api/types";
 
 // In-memory state
 const projects = [...mockProjects];
@@ -63,6 +73,11 @@ export const handlers = [
         issues: 4,
         releases: 1,
         files: 240,
+      },
+      health: {
+        overall: 0,
+        documentation: 0,
+        activity: "low",
       },
       healthLabel: "Indexing in progress",
       createdAt: new Date().toISOString(),
@@ -117,6 +132,39 @@ export const handlers = [
     const { question } = (await request.json()) as { question: string };
     const projectId = String(params.id);
 
+    // Simulate delay for streaming
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Check for insufficient evidence question
+    const insufficientQuestions = [
+      "authentication",
+      "auth",
+      "login",
+      "database",
+      "db connection",
+      "payment",
+    ];
+    
+    const isInsufficientEvidence = insufficientQuestions.some((kw) =>
+      question.toLowerCase().includes(kw)
+    );
+
+    if (isInsufficientEvidence) {
+      const newAnswer: AskAnswer = {
+        id: `ask_${Date.now()}`,
+        projectId,
+        question,
+        answer: "I couldn't find enough information in the indexed repository to answer this confidently. The repository focuses on build system functionality and doesn't contain extensive information about this topic.",
+        sources: [],
+        confidence: "insufficient",
+        insufficientEvidence: true,
+        createdAt: new Date().toISOString(),
+      };
+      askAnswers.unshift(newAnswer);
+      return HttpResponse.json(newAnswer, { status: 201 });
+    }
+
+    // Normal answer with evidence
     const newAnswer: AskAnswer = {
       id: `ask_${Date.now()}`,
       projectId,
@@ -139,6 +187,7 @@ export const handlers = [
         },
       ],
       confidence: "high",
+      insufficientEvidence: false,
       createdAt: new Date().toISOString(),
     };
 
@@ -168,6 +217,17 @@ export const handlers = [
   }),
 
   // Onboarding Plan
+  http.get("/api/v1/projects/:id/onboarding/data", ({ params }) => {
+    if (mockOnboardingData.projectId === params.id) {
+      return HttpResponse.json(mockOnboardingData);
+    }
+    // Return data for any project
+    return HttpResponse.json({
+      ...mockOnboardingData,
+      projectId: String(params.id),
+    });
+  }),
+
   http.get("/api/v1/projects/:id/onboarding", ({ params }) => {
     if (onboardingPlan.projectId === params.id) {
       return HttpResponse.json(onboardingPlan);
@@ -191,9 +251,97 @@ export const handlers = [
   ),
 
   // Handoff Briefings
-  http.get("/api/v1/projects/:id/handoffs", ({ params }) => {
-    const list = handoffs.filter((h) => h.projectId === params.id);
-    return HttpResponse.json(list);
+  http.get("/api/v1/projects/:id/handoffs", ({ params, request }) => {
+    const url = new URL(request.url);
+    const version = url.searchParams.get("version");
+    
+    const projectHandoffs = handoffs.filter((h) => h.projectId === params.id);
+    
+    if (version !== null) {
+      const handoff = projectHandoffs.find((h) => h.version === Number(version));
+      return handoff 
+        ? HttpResponse.json(handoff)
+        : new HttpResponse(JSON.stringify({ message: "Version not found" }), { status: 404 });
+    }
+    
+    return HttpResponse.json(projectHandoffs);
+  }),
+
+  http.get("/api/v1/projects/:id/handoffs/current", ({ params }) => {
+    const projectHandoffs = handoffs.filter((h) => h.projectId === params.id);
+    const current = projectHandoffs.sort((a, b) => b.version - a.version)[0];
+    
+    if (!current) {
+      return new HttpResponse(JSON.stringify({ message: "No handoff found" }), { status: 404 });
+    }
+    
+    return HttpResponse.json(current);
+  }),
+
+  http.post("/api/v1/projects/:id/handoffs/generate", async ({ request, params }) => {
+    await new Promise((resolve) => setTimeout(resolve, 1200)); // Simulate generation time
+    
+    const body = (await request.json()) as { regenerate?: boolean };
+    const projectHandoffs = handoffs.filter((h) => h.projectId === params.id);
+    const latestVersion = projectHandoffs.length > 0 
+      ? Math.max(...projectHandoffs.map((h) => h.version))
+      : 0;
+    
+    // If regenerating, return current with updated timestamp
+    if (body.regenerate && projectHandoffs.length > 0) {
+      const current = projectHandoffs.find((h) => h.version === latestVersion);
+      if (current) {
+        current.updatedAt = new Date().toISOString();
+        return HttpResponse.json(current);
+      }
+    }
+    
+    // Otherwise return the latest (simulating generation)
+    const current = projectHandoffs.find((h) => h.version === latestVersion);
+    if (current) {
+      return HttpResponse.json(current);
+    }
+    
+    // If no handoffs exist, return the mock one
+    return HttpResponse.json(handoffs[0]);
+  }),
+
+  http.patch("/api/v1/projects/:id/handoffs/current", async ({ request, params }) => {
+    const body = (await request.json()) as Partial<Handoff>;
+    const projectHandoffs = handoffs.filter((h) => h.projectId === params.id);
+    const current = projectHandoffs.sort((a, b) => b.version - a.version)[0];
+    
+    if (!current) {
+      return new HttpResponse(JSON.stringify({ message: "No handoff found" }), { status: 404 });
+    }
+    
+    // Update current handoff
+    Object.assign(current, body, {
+      updatedAt: new Date().toISOString(),
+    });
+    
+    return HttpResponse.json(current);
+  }),
+
+  http.post("/api/v1/projects/:id/handoffs/versions", async ({ params }) => {
+    const projectHandoffs = handoffs.filter((h) => h.projectId === params.id);
+    const current = projectHandoffs.sort((a, b) => b.version - a.version)[0];
+    
+    if (!current) {
+      return new HttpResponse(JSON.stringify({ message: "No current handoff to version" }), { status: 404 });
+    }
+    
+    // Create new version
+    const newVersion: Handoff = {
+      ...current,
+      id: `${current.id.split('_v')[0]}_v${current.version + 1}`,
+      version: current.version + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    handoffs.unshift(newVersion);
+    return HttpResponse.json(newVersion, { status: 201 });
   }),
 
   http.post("/api/v1/projects/:id/handoffs", async ({ request, params }) => {
@@ -203,7 +351,7 @@ export const handlers = [
       projectId: String(params.id),
       title: body.title || "Architecture & System Handoff",
       summary: body.summary || "Summary of recent architectural evolution.",
-      version: (handoffs[0]?.version ?? 0) + 1,
+      version: 1,
       sections: body.sections || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -217,16 +365,107 @@ export const handlers = [
     return HttpResponse.json(currentSyncJob);
   }),
 
-  http.post("/api/v1/projects/:id/sync", () => {
+  http.post("/api/v1/projects/:id/sync", ({ params }) => {
+    const projectId = String(params.id);
     currentSyncJob = {
       id: `sync_${Date.now()}`,
-      projectId: "turborepo",
-      status: "running",
-      progress: 45,
+      projectId,
+      status: "queued",
+      progress: 0,
       error: null,
       startedAt: new Date().toISOString(),
       completedAt: null,
     };
+
+    // Simulate sync progression
+    setTimeout(() => {
+      currentSyncJob.status = "running";
+      currentSyncJob.progress = 25;
+    }, 500);
+
+    setTimeout(() => {
+      currentSyncJob.progress = 50;
+    }, 1500);
+
+    setTimeout(() => {
+      currentSyncJob.progress = 75;
+    }, 2500);
+
+    setTimeout(() => {
+      currentSyncJob.status = "succeeded";
+      currentSyncJob.progress = 100;
+      currentSyncJob.completedAt = new Date().toISOString();
+      
+      // Update project status and lastSyncedAt
+      const project = projects.find((p) => p.id === projectId);
+      if (project) {
+        project.syncStatus = "succeeded";
+        project.lastSyncedAt = new Date().toISOString();
+        if (project.health) {
+          project.health.overall = Math.min(100, (project.health.overall || 0) + 10);
+          project.health.documentation = Math.min(100, (project.health.documentation || 0) + 5);
+        }
+      }
+    }, 3500);
+
     return HttpResponse.json(currentSyncJob);
+  }),
+
+  // Repository Tree
+  http.get("/api/v1/projects/:id/repository/tree", () => {
+    return HttpResponse.json(mockRepositoryTree);
+  }),
+
+  // File Content
+  http.get("/api/v1/projects/:id/repository/files/*", ({ params }) => {
+    const filePath = String(params["*"]);
+    const fileContent = mockFileContents[filePath];
+    
+    if (!fileContent) {
+      return new HttpResponse(
+        JSON.stringify({ message: "File not found" }),
+        { status: 404 }
+      );
+    }
+    
+    return HttpResponse.json(fileContent);
+  }),
+
+  // Global Search
+  http.get("/api/v1/search", ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("q") || "";
+    const projectId = url.searchParams.get("projectId");
+    const language = url.searchParams.get("language");
+
+    // Filter results based on query params
+    let results = mockSearchResults.results;
+
+    if (projectId && projectId !== "all") {
+      results = results.filter((r) => r.projectId === projectId);
+    }
+
+    if (language && language !== "all") {
+      results = results.filter((r) => r.language === language);
+    }
+
+    if (query) {
+      results = results.filter(
+        (r) =>
+          r.snippet.toLowerCase().includes(query.toLowerCase()) ||
+          r.filePath.toLowerCase().includes(query.toLowerCase()) ||
+          (r.matchedText && r.matchedText.toLowerCase().includes(query.toLowerCase()))
+      );
+    }
+
+    const searchResults: SearchResults = {
+      query,
+      projectId,
+      language,
+      results,
+      totalCount: results.length,
+    };
+
+    return HttpResponse.json(searchResults);
   }),
 ];

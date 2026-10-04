@@ -1,117 +1,225 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import { BookOpen, Check, Copy } from "lucide-react";
+import { BookOpen, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useHandoffs, useProject } from "@/lib/api/hooks";
-import { HandoffSectionCard } from "./HandoffSectionCard";
-import { NewHandoffModal } from "./NewHandoffModal";
+import { ErrorState } from "@/components/ui/error-state";
+import {
+  useHandoff,
+  useHandoffs,
+  useProject,
+  useGenerateHandoff,
+  useUpdateHandoff,
+  useCreateHandoffVersion,
+} from "@/lib/api/hooks";
+import type { HandoffSection } from "@/lib/api/types";
+import { HandoffSectionEditor } from "./HandoffSectionEditor";
+import { HandoffVersionHistory } from "./HandoffVersionHistory";
+import { HandoffActions } from "./HandoffActions";
+import { HandoffEmptyState } from "./HandoffEmptyState";
 
 export function HandoffPage() {
   const { id } = useParams<{ id: string }>();
-  const [copied, setCopied] = useState(false);
+  const [currentVersion, setCurrentVersion] = useState<number | undefined>();
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [localSections, setLocalSections] = useState<HandoffSection[]>([]);
 
   const { data: project } = useProject(id);
-  const { data: handoffs = [], isLoading } = useHandoffs(id);
+  const { data: versions = [], isLoading: isLoadingVersions } = useHandoffs(id);
+  const { data: currentHandoff, isLoading: isLoadingCurrent, error } = useHandoff(id, currentVersion);
+  
+  const generateMutation = useGenerateHandoff(id);
+  const updateMutation = useUpdateHandoff(id);
+  const createVersionMutation = useCreateHandoffVersion(id);
 
-  const activeHandoff = handoffs[0];
+  // Set current version when versions load
+  useEffect(() => {
+    if (versions.length > 0 && currentVersion === undefined) {
+      const latest = Math.max(...versions.map(v => v.version));
+      setCurrentVersion(latest);
+    }
+  }, [versions, currentVersion]);
 
-  const handleCopyMarkdown = () => {
-    if (!activeHandoff) return;
-    const md = `# ${activeHandoff.title} (v${activeHandoff.version})\n\n${activeHandoff.summary}\n\n` +
-      activeHandoff.sections
-        .map((s) => `## ${s.heading}\n\n${s.body}`)
-        .join("\n\n");
-    navigator.clipboard.writeText(md);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  // Update local sections when handoff changes
+  useEffect(() => {
+    if (currentHandoff) {
+      setLocalSections(currentHandoff.sections);
+      setHasUnsavedChanges(false);
+      setEditingSectionId(null);
+    }
+  }, [currentHandoff]);
+
+  const handleSectionEdit = (updatedSection: HandoffSection) => {
+    setLocalSections(prev => 
+      prev.map(section => 
+        section.id === updatedSection.id ? updatedSection : section
+      )
+    );
+    setHasUnsavedChanges(true);
+    setEditingSectionId(null);
   };
+
+  const handleSaveVersion = () => {
+    if (!currentHandoff || !hasUnsavedChanges) return;
+
+    updateMutation.mutate({
+      sections: localSections,
+    }, {
+      onSuccess: () => {
+        createVersionMutation.mutate(undefined, {
+          onSuccess: (newVersion) => {
+            setCurrentVersion(newVersion.version);
+            setHasUnsavedChanges(false);
+          },
+        });
+      },
+    });
+  };
+
+  const handleRegenerate = () => {
+    generateMutation.mutate(true, {
+      onSuccess: () => {
+        setHasUnsavedChanges(false);
+        setEditingSectionId(null);
+      },
+    });
+  };
+
+  const handleGenerate = () => {
+    generateMutation.mutate(false);
+  };
+
+  const handleVersionSelect = (version: number) => {
+    setCurrentVersion(version);
+  };
+
+  const isLoading = isLoadingVersions || isLoadingCurrent || generateMutation.isPending;
+
+  if (error) {
+    return (
+      <AppShell>
+        <ErrorState
+          title="Failed to load handoff"
+          description="We couldn't load the handoff documentation for this project."
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
-              Maintainer Transition & Architecture Briefing
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
-              Engineering Handoff
-            </h1>
-            <p className="text-xs text-text-muted mt-1">
-              Documented system constraints, operational gotchas, and architectural invariants for {project?.name || "this project"}.
-            </p>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="border-b border-border pb-6 mb-6">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+            Engineering Documentation & Knowledge Transfer
           </div>
-          <div className="flex items-center gap-2">
-            {activeHandoff && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleCopyMarkdown}
-                className="gap-1.5 border-border text-xs font-mono text-paper"
-              >
-                {copied ? <Check className="h-3.5 w-3.5 text-moss" /> : <Copy className="h-3.5 w-3.5" />}
-                <span>{copied ? "Copied" : "Copy Markdown"}</span>
-              </Button>
-            )}
-            <NewHandoffModal projectId={id || "turborepo"} />
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+            Project Handoff
+          </h1>
+          <p className="text-xs text-text-muted mt-1">
+            Comprehensive architectural documentation and engineering context for {project?.name || "this project"}.
+          </p>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-4">
+        {isLoading && !currentHandoff ? (
+          <div className="space-y-6">
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-64 w-full" />
           </div>
-        ) : !activeHandoff ? (
-          <EmptyState
-            title="No handoff briefings recorded"
-            description="Create an architectural handoff briefing to preserve tribal knowledge and invariants."
-            action={<NewHandoffModal projectId={id || "turborepo"} />}
+        ) : !currentHandoff ? (
+          <HandoffEmptyState
+            projectId={id || ""}
+            onGenerate={handleGenerate}
+            isGenerating={generateMutation.isPending}
           />
         ) : (
-          <div className="space-y-6">
-            {/* Briefing Header Card */}
-            <div className="rounded border border-border bg-surface-accent p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-copper" />
-                  <span className="text-xs font-mono font-semibold text-paper">
-                    {activeHandoff.title}
-                  </span>
-                </div>
-                <Badge variant="copper" className="text-[10px] font-mono">
-                  v{activeHandoff.version}
-                </Badge>
-              </div>
-
-              <p className="text-xs text-paper leading-relaxed bg-surface/50 p-4 rounded border border-border/30">
-                {activeHandoff.summary}
-              </p>
-
-              <div className="text-[10px] font-mono text-text-muted">
-                Last updated: {new Date(activeHandoff.updatedAt).toLocaleDateString()}
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Version History Sidebar */}
+            <div className="lg:col-span-1 space-y-4">
+              <HandoffVersionHistory
+                versions={versions}
+                currentVersion={currentVersion || currentHandoff.version}
+                onSelectVersion={handleVersionSelect}
+                hasUnsavedChanges={hasUnsavedChanges}
+              />
             </div>
 
-            {/* Structured Sections */}
-            <div className="space-y-4">
-              <h2 className="text-xs font-mono uppercase tracking-wider text-text-muted">
-                Architectural Invariants & Gotchas
-              </h2>
-              {activeHandoff.sections.map((section, idx) => (
-                <HandoffSectionCard
-                  key={idx}
-                  heading={section.heading}
-                  body={section.body}
-                  sources={section.sources}
-                />
-              ))}
+            {/* Main Content */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Handoff Header */}
+              <div className="bg-surface-accent border border-border rounded p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-copper" />
+                    <h2 className="text-lg font-semibold font-mono text-paper">
+                      {currentHandoff.title}
+                    </h2>
+                  </div>
+                  <div className="text-xs font-mono text-text-muted">
+                    v{currentHandoff.version}
+                  </div>
+                </div>
+
+                {currentHandoff.summary && (
+                  <p className="text-sm text-paper leading-relaxed bg-surface/50 p-4 rounded border border-border/30">
+                    {currentHandoff.summary}
+                  </p>
+                )}
+
+                <div className="text-[11px] font-mono text-text-muted">
+                  Last updated: {new Date(currentHandoff.updatedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long", 
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </div>
+              </div>
+
+              {/* Sections */}
+              <div className="space-y-4">
+                {localSections.map((section) => (
+                  <HandoffSectionEditor
+                    key={section.id}
+                    section={section}
+                    projectId={id || ""}
+                    isEditing={editingSectionId === section.id}
+                    onStartEdit={() => setEditingSectionId(section.id)}
+                    onSave={handleSectionEdit}
+                    onCancel={() => setEditingSectionId(null)}
+                  />
+                ))}
+              </div>
+
+              {/* Loading overlay during regeneration */}
+              {generateMutation.isPending && (
+                <div className="fixed inset-0 bg-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center">
+                  <div className="bg-surface-accent border border-border rounded p-6 space-y-3 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-copper mx-auto" />
+                    <div className="text-sm font-mono text-paper">Regenerating handoff...</div>
+                    <div className="text-xs text-text-muted">Analyzing repository context and generating documentation</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+        )}
+
+        {/* Actions Bar */}
+        {currentHandoff && (
+          <HandoffActions
+            handoff={currentHandoff}
+            projectName={project?.name}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSaveVersion={handleSaveVersion}
+            onRegenerate={handleRegenerate}
+            isRegenerating={generateMutation.isPending}
+            isSaving={updateMutation.isPending || createVersionMutation.isPending}
+          />
         )}
       </div>
     </AppShell>

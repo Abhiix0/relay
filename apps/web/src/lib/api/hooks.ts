@@ -126,6 +126,14 @@ export function useCreateDecision(id?: string) {
 }
 
 /* ── Onboarding Guide ───────────────────────────────────────── */
+export function useOnboardingData(id?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.onboarding(id || ""), "data"] as const,
+    queryFn: () => api.get<import("./types").OnboardingData>(`/projects/${id}/onboarding/data`),
+    enabled: Boolean(id),
+  });
+}
+
 export function useOnboarding(id?: string) {
   return useQuery({
     queryKey: queryKeys.projects.onboarding(id || ""),
@@ -153,6 +161,58 @@ export function useHandoffs(id?: string) {
     queryKey: queryKeys.projects.handoffs(id || ""),
     queryFn: () => api.get<Handoff[]>(`/projects/${id}/handoffs`),
     enabled: Boolean(id),
+  });
+}
+
+export function useHandoff(id?: string, version?: number) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.handoffs(id || ""), version] as const,
+    queryFn: () => {
+      const url = version !== undefined 
+        ? `/projects/${id}/handoffs?version=${version}`
+        : `/projects/${id}/handoffs/current`;
+      return api.get<Handoff>(url);
+    },
+    enabled: Boolean(id),
+  });
+}
+
+export function useGenerateHandoff(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (regenerate: boolean = false) =>
+      api.post<Handoff>(`/projects/${id}/handoffs/generate`, { regenerate }),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.handoffs(id) });
+      }
+    },
+  });
+}
+
+export function useUpdateHandoff(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Handoff>) =>
+      api.patch<Handoff>(`/projects/${id}/handoffs/current`, data),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.handoffs(id) });
+      }
+    },
+  });
+}
+
+export function useCreateHandoffVersion(id?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (description?: string) =>
+      api.post<Handoff>(`/projects/${id}/handoffs/versions`, { description }),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects.handoffs(id) });
+      }
+    },
   });
 }
 
@@ -188,5 +248,42 @@ export function useTriggerSync(id?: string) {
         queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(id) });
       }
     },
+  });
+}
+
+/* ── Repository Tree & Files ────────────────────────────────── */
+export function useRepositoryTree(id?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.detail(id || ""), "repository", "tree"] as const,
+    queryFn: () => api.get<import("./types").RepositoryTree>(`/projects/${id}/repository/tree`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useFileContent(id?: string, filePath?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.detail(id || ""), "repository", "files", filePath] as const,
+    queryFn: () => api.get<import("./types").FileContent>(`/projects/${id}/repository/files/${filePath}`),
+    enabled: Boolean(id && filePath),
+  });
+}
+
+/* ── Global Search ──────────────────────────────────────────── */
+export function useGlobalSearch(
+  query: string,
+  projectId?: string | null,
+  language?: string | null
+) {
+  return useQuery({
+    queryKey: ["search", query, projectId, language] as const,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (query) params.set("q", query);
+      if (projectId) params.set("projectId", projectId);
+      if (language) params.set("language", language);
+      const qs = params.toString();
+      return api.get<import("./types").SearchResults>(`/search${qs ? `?${qs}` : ""}`);
+    },
+    enabled: Boolean(query),
   });
 }

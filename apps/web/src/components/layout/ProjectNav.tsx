@@ -16,14 +16,15 @@ export function ProjectNav() {
   if (!id) return null;
 
   const tabs = [
-    { label: "Overview", to: `/projects/${id}`, end: true, icon: GitBranch },
-    { label: "Ask AI", to: `/projects/${id}/ask`, end: false, icon: Sparkles },
-    { label: "Explorer", to: `/projects/${id}/explorer`, end: false, icon: FileCode2 },
-    { label: "Onboarding", to: `/projects/${id}/onboarding`, end: false, icon: Compass },
-    { label: "Handoff", to: `/projects/${id}/handoff`, end: false, icon: BookOpen },
-    { label: "Decisions", to: `/projects/${id}/decisions`, end: false, icon: Layers },
-    { label: "Search", to: `/projects/${id}/search`, end: false, icon: Search },
-    { label: "Settings", to: `/projects/${id}/settings`, end: false, icon: Settings },
+    { label: "Overview", to: `/app/projects/${id}`, end: true, icon: GitBranch },
+    { label: "Files", to: `/app/projects/${id}/files`, end: false, icon: FileCode2 },
+    { label: "Ask AI", to: `/app/projects/${id}/ask`, end: false, icon: Sparkles },
+    { label: "Explorer", to: `/app/projects/${id}/explorer`, end: false, icon: FileCode2 },
+    { label: "Onboarding", to: `/app/projects/${id}/onboarding`, end: false, icon: Compass },
+    { label: "Handoff", to: `/app/projects/${id}/handoff`, end: false, icon: BookOpen },
+    { label: "Decisions", to: `/app/projects/${id}/decisions`, end: false, icon: Layers },
+    { label: "Search", to: `/app/projects/${id}/search`, end: false, icon: Search },
+    { label: "Settings", to: `/app/projects/${id}/settings`, end: false, icon: Settings },
   ];
 
   return (

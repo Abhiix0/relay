@@ -38,6 +38,7 @@ export function NewHandoffModal({ projectId }: NewHandoffModalProps) {
         summary: summary.trim(),
         sections: [
           {
+            id: `section_${Date.now()}`,
             heading: heading.trim() || "1. Primary Invariants & Architecture",
             body: body.trim() || "Documented codebase constraints and edge cases.",
             sources: [],

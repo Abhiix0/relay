@@ -36,6 +36,13 @@ export const projectSchema = z.object({
     releases: z.number(),
     files: z.number(),
   }),
+  health: z
+    .object({
+      overall: z.number().min(0).max(100),
+      documentation: z.number().min(0).max(100),
+      activity: z.enum(["high", "medium", "low"]),
+    })
+    .optional(),
   healthLabel: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -91,7 +98,9 @@ export const askAnswerSchema = z.object({
   answer: z.string(),
   sources: z.array(sourceSchema),
   confidence: confidenceSchema,
+  insufficientEvidence: z.boolean().optional(),
   createdAt: z.string().datetime(),
+  isStreaming: z.boolean().optional(),
 });
 export type AskAnswer = z.infer<typeof askAnswerSchema>;
 
@@ -117,6 +126,44 @@ export const onboardingItemSchema = z.object({
 });
 export type OnboardingItem = z.infer<typeof onboardingItemSchema>;
 
+export const onboardingDataSchema = z.object({
+  id: z.string(),
+  projectId: z.string(),
+  projectOverview: z.object({
+    name: z.string(),
+    description: z.string(),
+    repository: z.string(),
+    primaryLanguage: z.string().nullable(),
+    technologies: z.array(z.string()),
+  }),
+  architecture: z.object({
+    summary: z.string(),
+    mainModules: z.array(z.object({
+      name: z.string(),
+      path: z.string(),
+      description: z.string(),
+    })),
+  }),
+  keyFiles: z.array(z.object({
+    id: z.string(),
+    path: z.string(),
+    description: z.string(),
+    category: z.enum(["readme", "config", "entry", "important"]),
+  })),
+  gettingStarted: z.array(z.object({
+    step: z.number(),
+    title: z.string(),
+    description: z.string(),
+  })),
+  progress: z.object({
+    repositoryConnected: z.boolean(),
+    repositoryIndexed: z.boolean(),
+    structureAnalyzed: z.boolean(),
+    handoffReady: z.boolean(),
+  }),
+});
+export type OnboardingData = z.infer<typeof onboardingDataSchema>;
+
 export const onboardingPlanSchema = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -128,23 +175,40 @@ export const onboardingPlanSchema = z.object({
 export type OnboardingPlan = z.infer<typeof onboardingPlanSchema>;
 
 /* ── Handoff ──────────────────────────────────────────────── */
+export const handoffSectionSchema = z.object({
+  id: z.string(),
+  heading: z.string(),
+  body: z.string(),
+  sources: z.array(sourceSchema),
+  insufficientEvidence: z.boolean().optional(),
+});
+export type HandoffSection = z.infer<typeof handoffSectionSchema>;
+
+export const handoffVersionMetadataSchema = z.object({
+  version: z.number(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  description: z.string().optional(),
+});
+export type HandoffVersionMetadata = z.infer<typeof handoffVersionMetadataSchema>;
+
 export const handoffSchema = z.object({
   id: z.string(),
   projectId: z.string(),
   title: z.string(),
   summary: z.string(),
-  sections: z.array(
-    z.object({
-      heading: z.string(),
-      body: z.string(),
-      sources: z.array(sourceSchema),
-    })
-  ),
+  sections: z.array(handoffSectionSchema),
   version: z.number(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 export type Handoff = z.infer<typeof handoffSchema>;
+
+export const handoffGenerateRequestSchema = z.object({
+  projectId: z.string(),
+  regenerate: z.boolean().optional(),
+});
+export type HandoffGenerateRequest = z.infer<typeof handoffGenerateRequestSchema>;
 
 /* ── SyncJob ──────────────────────────────────────────────── */
 export const syncJobSchema = z.object({
@@ -168,3 +232,72 @@ export const activityEventSchema = z.object({
   createdAt: z.string().datetime(),
 });
 export type ActivityEvent = z.infer<typeof activityEventSchema>;
+
+/* ── Repository Tree ──────────────────────────────────────── */
+export const repositoryFileTypeSchema = z.enum(["file", "folder"]);
+export type RepositoryFileType = z.infer<typeof repositoryFileTypeSchema>;
+
+export interface RepositoryTreeItem {
+  id: string;
+  name: string;
+  path: string;
+  type: "file" | "folder";
+  children?: RepositoryTreeItem[];
+  language?: string | null;
+  size?: number;
+}
+
+export const repositoryTreeItemSchema: z.ZodType<RepositoryTreeItem> = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    path: z.string(),
+    type: repositoryFileTypeSchema,
+    children: z.array(repositoryTreeItemSchema).optional(),
+    language: z.string().nullable().optional(),
+    size: z.number().optional(),
+  })
+);
+
+export const repositoryTreeSchema = z.object({
+  projectId: z.string(),
+  repository: z.string(),
+  tree: z.array(repositoryTreeItemSchema),
+});
+export type RepositoryTree = z.infer<typeof repositoryTreeSchema>;
+
+/* ── File Content ─────────────────────────────────────────── */
+export const fileContentSchema = z.object({
+  projectId: z.string(),
+  path: z.string(),
+  name: z.string(),
+  language: z.string().nullable(),
+  content: z.string(),
+  size: z.number(),
+  isBinary: z.boolean().optional(),
+  isLarge: z.boolean().optional(),
+});
+export type FileContent = z.infer<typeof fileContentSchema>;
+
+/* ── Search Result ────────────────────────────────────────── */
+export const searchResultItemSchema = z.object({
+  id: z.string(),
+  projectId: z.string(),
+  type: artifactTypeSchema,
+  filePath: z.string(),
+  fileName: z.string(),
+  lineNumber: z.number().nullable(),
+  snippet: z.string(),
+  matchedText: z.string().optional(),
+  language: z.string().nullable(),
+});
+export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
+
+export const searchResultsSchema = z.object({
+  query: z.string(),
+  projectId: z.string().nullable(),
+  language: z.string().nullable(),
+  results: z.array(searchResultItemSchema),
+  totalCount: z.number(),
+});
+export type SearchResults = z.infer<typeof searchResultsSchema>;
