@@ -1,135 +1,70 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
-import { AskPage } from "@/features/ask/AskPage";
-import { DashboardPage } from "@/features/dashboard/DashboardPage";
-import { DecisionsPage } from "@/features/decisions/DecisionsPage";
-import { ExplorerPage } from "@/features/explorer/ExplorerPage";
-import { HandoffPage } from "@/features/handoff/HandoffPage";
-import { LandingPage } from "@/features/landing/LandingPage";
-import { OnboardingPage } from "@/features/onboarding/OnboardingPage";
-import { ProfilePage } from "@/features/profile/ProfilePage";
-import { ProjectOverviewPage } from "@/features/projects/ProjectOverviewPage";
-import { SearchPage } from "@/features/search/SearchPage";
-import { ProjectSettingsPage } from "@/features/settings/ProjectSettingsPage";
-import { SettingsPage } from "@/features/settings/SettingsPage";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+  useParams,
+} from "react-router";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { SignInPage } from "@/pages/SignInPage";
+import { PublicLayout } from "./layouts/PublicLayout";
+import { appRoutes } from "./routes/app";
+import { LEGACY_REDIRECTS } from "./redirects";
+
+/* ── Legacy redirect helper ──────────────────────────────────── */
+
+/**
+ * Replaces :param tokens in a template string with live URL params.
+ * e.g. template="/app/projects/:id/files", params={id:"abc"} → "/app/projects/abc/files"
+ */
+function DynamicRedirect({ template }: { template: string }) {
+  const params = useParams();
+  const resolved = template.replace(
+    /:(\w+)/g,
+    (_, key) => (params as Record<string, string>)[key] ?? key
+  );
+  return <Navigate to={resolved} replace />;
+}
+
+const hasDynamicSegment = (path: string) => path.includes(":");
+
+const redirectRoutes = LEGACY_REDIRECTS.map(({ from, to }) =>
+  hasDynamicSegment(from)
+    ? { path: from, element: <DynamicRedirect template={to} /> }
+    : { path: from, element: <Navigate to={to} replace /> }
+);
+
+/* ── Router ──────────────────────────────────────────────────── */
 
 const router = createBrowserRouter([
+  // ── Public layout (/, /sign-in) ───────────────────────────────
   {
     path: "/",
-    element: <LandingPage />,
+    element: <PublicLayout />,
     errorElement: <NotFoundPage />,
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { LandingPage } = await import("@/features/landing/LandingPage");
+          return { Component: LandingPage };
+        },
+      },
+      {
+        path: "sign-in",
+        lazy: async () => {
+          const { SignInPage } = await import("@/pages/SignInPage");
+          return { Component: SignInPage };
+        },
+      },
+    ],
   },
-  {
-    path: "/sign-in",
-    element: <SignInPage />,
-  },
-  {
-    path: "/dashboard",
-    element: <DashboardPage />,
-  },
-  {
-    path: "/app",
-    element: <DashboardPage />,
-  },
-  {
-    path: "/app/search",
-    element: <SearchPage />,
-  },
-  {
-    path: "/app/settings",
-    element: <SettingsPage />,
-  },
-  {
-    path: "/app/projects",
-    lazy: async () => {
-      const { ProjectsListPage } = await import("@/features/projects/ProjectsListPage");
-      return { Component: ProjectsListPage };
-    },
-  },
-  {
-    path: "/projects",
-    element: <DashboardPage />,
-  },
-  {
-    path: "/app/projects/:id",
-    element: <ProjectOverviewPage />,
-  },
-  {
-    path: "/projects/:id",
-    element: <ProjectOverviewPage />,
-  },
-  {
-    path: "/app/projects/:id/files",
-    lazy: async () => {
-      const { RepositoryExplorerPage } = await import("@/features/repository/RepositoryExplorerPage");
-      return { Component: RepositoryExplorerPage };
-    },
-  },
-  {
-    path: "/app/projects/:id/ask",
-    element: <AskPage />,
-  },
-  {
-    path: "/app/projects/:id/explorer",
-    element: <ExplorerPage />,
-  },
-  {
-    path: "/app/projects/:id/onboarding",
-    element: <OnboardingPage />,
-  },
-  {
-    path: "/app/projects/:id/handoff",
-    element: <HandoffPage />,
-  },
-  {
-    path: "/app/projects/:id/decisions",
-    element: <DecisionsPage />,
-  },
-  {
-    path: "/app/projects/:id/search",
-    element: <SearchPage />,
-  },
-  {
-    path: "/app/projects/:id/settings",
-    element: <ProjectSettingsPage />,
-  },
-  {
-    path: "/projects/:id",
-    element: <ProjectOverviewPage />,
-  },
-  {
-    path: "/projects/:id/ask",
-    element: <AskPage />,
-  },
-  {
-    path: "/projects/:id/explorer",
-    element: <ExplorerPage />,
-  },
-  {
-    path: "/projects/:id/onboarding",
-    element: <OnboardingPage />,
-  },
-  {
-    path: "/projects/:id/handoff",
-    element: <HandoffPage />,
-  },
-  {
-    path: "/projects/:id/decisions",
-    element: <DecisionsPage />,
-  },
-  {
-    path: "/projects/:id/search",
-    element: <SearchPage />,
-  },
-  {
-    path: "/projects/:id/settings",
-    element: <ProjectSettingsPage />,
-  },
-  {
-    path: "/profile",
-    element: <ProfilePage />,
-  },
+
+  // ── Authenticated app routes (/app/*) ─────────────────────────
+  ...appRoutes,
+
+  // ── Legacy redirects ──────────────────────────────────────────
+  ...redirectRoutes,
+
+  // ── Dev-only design system ────────────────────────────────────
   {
     path: "/design-system",
     lazy: async () => {
@@ -137,14 +72,10 @@ const router = createBrowserRouter([
       return { Component: DesignSystemPage };
     },
   },
-  {
-    path: "/404",
-    element: <NotFoundPage />,
-  },
-  {
-    path: "*",
-    element: <NotFoundPage />,
-  },
+
+  // ── 404 ───────────────────────────────────────────────────────
+  { path: "/404", element: <NotFoundPage /> },
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 export function AppRouter() {

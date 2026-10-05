@@ -10,26 +10,31 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { routes } from "@/lib/routes";
 
 export function ProjectNav() {
   const { id } = useParams<{ id: string }>();
   if (!id) return null;
 
+  const p = routes.project(id);
+
   const tabs = [
-    { label: "Overview", to: `/app/projects/${id}`, end: true, icon: GitBranch },
-    { label: "Files", to: `/app/projects/${id}/files`, end: false, icon: FileCode2 },
-    { label: "Ask AI", to: `/app/projects/${id}/ask`, end: false, icon: Sparkles },
-    { label: "Explorer", to: `/app/projects/${id}/explorer`, end: false, icon: FileCode2 },
-    { label: "Onboarding", to: `/app/projects/${id}/onboarding`, end: false, icon: Compass },
-    { label: "Handoff", to: `/app/projects/${id}/handoff`, end: false, icon: BookOpen },
-    { label: "Decisions", to: `/app/projects/${id}/decisions`, end: false, icon: Layers },
-    { label: "Search", to: `/app/projects/${id}/search`, end: false, icon: Search },
-    { label: "Settings", to: `/app/projects/${id}/settings`, end: false, icon: Settings },
+    { label: "Overview",   to: p.root(),       end: true,  icon: GitBranch },
+    { label: "Files",      to: p.files(),      end: false, icon: FileCode2  },
+    { label: "Ask AI",     to: p.ask(),        end: false, icon: Sparkles   },
+    { label: "Onboarding", to: p.onboarding(), end: false, icon: Compass    },
+    { label: "Handoff",    to: p.handoff(),    end: false, icon: BookOpen   },
+    { label: "Decisions",  to: p.decisions(),  end: false, icon: Layers     },
+    { label: "Search",     to: p.search(),     end: false, icon: Search     },
+    { label: "Settings",   to: p.settings(),   end: false, icon: Settings   },
   ];
 
   return (
     <div className="border-b border-border bg-surface px-6">
-      <nav className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto py-1 scrollbar-none" aria-label="Project Navigation">
+      <nav
+        className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto py-1 scrollbar-none"
+        aria-label="Project Navigation"
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (

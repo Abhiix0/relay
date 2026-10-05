@@ -1,11 +1,12 @@
 import { type ReactNode } from "react";
 import { useParams } from "react-router";
-import { AppShell } from "./AppShell";
-import { ProjectNotFound } from "../ui/project-not-found";
-import { ErrorState } from "../ui/error-state";
-import { Skeleton } from "../ui/skeleton";
-import { useProject } from "@/lib/api/hooks";
 import { ApiError } from "@/lib/api/client";
+import { useProject } from "@/lib/api/hooks";
+import { useShellMounted } from "./AppShell";
+import { AppShell } from "./AppShell";
+import { ErrorState } from "@/components/ui/error-state";
+import { ProjectNotFound } from "@/components/ui/project-not-found";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectGuardProps {
   children: ReactNode;
@@ -13,14 +14,32 @@ interface ProjectGuardProps {
 }
 
 /**
- * Wrapper component that ensures a project exists before rendering children.
- * Shows appropriate loading, error, or not-found states.
+ * Legacy pass-through wrapper.
+ *
+ * When rendered inside the new ProjectLayout (shell already mounted + project
+ * already resolved), this component is a transparent no-op — children render
+ * directly without an extra fetch or extra shell.
+ *
+ * When rendered standalone (e.g. in tests or old routes), it resolves the
+ * project itself and shows appropriate loading/error states.
  */
-export function ProjectGuard({ children, showProjectNav = true }: ProjectGuardProps) {
+export function ProjectGuard({
+  children,
+  showProjectNav = true,
+}: ProjectGuardProps) {
+  const shellMounted = useShellMounted();
   const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading, error } = useProject(id);
+  const { data: project, isLoading, error } = useProject(
+    // Skip the fetch when the layout already resolved it
+    shellMounted ? undefined : id
+  );
 
-  // Handle missing project ID in URL
+  // Inside the new layout — just render children
+  if (shellMounted) {
+    return <>{children}</>;
+  }
+
+  // Standalone mode — handle all states
   if (!id) {
     return (
       <AppShell showProjectNav={false}>
@@ -29,11 +48,10 @@ export function ProjectGuard({ children, showProjectNav = true }: ProjectGuardPr
     );
   }
 
-  // Handle loading state
   if (isLoading) {
     return (
       <AppShell showProjectNav={showProjectNav}>
-        <div className="space-y-6">
+        <div className="space-y-6" aria-live="polite" aria-busy="true">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -42,7 +60,6 @@ export function ProjectGuard({ children, showProjectNav = true }: ProjectGuardPr
     );
   }
 
-  // Handle 404 project not found
   if (error instanceof ApiError && error.status === 404) {
     return (
       <AppShell showProjectNav={false}>
@@ -51,8 +68,7 @@ export function ProjectGuard({ children, showProjectNav = true }: ProjectGuardPr
     );
   }
 
-  // Handle other errors
-  if (error) {
+  if (error || !project) {
     return (
       <AppShell showProjectNav={false}>
         <ErrorState
@@ -63,19 +79,7 @@ export function ProjectGuard({ children, showProjectNav = true }: ProjectGuardPr
     );
   }
 
-  // Handle missing project (shouldn't happen if API is working correctly)
-  if (!project) {
-    return (
-      <AppShell showProjectNav={false}>
-        <ProjectNotFound projectId={id} />
-      </AppShell>
-    );
-  }
-
-  // Project loaded successfully, render children
   return (
-    <AppShell showProjectNav={showProjectNav}>
-      {children}
-    </AppShell>
+    <AppShell showProjectNav={showProjectNav}>{children}</AppShell>
   );
 }

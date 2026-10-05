@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { BookOpen, Compass, FileCode2, GitBranch, Layers, Search, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Compass,
+  FileCode2,
+  GitBranch,
+  Layers,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
 import { useProjects } from "@/lib/api/hooks";
+import { routes } from "@/lib/routes";
 
 interface CommandPaletteProps {
   open: boolean;
@@ -11,7 +20,11 @@ interface CommandPaletteProps {
   currentProjectId?: string;
 }
 
-export function CommandPalette({ open, onOpenChange, currentProjectId }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  onOpenChange,
+  currentProjectId,
+}: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { data: projects = [] } = useProjects();
@@ -27,51 +40,53 @@ export function CommandPalette({ open, onOpenChange, currentProjectId }: Command
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onOpenChange]);
 
-  const activeProject = projects.find((p) => p.id === currentProjectId) || projects[0];
-  const targetId = activeProject?.id || "turborepo";
+  const activeProject =
+    projects.find((p) => p.id === currentProjectId) ?? projects[0];
+  const targetId = activeProject?.id ?? "turborepo";
+  const p = routes.project(targetId);
 
   const navigationItems = [
     {
       title: "Project Overview",
-      description: `View ${activeProject?.name || "current project"} summary & stats`,
+      description: `View ${activeProject?.name ?? "current project"} summary & stats`,
       icon: GitBranch,
-      path: `/projects/${targetId}`,
+      path: p.root(),
     },
     {
       title: "Ask Relay AI",
       description: "Ask questions grounded in codebase evidence",
       icon: Sparkles,
-      path: `/projects/${targetId}/ask`,
+      path: p.ask(),
     },
     {
-      title: "Codebase Explorer",
-      description: "Browse repository files, AST, and artifacts",
+      title: "Codebase Files",
+      description: "Browse repository files and artifacts",
       icon: FileCode2,
-      path: `/projects/${targetId}/explorer`,
+      path: p.files(),
     },
     {
       title: "Onboarding Roadmap",
       description: "Interactive onboarding guide and tasks",
       icon: Compass,
-      path: `/projects/${targetId}/onboarding`,
+      path: p.onboarding(),
     },
     {
       title: "Architecture Handoff",
       description: "Engineering handoff briefings and invariants",
       icon: BookOpen,
-      path: `/projects/${targetId}/handoff`,
+      path: p.handoff(),
     },
     {
       title: "Architecture Decisions (ADRs)",
       description: "Technical decision records and rationale",
       icon: Layers,
-      path: `/projects/${targetId}/decisions`,
+      path: p.decisions(),
     },
     {
       title: "Evidence Search",
       description: "Search symbols, files, and commits",
       icon: Search,
-      path: `/projects/${targetId}/search`,
+      path: p.search(),
     },
   ];
 
@@ -116,11 +131,17 @@ export function CommandPalette({ open, onOpenChange, currentProjectId }: Command
                 <div className="flex items-center gap-3">
                   <Icon className="h-4 w-4 text-copper group-hover:text-paper transition" />
                   <div>
-                    <div className="text-sm font-medium text-paper">{item.title}</div>
-                    <div className="text-xs text-text-muted">{item.description}</div>
+                    <div className="text-sm font-medium text-paper">
+                      {item.title}
+                    </div>
+                    <div className="text-xs text-text-muted">
+                      {item.description}
+                    </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono text-text-muted group-hover:text-paper">Jump ↵</span>
+                <span className="text-[10px] font-mono text-text-muted group-hover:text-paper">
+                  Jump ↵
+                </span>
               </button>
             );
           })}

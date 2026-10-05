@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { ChevronDown, ExternalLink, GitBranch, LogOut, Search, Settings, User as UserIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ExternalLink,
+  GitBranch,
+  LogOut,
+  Search,
+  Settings,
+  User as UserIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +22,9 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { RelayMark } from "@/components/ui/relay-mark";
 import { StatusPill } from "@/components/ui/status-pill";
-import { useCurrentUser, useProjects } from "@/lib/api/hooks";
+import { useSession } from "@/app/session/SessionContext";
+import { useProjects } from "@/lib/api/hooks";
+import { routes } from "@/lib/routes";
 import { CommandPalette } from "./CommandPalette";
 
 interface AppHeaderProps {
@@ -24,22 +34,26 @@ interface AppHeaderProps {
 export function AppHeader({ currentProjectId }: AppHeaderProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const navigate = useNavigate();
-  const { data: user } = useCurrentUser();
+  const { user, signOut } = useSession();
   const { data: projects = [] } = useProjects();
 
   const currentProject = projects.find((p) => p.id === currentProjectId);
 
-  const getSyncStatus = (status?: string): "healthy" | "indexing" | "error" | "idle" => {
+  const getSyncStatus = (
+    status?: string
+  ): "healthy" | "indexing" | "error" | "idle" => {
     switch (status) {
-      case "succeeded":
-        return "healthy";
-      case "running":
-        return "indexing";
-      case "failed":
-        return "error";
-      default:
-        return "idle";
+      case "succeeded": return "healthy";
+      case "running":   return "indexing";
+      case "failed":    return "error";
+      default:          return "idle";
     }
+  };
+
+  const handleSignOut = () => {
+    signOut().then(() => navigate(routes.signIn())).catch(() => {
+      navigate(routes.signIn());
+    });
   };
 
   return (
@@ -47,7 +61,10 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
       <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur px-6 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
+            <Link
+              to={routes.app.root()}
+              className="flex items-center gap-2 hover:opacity-90 transition"
+            >
               <RelayMark compact />
             </Link>
 
@@ -68,14 +85,17 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                   <ChevronDown className="h-3.5 w-3.5 text-text-muted opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64 bg-charcoal border-border text-paper">
+              <DropdownMenuContent
+                align="start"
+                className="w-64 bg-charcoal border-border text-paper"
+              >
                 <DropdownMenuLabel className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
                   Repositories
                 </DropdownMenuLabel>
                 {projects.map((p) => (
                   <DropdownMenuItem
                     key={p.id}
-                    onClick={() => navigate(`/projects/${p.id}`)}
+                    onClick={() => navigate(routes.project(p.id).root())}
                     className="flex items-center justify-between text-xs cursor-pointer py-2"
                   >
                     <span className="font-mono truncate">{p.fullName}</span>
@@ -84,7 +104,7 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                 ))}
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate(routes.app.root())}
                   className="text-xs text-copper cursor-pointer"
                 >
                   Manage all repositories →
@@ -135,43 +155,57 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                   aria-label="User menu"
                 >
                   <Avatar className="h-7 w-7">
-                    <AvatarImage src={user?.avatarUrl || undefined} alt={user?.name || "User"} />
+                    <AvatarImage
+                      src={user?.avatarUrl ?? undefined}
+                      alt={user?.name ?? "User"}
+                    />
                     <AvatarFallback className="bg-surface-accent text-[11px] font-mono text-paper">
-                      {user?.name?.slice(0, 2).toUpperCase() || "AC"}
+                      {user?.name?.slice(0, 2).toUpperCase() ?? "AC"}
                     </AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-charcoal border-border text-paper">
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-charcoal border-border text-paper"
+              >
                 <DropdownMenuLabel className="font-normal p-3">
                   <div className="text-xs font-semibold">{user?.name}</div>
-                  <div className="text-[11px] text-text-muted truncate">{user?.email}</div>
-                  <div className="text-[10px] font-mono text-copper mt-1">@{user?.githubLogin}</div>
+                  <div className="text-[11px] text-text-muted truncate">
+                    {user?.email}
+                  </div>
+                  <div className="text-[10px] font-mono text-copper mt-1">
+                    @{user?.githubLogin}
+                  </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate(routes.app.profile())}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >
                   <UserIcon className="h-3.5 w-3.5 text-text-muted" />
                   <span>Profile & Tokens</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => navigate("/app/settings")}
+                  onClick={() => navigate(routes.app.settings())}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >
                   <Settings className="h-3.5 w-3.5 text-text-muted" />
                   <span>Settings</span>
                 </DropdownMenuItem>
+                {currentProjectId && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(routes.project(currentProjectId).settings())
+                    }
+                    className="flex items-center gap-2 text-xs cursor-pointer"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-text-muted" />
+                    <span>Project Settings</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
-                  onClick={() => navigate(currentProjectId ? `/projects/${currentProjectId}/settings` : "/dashboard")}
-                  className="flex items-center gap-2 text-xs cursor-pointer"
-                >
-                  <Settings className="h-3.5 w-3.5 text-text-muted" />
-                  <span>Project Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/design-system")}
+                  onClick={() => navigate(routes.designSystem())}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >
                   <ExternalLink className="h-3.5 w-3.5 text-text-muted" />
@@ -179,7 +213,7 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/sign-in")}
+                  onClick={handleSignOut}
                   className="flex items-center gap-2 text-xs text-error cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5" />
