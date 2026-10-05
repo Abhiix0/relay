@@ -10,10 +10,20 @@
     "check": "pnpm --filter web check",
     "lint": "pnpm --filter web lint",
     "test": "pnpm --filter web test",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "test:visual": "pnpm test:visual:capture && pnpm test:visual:diff",
+    "test:visual:baseline": "playwright test capture-baseline.spec.ts",
+    "test:visual:capture": "playwright test compare.spec.ts",
+    "test:visual:diff": "tsx e2e/landing/compare.ts"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "@playwright/test": "1.49.1",
+    "@types/pngjs": "6.0.5",
+    "pixelmatch": "6.0.0",
+    "pngjs": "7.0.0",
+    "prettier": "^3.6.2",
+    "tsx": "4.19.2",
+    "wait-on": "8.0.1"
   },
   "packageManager": "pnpm@10.18.0",
   "msw": {

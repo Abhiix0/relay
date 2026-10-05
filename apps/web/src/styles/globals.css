@@ -4,11 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Global resets that are safe for both routes:
+ *   - scroll-behavior and body margin/background don't affect .relay-landing
+ *     because .site-shell overrides background and the landing controls its own layout.
+ *   - @tailwind base (Preflight) only normalises elements the landing already
+ *     re-styles explicitly inside landing.css.
+ */
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   html {
     scroll-behavior: smooth;
   }
@@ -17,37 +20,49 @@
     @apply bg-surface text-text font-sans antialiased;
     margin: 0;
   }
+}
 
-  button,
-  a {
+/*
+ * App-shell scoped resets — applied ONLY inside .relay-app.
+ * These must NOT leak to .relay-landing, which owns its own element styles.
+ *
+ * Shared-file edit (L0 exception): scoping these rules here rather than in
+ * a global @layer base block prevents globals.css from silently overriding
+ * landing typography, link underlines, button borders, and focus rings.
+ */
+@layer base {
+  .relay-app * {
+    @apply border-border;
+  }
+
+  .relay-app button,
+  .relay-app a {
     font: inherit;
   }
 
-  a {
+  .relay-app a {
     @apply text-inherit no-underline;
   }
 
-  button {
+  .relay-app button {
     border: 0;
   }
 
-  ::selection {
+  .relay-app ::selection {
     @apply bg-copper text-paper;
   }
 
-  /* Focus styles for accessibility */
-  :focus-visible {
+  .relay-app :focus-visible {
     @apply outline-2 outline-offset-2 outline-copper;
   }
 
-  /* Headings */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  p {
+  .relay-app h1,
+  .relay-app h2,
+  .relay-app h3,
+  .relay-app h4,
+  .relay-app h5,
+  .relay-app h6,
+  .relay-app p {
     margin: 0;
   }
 }

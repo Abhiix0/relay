@@ -10,7 +10,7 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,12 +19,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: '10.18.0'
-          
+
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
@@ -53,3 +53,71 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    # Only run on PRs and pushes to main — skip for trivial commits if needed
+    needs: ci
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.18.0'
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Install the pinned Chromium browser (build 1148, Playwright 1.49.1)
+      # This is the same build used to capture the golden PNGs locally.
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build app
+        run: pnpm build
+
+      # Start the preview server in the background; wait until it responds
+      - name: Start preview server
+        run: |
+          pnpm preview &
+          npx wait-on http://localhost:4173 --timeout 30000
+
+      # Capture current screenshots into baseline/current/
+      - name: Capture current screenshots
+        run: pnpm test:visual:capture
+
+      # Diff current vs committed golden — exits 1 if any image exceeds 0.1%
+      - name: Diff against golden baseline
+        run: pnpm test:visual:diff
+
+      # Always upload diff images so failures are reviewable
+      - name: Upload diff images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff-${{ github.run_id }}
+          path: baseline/diff/
+          retention-days: 14

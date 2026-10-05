@@ -13,7 +13,7 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
   const { id } = useParams<{ id: string }>();
 
   return (
-    <div className="dark-product min-h-screen bg-surface text-text flex flex-col font-sans selection:bg-copper selection:text-paper">
+    <div className="relay-app dark-product min-h-screen bg-surface text-text flex flex-col font-sans selection:bg-copper selection:text-paper">
       <AppHeader currentProjectId={id} />
       <OfflineBanner />
       {showProjectNav && id && <ProjectNav />}

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function NotFoundPage() {
   return (
-    <main className="min-h-screen w-full bg-surface text-text flex flex-col items-center justify-center p-6 text-center">
+    <main className="relay-app min-h-screen w-full bg-surface text-text flex flex-col items-center justify-center p-6 text-center">
       <div className="flex flex-col items-center max-w-md w-full">
         {/* Isometric Box Illustration */}
         <div className="relative mb-8 flex items-center justify-center" aria-hidden="true">
