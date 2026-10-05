@@ -1,0 +1,90 @@
+/* Product overview section */
+
+.relay-landing .overview-section {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 38px;
+  padding-top: 136px;
+  padding-bottom: 153px;
+}
+
+.relay-landing .section-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.relay-landing .section-number {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--copper);
+}
+
+.relay-landing .vertical-rule {
+  width: 1px;
+  height: 81px;
+  background: var(--line);
+}
+
+.relay-landing .section-caption {
+  font-family: var(--mono);
+  font-size: 8px;
+  line-height: 1.4;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .overview-content {
+  max-width: 850px;
+}
+
+.relay-landing .overview-content h2,
+.relay-landing .workflow-head h2,
+.relay-landing .feature-index-panel h2,
+.relay-landing .dashboard-heading h2,
+.relay-landing .final-cta h2 {
+  font-family: var(--serif);
+  font-size: clamp(45px, 5.2vw, 73px);
+  line-height: 0.97;
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  margin-top: 22px;
+}
+
+.relay-landing .overview-lower {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 35px;
+  margin-top: 52px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+
+.relay-landing .overview-lower p {
+  max-width: 435px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--copper-dark);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: gap 0.2s ease;
+}
+
+.relay-landing .arrow-link:hover {
+  gap: 13px;
+}

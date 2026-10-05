@@ -1,0 +1,413 @@
+/* Hero section with diagram visual and ticker band */
+
+.relay-landing .hero-section {
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 0.81fr 1.19fr;
+  gap: 72px;
+  align-items: center;
+  padding: 74px 0 82px;
+}
+
+.relay-landing .hero-copy {
+  max-width: 500px;
+}
+
+.relay-landing .kicker,
+.relay-landing .eyebrow,
+.relay-landing .mini-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .kicker {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 32px;
+  color: var(--copper-dark);
+}
+
+.relay-landing .kicker-line {
+  display: block;
+  width: 38px;
+  height: 1px;
+  background: var(--copper);
+}
+
+.relay-landing h1 {
+  font-family: var(--serif);
+  font-size: clamp(58px, 6vw, 91px);
+  line-height: 0.93;
+  letter-spacing: -0.06em;
+  font-weight: 400;
+  max-width: 620px;
+}
+
+.relay-landing h1 span:not(.period),
+.relay-landing h2 em {
+  color: var(--copper);
+  font-style: italic;
+}
+
+.relay-landing .period {
+  color: var(--copper);
+}
+
+.relay-landing .hero-lede {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--charcoal-muted);
+  max-width: 390px;
+  margin: 33px 0 28px;
+}
+
+.relay-landing .hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.relay-landing .hero-metrics {
+  display: flex;
+  gap: 33px;
+  padding-top: 58px;
+}
+
+.relay-landing .hero-metrics div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.relay-landing .hero-metrics b {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.relay-landing .hero-metrics b span {
+  font-family: var(--sans);
+  color: var(--copper);
+  font-size: 13px;
+  margin-left: 1px;
+}
+
+.relay-landing .hero-metrics div > span {
+  font-family: var(--mono);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--charcoal-muted);
+  white-space: nowrap;
+}
+
+.relay-landing .hero-art {
+  min-width: 0;
+}
+
+.relay-landing .hero-diagram {
+  min-height: 485px;
+  position: relative;
+  overflow: hidden;
+  background: #e8e4d7;
+  border: 1px solid var(--line);
+  isolation: isolate;
+}
+
+.relay-landing .diagram-topline {
+  position: absolute;
+  top: 17px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 3;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .diagram-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.relay-landing .live-dot {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  background: var(--moss);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(157, 187, 160, 0.25);
+  animation: pulse 2.3s ease-in-out infinite;
+}
+
+.relay-landing .diagram-grid,
+.relay-landing .final-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.52;
+  background-image:
+    linear-gradient(rgba(25, 27, 23, 0.085) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 27, 23, 0.085) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
+
+.relay-landing .diagram-caption {
+  position: absolute;
+  z-index: 2;
+  font-family: var(--serif);
+  line-height: 0.93;
+  font-size: clamp(26px, 3.2vw, 48px);
+  letter-spacing: -0.05em;
+}
+
+.relay-landing .caption-a {
+  top: 91px;
+  left: 7%;
+}
+
+.relay-landing .caption-b {
+  right: 7%;
+  bottom: 81px;
+  text-align: right;
+}
+
+.relay-landing .diagram-cross {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 2;
+}
+
+.relay-landing .diagram-cross::before,
+.relay-landing .diagram-cross::after {
+  content: "";
+  position: absolute;
+  background: var(--charcoal);
+  opacity: 0.75;
+}
+
+.relay-landing .diagram-cross::before {
+  width: 1px;
+  height: 18px;
+  left: 9px;
+}
+
+.relay-landing .diagram-cross::after {
+  width: 18px;
+  height: 1px;
+  top: 9px;
+}
+
+.relay-landing .cross-a {
+  top: 89px;
+  left: 51%;
+}
+
+.relay-landing .cross-b {
+  bottom: 70px;
+  right: 49%;
+  transform: rotate(45deg);
+}
+
+.relay-landing .diagram-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.relay-landing .diagram-lines path {
+  fill: none;
+  stroke: var(--copper);
+  stroke-width: 1.3;
+  stroke-dasharray: 7 6;
+  opacity: 0.8;
+  animation: dash 18s linear infinite;
+}
+
+.relay-landing .diagram-lines circle {
+  fill: var(--copper);
+}
+
+.relay-landing .diagram-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border: 1px solid rgba(25, 27, 23, 0.28);
+  background: rgba(251, 250, 245, 0.83);
+  z-index: 4;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--charcoal-muted);
+  box-shadow: 4px 5px 0 rgba(25, 27, 23, 0.04);
+}
+
+.relay-landing .diagram-node svg {
+  color: var(--copper);
+}
+
+.relay-landing .diagram-node b {
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-left: 5px;
+}
+
+.relay-landing .node-a {
+  top: 20%;
+  left: 8%;
+}
+
+.relay-landing .node-b {
+  top: 36%;
+  left: 17%;
+}
+
+.relay-landing .node-c {
+  bottom: 18%;
+  left: 12%;
+}
+
+.relay-landing .node-d {
+  bottom: 29%;
+  right: 9%;
+}
+
+.relay-landing .context-card {
+  position: absolute;
+  width: min(285px, 45%);
+  right: 7%;
+  top: 29%;
+  z-index: 5;
+  padding: 17px 18px 15px;
+  border: 1px solid var(--charcoal);
+  background: var(--charcoal);
+  color: var(--paper);
+  box-shadow: 10px 10px 0 rgba(25, 27, 23, 0.12);
+  transform: rotate(-1.1deg);
+  animation: float-card 6s ease-in-out infinite;
+}
+
+.relay-landing .context-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.relay-landing .context-card .eyebrow {
+  color: #aaa99d;
+  font-size: 7px;
+}
+
+.relay-landing .signal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 7px;
+  color: var(--moss);
+  text-transform: uppercase;
+}
+
+.relay-landing .context-card h3 {
+  margin: 25px 0 7px;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.relay-landing .context-card p {
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.6;
+  color: #b7b6a9;
+  max-width: 215px;
+}
+
+.relay-landing .context-card-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-light);
+  font-family: var(--mono);
+  font-size: 7px;
+  color: #aaa99d;
+}
+
+.relay-landing .context-card-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.relay-landing .context-card-foot span:last-child {
+  color: var(--copper);
+}
+
+.relay-landing .diagram-index {
+  position: absolute;
+  bottom: 17px;
+  left: 20px;
+  z-index: 3;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .ticker-band {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0 max(32px, calc((100vw - 1240px) / 2));
+  background: rgba(251, 250, 245, 0.38);
+}
+
+.relay-landing .ticker-label {
+  color: var(--copper-dark);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.relay-landing .ticker-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.relay-landing .ticker-items i {
+  color: var(--copper);
+  font-style: normal;
+  font-size: 15px;
+}

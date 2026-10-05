@@ -1,0 +1,40 @@
+/* Site footer */
+
+.relay-landing .site-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  min-height: 155px;
+  padding-bottom: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.relay-landing .site-footer .wordmark {
+  font-size: 15px;
+}
+
+.relay-landing .site-footer p {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .footer-links,
+.relay-landing .footer-meta {
+  display: flex;
+  gap: 20px;
+  font-family: var(--mono);
+  font-size: 8px;
+  text-transform: uppercase;
+  color: var(--charcoal-muted);
+}
+
+.relay-landing .footer-links a:hover {
+  color: var(--copper);
+}
+
+.relay-landing .footer-meta {
+  color: #8a8a80;
+}

@@ -1,0 +1,426 @@
+/* Responsive breakpoints */
+
+@media (max-width: 960px) {
+  .relay-landing .section-wrap,
+  .relay-landing .site-header {
+    width: min(100% - 40px, 760px);
+  }
+  .relay-landing .main-nav {
+    gap: 17px;
+    margin-left: 20px;
+  }
+  .relay-landing .main-nav a,
+  .relay-landing .text-link {
+    font-size: 8px;
+  }
+  .relay-landing .hero-section {
+    grid-template-columns: 1fr;
+    gap: 50px;
+    padding-top: 65px;
+  }
+  .relay-landing .hero-copy {
+    max-width: 610px;
+  }
+  .relay-landing .hero-art {
+    width: 100%;
+  }
+  .relay-landing .hero-diagram {
+    min-height: 430px;
+  }
+  .relay-landing .features-section {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+  .relay-landing .feature-index-panel {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 30px;
+  }
+  .relay-landing .feature-index-panel > p {
+    margin: 22px 0 0;
+  }
+  .relay-landing .feature-tabs {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .relay-landing .feature-tab {
+    padding: 12px 8px;
+  }
+  .relay-landing .feature-tab-number {
+    width: 17px;
+  }
+  .relay-landing .feature-detail {
+    grid-template-columns: 0.75fr 1.25fr;
+  }
+  .relay-landing .dashboard-frame {
+    grid-template-columns: 140px 1fr;
+  }
+  .relay-landing .dashboard-sidebar {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .relay-landing .dashboard-main {
+    padding: 25px 22px;
+  }
+  .relay-landing .final-cta {
+    gap: 35px;
+  }
+  .relay-landing .footer-links {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 680px) {
+  .relay-landing .section-wrap,
+  .relay-landing .site-header {
+    width: calc(100% - 32px);
+  }
+  .relay-landing .site-header {
+    height: 70px;
+  }
+  .relay-landing .main-nav {
+    display: none;
+    position: absolute;
+    top: 69px;
+    left: -1px;
+    right: -1px;
+    margin: 0;
+    padding: 16px;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--line);
+    background: var(--linen);
+    box-shadow: 0 10px 20px rgba(25, 27, 23, 0.07);
+  }
+  .relay-landing .main-nav-open {
+    display: flex;
+  }
+  .relay-landing .main-nav a {
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 9px;
+  }
+  .relay-landing .main-nav a:last-child {
+    border-bottom: 0;
+  }
+  .relay-landing .header-actions .hide-mobile {
+    display: none;
+  }
+  .relay-landing .menu-button {
+    display: inline-flex;
+  }
+  .relay-landing .header-actions {
+    margin-left: auto;
+    margin-right: 13px;
+  }
+  .relay-landing .button-small {
+    min-height: 32px;
+    font-size: 8px;
+  }
+  .relay-landing .hero-section {
+    min-height: auto;
+    padding: 64px 0 73px;
+    gap: 42px;
+  }
+  .relay-landing .kicker {
+    line-height: 1.4;
+    align-items: flex-start;
+  }
+  .relay-landing .hero-lede {
+    margin-top: 26px;
+    font-size: 13px;
+  }
+  .relay-landing .hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+    max-width: 255px;
+  }
+  .relay-landing .hero-actions .button {
+    width: 100%;
+  }
+  .relay-landing .hero-metrics {
+    gap: 18px;
+    padding-top: 45px;
+  }
+  .relay-landing .hero-metrics div > span {
+    font-size: 7px;
+    white-space: normal;
+  }
+  .relay-landing .hero-metrics b {
+    font-size: 21px;
+  }
+  .relay-landing .hero-diagram {
+    min-height: 420px;
+  }
+  .relay-landing .diagram-caption {
+    font-size: 28px;
+  }
+  .relay-landing .caption-a {
+    top: 85px;
+    left: 6%;
+  }
+  .relay-landing .caption-b {
+    bottom: 71px;
+    right: 6%;
+  }
+  .relay-landing .context-card {
+    width: 57%;
+    right: 5%;
+    top: 31%;
+    padding: 13px;
+  }
+  .relay-landing .context-card h3 {
+    font-size: 17px;
+    margin-top: 19px;
+  }
+  .relay-landing .context-card p {
+    font-size: 8px;
+  }
+  .relay-landing .node-a {
+    top: 18%;
+    left: 5%;
+  }
+  .relay-landing .node-b {
+    top: 38%;
+    left: 7%;
+  }
+  .relay-landing .node-c {
+    bottom: 15%;
+    left: 5%;
+  }
+  .relay-landing .node-d {
+    bottom: 29%;
+    right: 5%;
+  }
+  .relay-landing .diagram-node {
+    font-size: 7px;
+    padding: 6px 7px;
+  }
+  .relay-landing .diagram-node b {
+    display: none;
+  }
+  .relay-landing .ticker-band {
+    padding: 15px 16px;
+    display: block;
+  }
+  .relay-landing .ticker-label {
+    margin-bottom: 10px;
+  }
+  .relay-landing .ticker-items {
+    flex-wrap: wrap;
+    gap: 9px 12px;
+    font-size: 7px;
+    justify-content: flex-start;
+  }
+  .relay-landing .ticker-items i {
+    display: none;
+  }
+  .relay-landing .overview-section {
+    display: block;
+    padding-top: 86px;
+    padding-bottom: 103px;
+  }
+  .relay-landing .section-aside {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 33px;
+  }
+  .relay-landing .vertical-rule {
+    width: 47px;
+    height: 1px;
+  }
+  .relay-landing .section-caption {
+    writing-mode: initial;
+    transform: none;
+  }
+  .relay-landing .overview-content h2,
+  .relay-landing .workflow-head h2,
+  .relay-landing .feature-index-panel h2,
+  .relay-landing .dashboard-heading h2,
+  .relay-landing .final-cta h2 {
+    font-size: 48px;
+  }
+  .relay-landing .overview-lower {
+    display: block;
+    margin-top: 36px;
+  }
+  .relay-landing .overview-lower p {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .relay-landing .workflow-section {
+    padding-bottom: 104px;
+  }
+  .relay-landing .workflow-head {
+    display: block;
+  }
+  .relay-landing .workflow-note {
+    margin-top: 28px;
+  }
+  .relay-landing .workflow-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 35px;
+  }
+  .relay-landing .workflow-card {
+    min-height: 228px;
+  }
+  .relay-landing .workflow-card-line {
+    margin: 35px 0 17px;
+  }
+  .relay-landing .workflow-card-body h3 {
+    font-size: 25px;
+  }
+  .relay-landing .features-section {
+    padding-bottom: 104px;
+    gap: 36px;
+  }
+  .relay-landing .feature-index-panel {
+    display: block;
+  }
+  .relay-landing .feature-index-panel > p {
+    margin: 19px 0 22px;
+  }
+  .relay-landing .feature-tabs {
+    display: flex;
+  }
+  .relay-landing .feature-tab {
+    padding: 11px 0;
+  }
+  .relay-landing .feature-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 31px;
+    align-items: stretch;
+  }
+  .relay-landing .feature-detail-copy h2 {
+    font-size: 39px;
+  }
+  .relay-landing .feature-visual {
+    min-height: 335px;
+  }
+  .relay-landing .context-visual-grid {
+    grid-template-columns: 40% 60%;
+  }
+  .relay-landing .tree-panel {
+    padding: 24px 10px;
+  }
+  .relay-landing .code-panel {
+    padding: 24px 10px;
+    overflow: hidden;
+  }
+  .relay-landing .code-line {
+    font-size: 7px;
+    margin-top: 12px;
+  }
+  .relay-landing .code-line span {
+    width: 15px;
+  }
+  .relay-landing .code-note {
+    font-size: 7px;
+    margin-top: 28px;
+  }
+  .relay-landing .feature-abstract {
+    padding: 26px 20px;
+  }
+  .relay-landing .abstract-title {
+    margin-top: 50px;
+    font-size: 35px;
+  }
+  .relay-landing .abstract-lines {
+    width: 90%;
+  }
+  .relay-landing .dashboard-section {
+    padding-bottom: 105px;
+  }
+  .relay-landing .dashboard-heading {
+    display: block;
+  }
+  .relay-landing .dashboard-heading-copy {
+    margin-top: 25px;
+  }
+  .relay-landing .dashboard-frame {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    margin-top: 37px;
+  }
+  .relay-landing .dashboard-sidebar {
+    display: none;
+  }
+  .relay-landing .dashboard-main {
+    padding: 20px 15px;
+  }
+  .relay-landing .dash-top h3 {
+    font-size: 24px;
+  }
+  .relay-landing .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .relay-landing .dash-stats div:nth-child(2) {
+    border-right: 0;
+  }
+  .relay-landing .dash-stats div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+  .relay-landing .dash-stats b {
+    font-size: 24px;
+  }
+  .relay-landing .dash-content-grid {
+    grid-template-columns: 1fr;
+    gap: 31px;
+  }
+  .relay-landing .activity-card {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 24px;
+  }
+  .relay-landing .project-row {
+    grid-template-columns: 27px 1fr auto;
+  }
+  .relay-landing .project-row small {
+    display: none;
+  }
+  .relay-landing .quote-section {
+    padding-top: 70px;
+    padding-bottom: 105px;
+  }
+  .relay-landing .quote-section blockquote {
+    font-size: 38px;
+  }
+  .relay-landing .quote-credit {
+    line-height: 1.5;
+  }
+  .relay-landing .credit-line {
+    width: 20px;
+  }
+  .relay-landing .final-cta {
+    display: block;
+    padding-bottom: 72px;
+  }
+  .relay-landing .final-cta-inner {
+    padding: 45px 0 48px;
+  }
+  .relay-landing .final-diagram {
+    height: 220px;
+  }
+  .relay-landing .site-footer {
+    min-height: 220px;
+    display: grid;
+    align-content: end;
+    gap: 22px;
+    padding-bottom: 23px;
+  }
+  .relay-landing .footer-links {
+    order: 2;
+    flex-wrap: wrap;
+  }
+  .relay-landing .footer-meta {
+    order: 3;
+    justify-content: space-between;
+  }
+  .relay-landing .site-footer .wordmark {
+    font-size: 14px;
+  }
+}

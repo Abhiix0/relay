@@ -1,0 +1,57 @@
+/* Animations and keyframes */
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(157, 187, 160, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(157, 187, 160, 0);
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -140;
+  }
+}
+
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-0.5deg);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.relay-landing .reveal-up {
+  animation: reveal-up 0.7s ease both;
+}
+
+.relay-landing .reveal-right {
+  animation: reveal-up 0.7s 0.12s ease both;
+}

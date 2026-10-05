@@ -1,0 +1,152 @@
+/* Site header and navigation */
+
+.relay-landing .site-header {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  z-index: 20;
+}
+
+.relay-landing .header-logo {
+  display: inline-flex;
+}
+
+.relay-landing .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--charcoal);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.relay-landing .mark {
+  display: inline-flex;
+  width: 29px;
+  height: 29px;
+  color: var(--charcoal);
+}
+
+.relay-landing .mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.relay-landing .wordmark-compact .mark {
+  width: 21px;
+  height: 21px;
+}
+
+.relay-landing .wordmark-compact .mark {
+  color: var(--paper);
+}
+
+.relay-landing .main-nav {
+  display: flex;
+  gap: 30px;
+  margin-left: 54px;
+}
+
+.relay-landing .main-nav a,
+.relay-landing .text-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--charcoal-muted);
+  transition: color 0.2s ease;
+}
+
+.relay-landing .main-nav a:hover,
+.relay-landing .text-link:hover {
+  color: var(--copper);
+}
+
+.relay-landing .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.relay-landing .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--charcoal);
+}
+
+.relay-landing .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 21px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: var(--mono);
+  font-size: 10px;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.relay-landing .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(25, 27, 23, 0.11);
+}
+
+.relay-landing .button:active {
+  transform: translateY(0);
+}
+
+.relay-landing .button-copper {
+  background: var(--copper);
+  color: var(--paper);
+}
+
+.relay-landing .button-copper:hover {
+  background: var(--copper-dark);
+}
+
+.relay-landing .button-ghost {
+  background: transparent;
+  color: var(--charcoal);
+  border: 1px solid var(--line);
+}
+
+.relay-landing .button-ghost:hover {
+  background: var(--paper);
+}
+
+.relay-landing .button-small {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 9px;
+}
+
+.relay-landing .play-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.relay-landing .menu-button {
+  display: none;
+  background: transparent;
+  color: var(--charcoal);
+  padding: 4px;
+}
