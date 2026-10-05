@@ -27,6 +27,25 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      // Prevent console.* outside the logger module
+      "no-console": "error",
     },
+  },
+  // The logger module is the single approved place for console calls
+  {
+    files: ["src/lib/log.ts"],
+    rules: { "no-console": "off" },
+  },
+  // T-owned and ASG-owned feature folders — no-console not enforced by K
+  {
+    files: [
+      "src/features/handoff/**",
+      "src/features/onboarding/**",
+      "src/features/profile/**",
+      "src/features/settings/**",
+      "src/features/ask/**",
+      "src/features/landing/**",
+    ],
+    rules: { "no-console": "off" },
   }
 );

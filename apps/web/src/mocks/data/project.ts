@@ -1,0 +1,68 @@
+import type { Project } from "@/lib/api/types";
+
+export const mockProjects: Project[] = [
+  {
+    id: "turborepo",
+    name: "turbo",
+    fullName: "vercel/turbo",
+    description:
+      "High-performance build system for JavaScript and TypeScript codebases written in Rust.",
+    language: "Rust",
+    owner: "vercel",
+    syncStatus: "succeeded",
+    lastSyncedAt: "2026-10-03T18:30:00Z",
+    stats: { commits: 4280, pullRequests: 128, issues: 42, releases: 8, files: 3410 },
+    health: { overall: 87, documentation: 72, activity: "high" },
+    healthLabel: "98% Indexed · Healthy",
+    createdAt: "2026-02-01T12:00:00Z",
+    updatedAt: "2026-10-03T18:30:00Z",
+  },
+  {
+    id: "prisma",
+    name: "prisma",
+    fullName: "prisma/prisma",
+    description:
+      "Next-generation ORM for Node.js & TypeScript with schema-driven migrations and type safety.",
+    language: "TypeScript",
+    owner: "prisma",
+    syncStatus: "succeeded",
+    lastSyncedAt: "2026-10-03T16:15:00Z",
+    stats: { commits: 8912, pullRequests: 214, issues: 89, releases: 34, files: 5120 },
+    health: { overall: 94, documentation: 88, activity: "high" },
+    healthLabel: "94% Indexed · Healthy",
+    createdAt: "2026-02-15T10:00:00Z",
+    updatedAt: "2026-10-03T16:15:00Z",
+  },
+  {
+    id: "calcom",
+    name: "cal.com",
+    fullName: "calcom/cal.com",
+    description:
+      "Scheduling infrastructure for everyone. Open source Calendly alternative built with Next.js.",
+    language: "TypeScript",
+    owner: "calcom",
+    syncStatus: "running",
+    lastSyncedAt: "2026-10-03T14:00:00Z",
+    stats: { commits: 14200, pullRequests: 340, issues: 112, releases: 52, files: 8900 },
+    health: { overall: 68, documentation: 55, activity: "medium" },
+    healthLabel: "Indexing (68%)",
+    createdAt: "2026-03-01T08:00:00Z",
+    updatedAt: "2026-10-03T19:00:00Z",
+  },
+  {
+    id: "excalidraw",
+    name: "excalidraw",
+    fullName: "excalidraw/excalidraw",
+    description:
+      "Virtual collaborative whiteboard for sketching hand-drawn like diagrams with end-to-end encryption.",
+    language: "TypeScript",
+    owner: "excalidraw",
+    syncStatus: "queued",
+    lastSyncedAt: null,
+    stats: { commits: 6100, pullRequests: 95, issues: 31, releases: 18, files: 2840 },
+    health: { overall: 0, documentation: 0, activity: "low" },
+    healthLabel: "Sync Queued",
+    createdAt: "2026-03-10T14:00:00Z",
+    updatedAt: "2026-10-03T19:10:00Z",
+  },
+];
