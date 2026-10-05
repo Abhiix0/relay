@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   ArrowDown,
   ArrowRight,
@@ -14,7 +14,6 @@ import {
   GitBranch,
   GitPullRequest,
   Github,
-  Menu,
   MessageCircle,
   Network,
   Play,
@@ -22,9 +21,20 @@ import {
   Search,
   Sparkles,
   SquareTerminal,
-  X,
   Zap,
 } from "lucide-react";
+import { Header } from "./sections/Header";
+import { Hero } from "./sections/Hero";
+import { HeroVisual } from "./sections/HeroVisual";
+import { ProductOverview } from "./sections/ProductOverview";
+import { Workflow } from "./sections/Workflow";
+import { Features } from "./sections/Features";
+import { Dashboard } from "./sections/Dashboard";
+import { Quote } from "./sections/Quote";
+import { FinalCta } from "./sections/FinalCta";
+import { Footer } from "./sections/Footer";
+import { workflow } from "./content";
+import { RelayMark } from "./parts";
 
 type Feature = {
   id: string;
@@ -36,144 +46,6 @@ type Feature = {
   icon: typeof GitBranch;
   bullets: string[];
 };
-
-const features: Feature[] = [
-  {
-    id: "context",
-    number: "01",
-    label: "Project context",
-    title: "See the shape of a repository in minutes.",
-    description:
-      "Relay turns commits, docs, issues, and pull requests into a living map of how your software is actually put together.",
-    accent: "copper",
-    icon: GitBranch,
-    bullets: [
-      "Architecture, ownership, and intent",
-      "Evidence-linked project summaries",
-      "Always fresh from your repository",
-    ],
-  },
-  {
-    id: "agent",
-    number: "02",
-    label: "AI agent",
-    title: "Ask better questions. Get grounded answers.",
-    description:
-      "A context-aware agent connects the dots across your codebase, so answers come with the files, commits, and decisions behind them.",
-    accent: "moss",
-    icon: Sparkles,
-    bullets: [
-      "Answers with source trails",
-      "Follow-up questions stay in context",
-      "Shareable discoveries for the team",
-    ],
-  },
-  {
-    id: "onboarding",
-    number: "03",
-    label: "Onboarding",
-    title: "Make the first week feel like a head start.",
-    description:
-      "Give every new teammate a clear route through the product: where to begin, what matters, and how the pieces connect.",
-    accent: "sun",
-    icon: BookOpen,
-    bullets: [
-      "Role-aware learning paths",
-      "Milestones from first PR to confidence",
-      "A guide that evolves with the code",
-    ],
-  },
-  {
-    id: "handoff",
-    number: "04",
-    label: "Handoff",
-    title: "Leave context better than you found it.",
-    description:
-      "Capture the reasoning behind the work, not just the list of files changed. Relay makes handoffs useful on day one.",
-    accent: "blue",
-    icon: GitPullRequest,
-    bullets: [
-      "Decisions and trade-offs in one place",
-      "Handoffs linked to the source",
-      "Less archaeology between teams",
-    ],
-  },
-  {
-    id: "search",
-    number: "05",
-    label: "Search",
-    title: "Find the answer hiding in plain sight.",
-    description:
-      "Search across code, issues, commits, and docs at once. Start with a phrase, then follow the thread until it makes sense.",
-    accent: "charcoal",
-    icon: Search,
-    bullets: [
-      "Semantic search across project history",
-      "Filter by type, owner, or recency",
-      "Jump from result to useful context",
-    ],
-  },
-];
-
-const workflow = [
-  {
-    number: "01",
-    label: "Connect",
-    title: "Point Relay at your GitHub.",
-    detail:
-      "Select the repositories that matter. Relay indexes the signal, not the noise.",
-    icon: Github,
-  },
-  {
-    number: "02",
-    label: "Explore",
-    title: "Follow the connections.",
-    detail:
-      "Move from a file to a feature, from a feature to a decision, without losing the thread.",
-    icon: Network,
-  },
-  {
-    number: "03",
-    label: "Share",
-    title: "Turn understanding into momentum.",
-    detail:
-      "Publish a clear handoff, a guided onboarding path, or an answer your team can trust.",
-    icon: ArrowUpRight,
-  },
-];
-
-function RelayMark({ compact = false }: { compact?: boolean }) {
-  return (
-    <span
-      className={`wordmark ${compact ? "wordmark-compact" : ""}`}
-      aria-label="Relay"
-    >
-      <span className="mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" fill="none">
-          <path
-            d="M11.7 17.2 17.2 11.7a3.7 3.7 0 0 1 5.2 5.2l-2.1 2.1"
-            stroke="currentColor"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="m20.3 14.8-5.5 5.5a3.7 3.7 0 0 1-5.2-5.2l2.1-2.1"
-            stroke="currentColor"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="m13.5 18.4 5-5"
-            stroke="var(--copper)"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-          />
-        </svg>
-      </span>
-      {!compact && <span>Relay</span>}
-    </span>
-  );
-}
 
 function HeroDiagram() {
   return (
@@ -372,6 +244,8 @@ function FeatureVisual({ feature }: { feature: Feature }) {
   );
 }
 
+
+
 function DashboardPreview() {
   return (
     <div className="dashboard-frame">
@@ -502,13 +376,7 @@ function DashboardPreview() {
 }
 
 export default function HomePage() {
-  const [activeFeature, setActiveFeature] = useState("context");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const active = features.find(feature => feature.id === activeFeature);
-
-  if (!active) {
-    return null;
-  }
 
   const closeMenu = () => setMobileOpen(false);
   const scrollTo = (id: string) => {
@@ -521,345 +389,28 @@ export default function HomePage() {
   return (
     <main className="site-shell">
       <div className="grain" aria-hidden="true" />
-      <header className="site-header">
-        <a href="#top" className="header-logo" onClick={closeMenu}>
-          <RelayMark />
-        </a>
-        <nav
-          className={`main-nav ${mobileOpen ? "main-nav-open" : ""}`}
-          aria-label="Primary navigation"
-        >
-          <a href="#product" onClick={closeMenu}>
-            Product
-          </a>
-          <a href="#workflow" onClick={closeMenu}>
-            How it works
-          </a>
-          <a href="#features" onClick={closeMenu}>
-            Features
-          </a>
-          <a href="#about" onClick={closeMenu}>
-            About
-          </a>
-        </nav>
-        <div className="header-actions">
-          <a className="text-link hide-mobile" href="/sign-in">
-            Sign in <ArrowUpRight size={14} />
-          </a>
-          <a
-            className="button button-copper button-small"
-            href="/sign-in"
-          >
-            Get started <ArrowUpRight size={14} />
-          </a>
-        </div>
-        <button
-          className="menu-button"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen(open => !open)}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </header>
+      <Header
+        mobileOpen={mobileOpen}
+        onMenuToggle={() => setMobileOpen(o => !o)}
+        onMenuClose={closeMenu}
+        onNavClick={scrollTo}
+      />
 
-      <section className="hero-section section-wrap" id="top">
-        <div className="hero-copy reveal-up">
-          <div className="kicker">
-            <span className="kicker-line" /> Developer context, without the
-            archaeology
-          </div>
-          <h1>
-            Understand any
-            <br />
-            <span>codebase</span> faster<span className="period">.</span>
-          </h1>
-          <p className="hero-lede">
-            Connect your GitHub repositories, get instant project context, and
-            use AI to onboard, search, and handoff — all in one place.
-          </p>
-          <div className="hero-actions">
-            <a
-              className="button button-copper"
-              href="/sign-in"
-            >
-              Start with your repo <ArrowRight size={15} />
-            </a>
-            <button
-              className="button button-ghost"
-              onClick={() => scrollTo("product")}
-            >
-              <span className="play-icon">
-                <Play size={12} fill="currentColor" />
-              </span>{" "}
-              Watch the idea
-            </button>
-          </div>
-          <div className="hero-metrics">
-            <div>
-              <b>
-                100<span>+</span>
-              </b>
-              <span>projects indexed</span>
-            </div>
-            <div>
-              <b>
-                10k<span>+</span>
-              </b>
-              <span>questions answered</span>
-            </div>
-            <div>
-              <b>∞</b>
-              <span>context retained</span>
-            </div>
-          </div>
-        </div>
-        <div className="hero-art reveal-right">
-          <HeroDiagram />
-        </div>
-      </section>
+      <Hero onCtaClick={scrollTo} HeroVisual={HeroVisual} />
 
-      <section className="ticker-band" aria-label="Relay capabilities">
-        <div className="ticker-label">ONE PLACE FOR</div>
-        <div className="ticker-items">
-          <span>PROJECT CONTEXT</span>
-          <i>→</i>
-          <span>AI AGENT</span>
-          <i>→</i>
-          <span>ONBOARDING</span>
-          <i>→</i>
-          <span>HANDOFF</span>
-          <i>→</i>
-          <span>SEARCH</span>
-        </div>
-      </section>
+      <ProductOverview />
 
-      <section className="overview-section section-wrap" id="product">
-        <div className="section-aside">
-          <span className="section-number">01</span>
-          <span className="vertical-rule" />
-          <span className="section-caption">The relay effect</span>
-        </div>
-        <div className="overview-content">
-          <div className="eyebrow">
-            PROJECT CONTEXT / A BETTER STARTING POINT
-          </div>
-          <h2>
-            Less time tracing the past.
-            <br />
-            <em>More time building what’s next.</em>
-          </h2>
-          <div className="overview-lower">
-            <p>
-              Most codebases have the answer somewhere. Relay makes the
-              somewhere legible — connecting the files, decisions, and
-              conversations that explain how a project became what it is.
-            </p>
-            <a href="#features" className="arrow-link">
-              Explore the system <ArrowDown size={15} />
-            </a>
-          </div>
-        </div>
-      </section>
+      <Workflow />
 
-      <section className="workflow-section section-wrap" id="workflow">
-        <div className="workflow-head">
-          <div>
-            <div className="eyebrow">HOW IT WORKS / THREE MOVES</div>
-            <h2>
-              From codebase
-              <br />
-              <em>to context.</em>
-            </h2>
-          </div>
-          <div className="workflow-note">
-            <span className="note-mark">↗</span>
-            <p>
-              Relay follows the thread so you don’t have to hold the whole
-              system in your head.
-            </p>
-          </div>
-        </div>
-        <div className="workflow-grid">
-          {workflow.map(step => {
-            const Icon = step.icon;
-            return (
-              <article className="workflow-card" key={step.number}>
-                <div className="workflow-card-top">
-                  <span>{step.number}</span>
-                  <Icon size={19} />
-                </div>
-                <div className="workflow-card-line" />
-                <div className="workflow-card-body">
-                  <span className="eyebrow">{step.label}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.detail}</p>
-                </div>
-                <a
-                  href="#features"
-                  className="card-arrow"
-                  aria-label={`Learn about ${step.label}`}
-                >
-                  <ArrowUpRight size={16} />
-                </a>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+      <Features />
 
-      <section className="features-section section-wrap" id="features">
-        <div className="feature-index-panel">
-          <div className="eyebrow">THE RELAY SYSTEM</div>
-          <h2>
-            Five ways to
-            <br />
-            <em>keep context.</em>
-          </h2>
-          <p>
-            Select a capability to see how Relay turns repository signal into
-            useful momentum.
-          </p>
-          <div
-            className="feature-tabs"
-            role="tablist"
-            aria-label="Relay capabilities"
-          >
-            {features.map(feature => {
-              const Icon = feature.icon;
-              return (
-                <button
-                  key={feature.id}
-                  className={`feature-tab ${activeFeature === feature.id ? "feature-tab-active" : ""}`}
-                  onClick={() => setActiveFeature(feature.id)}
-                  role="tab"
-                  aria-selected={activeFeature === feature.id}
-                >
-                  <span className="feature-tab-number">{feature.number}</span>
-                  <Icon size={15} />
-                  <span>{feature.label}</span>
-                  <ChevronRight className="feature-chevron" size={15} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div className="feature-detail" key={active.id}>
-          <div className="feature-detail-copy">
-            <div className={`feature-badge badge-${active.accent}`}>
-              <active.icon size={16} /> {active.label}
-            </div>
-            <h2>{active.title}</h2>
-            <p>{active.description}</p>
-            <ul>
-              {active.bullets.map(bullet => (
-                <li key={bullet}>
-                  <Check size={14} /> {bullet}
-                </li>
-              ))}
-            </ul>
-            <a href="#demo" className="arrow-link">
-              See it in action <ArrowRight size={15} />
-            </a>
-          </div>
-          <FeatureVisual feature={active} />
-        </div>
-      </section>
+      <Dashboard />
 
-      <section className="dashboard-section section-wrap" id="demo">
-        <div className="dashboard-heading">
-          <div>
-            <div className="eyebrow">A CALMER COMMAND CENTER</div>
-            <h2>
-              Good context
-              <br />
-              <em>looks like this.</em>
-            </h2>
-          </div>
-          <div className="dashboard-heading-copy">
-            <p>
-              One view for the projects you’re learning, the questions you’re
-              answering, and the context you’re leaving behind.
-            </p>
-            <a href="#contact" className="arrow-link">
-              Get early access <ArrowUpRight size={15} />
-            </a>
-          </div>
-        </div>
-        <DashboardPreview />
-      </section>
+      <Quote />
 
-      <section className="quote-section section-wrap">
-        <div className="quote-mark">“</div>
-        <blockquote>
-          Relay gives the codebase a memory — so every new person can start from
-          understanding, not assumptions.
-        </blockquote>
-        <div className="quote-credit">
-          <span className="credit-line" />
-          <span>Designed for teams inheriting ambitious software</span>
-          <span className="credit-line" />
-        </div>
-      </section>
+      <FinalCta />
 
-      <section className="final-cta section-wrap" id="contact">
-        <div className="final-cta-inner">
-          <div className="eyebrow">READY WHEN YOU ARE</div>
-          <h2>
-            Start with
-            <br />
-            <em>the unknown.</em>
-          </h2>
-          <p>
-            Connect a repository and let Relay show you what’s already there.
-          </p>
-          <div className="final-actions">
-            <a
-              className="button button-copper"
-              href="/sign-in"
-            >
-              Bring your repo <ArrowRight size={15} />
-            </a>
-            <span className="final-note">
-              <span className="live-dot" /> No credit card. Just context.
-            </span>
-          </div>
-        </div>
-        <div className="final-diagram">
-          <div className="final-grid" />
-          <div className="final-node final-node-a">
-            <GitBranch size={14} /> repo
-          </div>
-          <div className="final-node final-node-b">
-            <Sparkles size={14} /> context
-          </div>
-          <div className="final-node final-node-c">
-            <ArrowUpRight size={14} /> momentum
-          </div>
-          <svg viewBox="0 0 460 250" preserveAspectRatio="none">
-            <path d="M78 126 H205 L285 70 H395" />
-            <path d="M205 126 285 182 H395" />
-            <circle cx="205" cy="126" r="6" />
-          </svg>
-        </div>
-      </section>
-
-      <footer className="site-footer section-wrap">
-        <div>
-          <RelayMark />
-          <p>From codebase to context.</p>
-        </div>
-        <div className="footer-links">
-          <a href="#product">Product</a>
-          <a href="#workflow">How it works</a>
-          <a href="#features">Features</a>
-          <a href="#contact">Contact</a>
-        </div>
-        <div className="footer-meta">
-          <span>© 2026 Relay</span>
-          <span>Built for the curious</span>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
