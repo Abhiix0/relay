@@ -14,7 +14,7 @@ export async function enableMocking(): Promise<void> {
         url: "/mockServiceWorker.js",
       },
     });
-  } catch (error) {
-    console.error("Failed to start MSW worker:", error);
+  } catch {
+    // MSW worker failed to start; app continues without mocking
   }
 }

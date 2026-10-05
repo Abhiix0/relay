@@ -1,242 +1,182 @@
-import { z } from "zod";
-
 /* ── User ─────────────────────────────────────────────────── */
-export const userSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  name: z.string(),
-  avatarUrl: z.string().url().nullable(),
-  githubLogin: z.string(),
-  createdAt: z.string().datetime(),
-});
-export type User = z.infer<typeof userSchema>;
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  githubLogin: string;
+  createdAt: string;
+}
 
 /* ── Project ──────────────────────────────────────────────── */
-export const projectSyncStatusSchema = z.enum([
-  "queued",
-  "running",
-  "succeeded",
-  "failed",
-]);
-export type ProjectSyncStatus = z.infer<typeof projectSyncStatusSchema>;
-
-export const projectSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  fullName: z.string(),
-  description: z.string(),
-  language: z.string().nullable(),
-  owner: z.string(),
-  syncStatus: projectSyncStatusSchema,
-  lastSyncedAt: z.string().datetime().nullable(),
-  stats: z.object({
-    commits: z.number(),
-    pullRequests: z.number(),
-    issues: z.number(),
-    releases: z.number(),
-    files: z.number(),
-  }),
-  health: z
-    .object({
-      overall: z.number().min(0).max(100),
-      documentation: z.number().min(0).max(100),
-      activity: z.enum(["high", "medium", "low"]),
-    })
-    .optional(),
-  healthLabel: z.string(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
-export type Project = z.infer<typeof projectSchema>;
+export interface Project {
+  id: string;
+  name: string;
+  fullName: string;
+  description: string;
+  language: string | null;
+  owner: string;
+  syncStatus: "queued" | "running" | "succeeded" | "failed";
+  lastSyncedAt: string | null;
+  stats: {
+    commits: number;
+    pullRequests: number;
+    issues: number;
+    releases: number;
+    files: number;
+  };
+  health?: {
+    overall: number;
+    documentation: number;
+    activity: "high" | "medium" | "low";
+  };
+  healthLabel: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 /* ── Artifact ─────────────────────────────────────────────── */
-export const artifactTypeSchema = z.enum([
-  "file",
-  "issue",
-  "pr",
-  "commit",
-  "readme",
-  "decision",
-]);
-export type ArtifactType = z.infer<typeof artifactTypeSchema>;
-
-export const artifactSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  type: artifactTypeSchema,
-  title: z.string(),
-  path: z.string().nullable(),
-  url: z.string().url().nullable(),
-  summary: z.string().nullable(),
-  createdAt: z.string().datetime(),
-});
-export type Artifact = z.infer<typeof artifactSchema>;
+export interface Artifact {
+  id: string;
+  projectId: string;
+  type: "file" | "issue" | "pr" | "commit" | "readme" | "decision";
+  title: string;
+  path: string | null;
+  url: string | null;
+  summary: string | null;
+  createdAt: string;
+}
 
 /* ── Source / Evidence ────────────────────────────────────── */
-export const sourceSchema = z.object({
-  id: z.string(),
-  type: artifactTypeSchema,
-  path: z.string().nullable(),
-  url: z.string().url().nullable(),
-  snippet: z.string(),
-});
-export type Source = z.infer<typeof sourceSchema>;
+export interface Source {
+  id: string;
+  type: Artifact["type"];
+  path: string | null;
+  url: string | null;
+  snippet: string;
+}
 
 /* ── Ask / Answer ─────────────────────────────────────────── */
-export const confidenceSchema = z.enum([
-  "high",
-  "medium",
-  "low",
-  "insufficient",
-]);
-export type Confidence = z.infer<typeof confidenceSchema>;
-
-export const askAnswerSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  question: z.string(),
-  answer: z.string(),
-  sources: z.array(sourceSchema),
-  confidence: confidenceSchema,
-  insufficientEvidence: z.boolean().optional(),
-  createdAt: z.string().datetime(),
-  isStreaming: z.boolean().optional(),
-});
-export type AskAnswer = z.infer<typeof askAnswerSchema>;
+export interface AskAnswer {
+  id: string;
+  projectId: string;
+  question: string;
+  answer: string;
+  sources: Source[];
+  confidence: "high" | "medium" | "low" | "insufficient";
+  insufficientEvidence?: boolean;
+  createdAt: string;
+  isStreaming?: boolean;
+}
 
 /* ── Decision ─────────────────────────────────────────────── */
-export const decisionSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  title: z.string(),
-  summary: z.string(),
-  rationale: z.string(),
-  sources: z.array(sourceSchema),
-  createdAt: z.string().datetime(),
-});
-export type Decision = z.infer<typeof decisionSchema>;
+export interface Decision {
+  id: string;
+  projectId: string;
+  title: string;
+  summary: string;
+  rationale: string;
+  sources: Source[];
+  createdAt: string;
+}
 
 /* ── Onboarding Plan ──────────────────────────────────────── */
-export const onboardingItemSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  completed: z.boolean(),
-  artifactIds: z.array(z.string()),
-});
-export type OnboardingItem = z.infer<typeof onboardingItemSchema>;
+export interface OnboardingItem {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  artifactIds: string[];
+}
 
-export const onboardingDataSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  projectOverview: z.object({
-    name: z.string(),
-    description: z.string(),
-    repository: z.string(),
-    primaryLanguage: z.string().nullable(),
-    technologies: z.array(z.string()),
-  }),
-  architecture: z.object({
-    summary: z.string(),
-    mainModules: z.array(z.object({
-      name: z.string(),
-      path: z.string(),
-      description: z.string(),
-    })),
-  }),
-  keyFiles: z.array(z.object({
-    id: z.string(),
-    path: z.string(),
-    description: z.string(),
-    category: z.enum(["readme", "config", "entry", "important"]),
-  })),
-  gettingStarted: z.array(z.object({
-    step: z.number(),
-    title: z.string(),
-    description: z.string(),
-  })),
-  progress: z.object({
-    repositoryConnected: z.boolean(),
-    repositoryIndexed: z.boolean(),
-    structureAnalyzed: z.boolean(),
-    handoffReady: z.boolean(),
-  }),
-});
-export type OnboardingData = z.infer<typeof onboardingDataSchema>;
+export interface OnboardingData {
+  id: string;
+  projectId: string;
+  projectOverview: {
+    name: string;
+    description: string;
+    repository: string;
+    primaryLanguage: string | null;
+    technologies: string[];
+  };
+  architecture: {
+    summary: string;
+    mainModules: Array<{
+      name: string;
+      path: string;
+      description: string;
+    }>;
+  };
+  keyFiles: Array<{
+    id: string;
+    path: string;
+    description: string;
+    category: "readme" | "config" | "entry" | "important";
+  }>;
+  gettingStarted: Array<{
+    step: number;
+    title: string;
+    description: string;
+  }>;
+  progress: {
+    repositoryConnected: boolean;
+    repositoryIndexed: boolean;
+    structureAnalyzed: boolean;
+    handoffReady: boolean;
+  };
+}
 
-export const onboardingPlanSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  title: z.string(),
-  items: z.array(onboardingItemSchema),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
-export type OnboardingPlan = z.infer<typeof onboardingPlanSchema>;
+export interface OnboardingPlan {
+  id: string;
+  projectId: string;
+  title: string;
+  items: OnboardingItem[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 /* ── Handoff ──────────────────────────────────────────────── */
-export const handoffSectionSchema = z.object({
-  id: z.string(),
-  heading: z.string(),
-  body: z.string(),
-  sources: z.array(sourceSchema),
-  insufficientEvidence: z.boolean().optional(),
-});
-export type HandoffSection = z.infer<typeof handoffSectionSchema>;
+export interface HandoffSection {
+  id: string;
+  heading: string;
+  body: string;
+  sources: Source[];
+  insufficientEvidence?: boolean;
+}
 
-export const handoffVersionMetadataSchema = z.object({
-  version: z.number(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  description: z.string().optional(),
-});
-export type HandoffVersionMetadata = z.infer<typeof handoffVersionMetadataSchema>;
-
-export const handoffSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  title: z.string(),
-  summary: z.string(),
-  sections: z.array(handoffSectionSchema),
-  version: z.number(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
-export type Handoff = z.infer<typeof handoffSchema>;
-
-export const handoffGenerateRequestSchema = z.object({
-  projectId: z.string(),
-  regenerate: z.boolean().optional(),
-});
-export type HandoffGenerateRequest = z.infer<typeof handoffGenerateRequestSchema>;
+export interface Handoff {
+  id: string;
+  projectId: string;
+  title: string;
+  summary: string;
+  sections: HandoffSection[];
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 /* ── SyncJob ──────────────────────────────────────────────── */
-export const syncJobSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  status: projectSyncStatusSchema,
-  progress: z.number().min(0).max(100),
-  error: z.string().nullable(),
-  startedAt: z.string().datetime(),
-  completedAt: z.string().datetime().nullable(),
-});
-export type SyncJob = z.infer<typeof syncJobSchema>;
+export interface SyncJob {
+  id: string;
+  projectId: string;
+  status: Project["syncStatus"];
+  progress: number;
+  error: string | null;
+  startedAt: string;
+  completedAt: string | null;
+}
 
 /* ── Activity ─────────────────────────────────────────────── */
-export const activityEventSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  type: z.enum(["sync", "ask", "decision", "onboarding", "handoff"]),
-  title: z.string(),
-  description: z.string(),
-  createdAt: z.string().datetime(),
-});
-export type ActivityEvent = z.infer<typeof activityEventSchema>;
+export interface ActivityEvent {
+  id: string;
+  projectId: string;
+  type: "sync" | "ask" | "decision" | "onboarding" | "handoff";
+  title: string;
+  description: string;
+  createdAt: string;
+}
 
 /* ── Repository Tree ──────────────────────────────────────── */
-export const repositoryFileTypeSchema = z.enum(["file", "folder"]);
-export type RepositoryFileType = z.infer<typeof repositoryFileTypeSchema>;
-
 export interface RepositoryTreeItem {
   id: string;
   name: string;
@@ -247,57 +187,41 @@ export interface RepositoryTreeItem {
   size?: number;
 }
 
-export const repositoryTreeItemSchema: z.ZodType<RepositoryTreeItem> = z.lazy(() =>
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    path: z.string(),
-    type: repositoryFileTypeSchema,
-    children: z.array(repositoryTreeItemSchema).optional(),
-    language: z.string().nullable().optional(),
-    size: z.number().optional(),
-  })
-);
-
-export const repositoryTreeSchema = z.object({
-  projectId: z.string(),
-  repository: z.string(),
-  tree: z.array(repositoryTreeItemSchema),
-});
-export type RepositoryTree = z.infer<typeof repositoryTreeSchema>;
+export interface RepositoryTree {
+  projectId: string;
+  repository: string;
+  tree: RepositoryTreeItem[];
+}
 
 /* ── File Content ─────────────────────────────────────────── */
-export const fileContentSchema = z.object({
-  projectId: z.string(),
-  path: z.string(),
-  name: z.string(),
-  language: z.string().nullable(),
-  content: z.string(),
-  size: z.number(),
-  isBinary: z.boolean().optional(),
-  isLarge: z.boolean().optional(),
-});
-export type FileContent = z.infer<typeof fileContentSchema>;
+export interface FileContent {
+  projectId: string;
+  path: string;
+  name: string;
+  language: string | null;
+  content: string;
+  size: number;
+  isBinary?: boolean;
+  isLarge?: boolean;
+}
 
 /* ── Search Result ────────────────────────────────────────── */
-export const searchResultItemSchema = z.object({
-  id: z.string(),
-  projectId: z.string(),
-  type: artifactTypeSchema,
-  filePath: z.string(),
-  fileName: z.string(),
-  lineNumber: z.number().nullable(),
-  snippet: z.string(),
-  matchedText: z.string().optional(),
-  language: z.string().nullable(),
-});
-export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
+export interface SearchResultItem {
+  id: string;
+  projectId: string;
+  type: Artifact["type"];
+  filePath: string;
+  fileName: string;
+  lineNumber: number | null;
+  snippet: string;
+  matchedText?: string;
+  language: string | null;
+}
 
-export const searchResultsSchema = z.object({
-  query: z.string(),
-  projectId: z.string().nullable(),
-  language: z.string().nullable(),
-  results: z.array(searchResultItemSchema),
-  totalCount: z.number(),
-});
-export type SearchResults = z.infer<typeof searchResultsSchema>;
+export interface SearchResults {
+  query: string;
+  projectId: string | null;
+  language: string | null;
+  results: SearchResultItem[];
+  totalCount: number;
+}

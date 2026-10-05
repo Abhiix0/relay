@@ -53,3 +53,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Check unused exports (non-blocking)
+        run: NODE_OPTIONS=--max-old-space-size=4096 pnpm unused || true

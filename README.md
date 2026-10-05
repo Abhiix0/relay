@@ -2,33 +2,35 @@
 
 **Understand any codebase faster.**
 
-Relay is a developer tool that connects to GitHub repositories and provides instant project context through an evidence-grounded AI agent, interactive onboarding guides, architectural handoffs, and intelligent search. Every answer is backed by AST nodes, commit history, and PR evidence—no hallucinations.
+Relay is a developer tool that connects to GitHub repositories and provides instant project context through an evidence-grounded AI agent, interactive onboarding guides, architectural handoffs, and intelligent search. Every answer cites the source files, commits, and PRs it draws from — weak or missing evidence surfaces an explicit uncertainty state.
 
 ## What Relay Does
 
-- **Evidence-Grounded AI**: Ask questions about any codebase and get answers backed by actual source code, commits, and PR reviews
+- **Evidence-Grounded AI**: Ask questions about any codebase and get answers backed by actual source code, commits, and PR reviews. Each answer shows its citations; when evidence is insufficient the UI says so explicitly.
 - **Smart Onboarding**: Interactive guides that help developers understand unfamiliar codebases quickly
 - **Architecture Handoffs**: Generate and maintain comprehensive project documentation with evidence citations
 - **Intelligent Search**: Find code, documentation, and architectural decisions across repositories
 - **Project Context**: Understand repository health, sync status, and development patterns
 
-## Features
+## Status
 
-✅ **Completed (Phase 0-9)**
-- Landing page with responsive design
-- Project dashboard and management  
-- GitHub repository connection and indexing
+**Frontend (apps/web):** Implemented with MSW mock API. The backend (Express/Mongo/Redis) is not yet built; all data is served from in-memory mocks that mirror the planned `/api/v1` endpoints.
+
+**Implemented screens and features:**
+- Landing page
+- Project dashboard and management
+- GitHub repository connection flow (mocked)
 - File browser with syntax highlighting
 - Global search across projects and files
-- Evidence-grounded AI chat agent
+- Evidence-grounded AI chat agent (with explicit insufficient-evidence state)
 - Interactive onboarding workflows
-- Architecture handoff generation and editing  
+- Architecture handoff generation and editing
 - Version-controlled handoff documents
-- Markdown export functionality
-- User profile and authentication
+- Markdown export
+- User profile and authentication (mocked)
 - Project-level and app-level settings
 - Architecture decision records (ADRs)
-- Comprehensive system states (loading, empty, error, offline, 404)
+- System states: loading, empty, error, offline, 404
 - Keyboard accessibility and focus management
 - Responsive design across all screen sizes
 

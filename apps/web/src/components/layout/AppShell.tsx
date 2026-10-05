@@ -23,7 +23,7 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
       <footer className="border-t border-border py-6 px-6 text-center text-[11px] font-mono text-text-muted">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>RELAY · Developer Codebase Intelligence</span>
-          <span>Evidence-grounded · Zero hallucinations</span>
+          <span>Evidence-grounded · Every answer cites its sources</span>
         </div>
       </footer>
     </div>

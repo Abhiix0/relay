@@ -16,8 +16,8 @@ export function DashboardPage() {
   const { data: user } = useCurrentUser();
   const { data: projects = [], isLoading, error, refetch } = useProjects();
 
-  // Get recent projects (max 6 for dashboard)
-  const recentProjects = projects
+  // Get recent projects (max 6 for dashboard) — use a copy to avoid mutating the cache array
+  const recentProjects = [...projects]
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()

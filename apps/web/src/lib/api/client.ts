@@ -17,7 +17,7 @@ function makeRequestId(): string {
 
 const BASE_URL = "/api/v1";
 
-export async function apiFetch<T>(
+async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {

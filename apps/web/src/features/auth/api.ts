@@ -13,7 +13,7 @@ export const signInSchema = z.object({
 
 export type SignInInput = z.infer<typeof signInSchema>;
 
-export interface AuthResponse {
+interface AuthResponse {
   user: {
     id: string;
     email: string;
