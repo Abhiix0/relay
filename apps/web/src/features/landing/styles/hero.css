@@ -1,12 +1,11 @@
 /* Hero section with diagram visual and ticker band */
 
 .relay-landing .hero-section {
-  min-height: 680px;
   display: grid;
   grid-template-columns: 0.81fr 1.19fr;
   gap: 72px;
   align-items: center;
-  padding: 74px 0 82px;
+  padding-block: clamp(24px, 5svh, 56px);
 }
 
 .relay-landing .hero-copy {
@@ -111,25 +110,33 @@
   min-width: 0;
 }
 
+@media (min-width: 961px) {
+  .relay-landing .hero-art {
+    width: calc(100% + 24px);
+    margin-right: -24px;
+  }
+}
+
 .relay-landing .hero-diagram {
-  min-height: 485px;
+  aspect-ratio: 720 / 410;
   position: relative;
   overflow: hidden;
   background: #e8e4d7;
   border: 1px solid var(--line);
   isolation: isolate;
+  container-type: inline-size;
 }
 
 .relay-landing .diagram-topline {
   position: absolute;
-  top: 17px;
-  left: 20px;
-  right: 20px;
+  top: calc(17 / 410 * 100%);
+  left: calc(20 / 720 * 100%);
+  right: calc(20 / 720 * 100%);
   display: flex;
   justify-content: space-between;
   z-index: 3;
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: calc(8 / 720 * 100cqw);
   letter-spacing: 0.1em;
   color: var(--charcoal-muted);
 }
@@ -137,13 +144,13 @@
 .relay-landing .diagram-live {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: calc(6 / 720 * 100cqw);
   text-transform: uppercase;
 }
 
 .relay-landing .live-dot {
-  width: 6px;
-  height: 6px;
+  width: calc(6 / 720 * 100cqw);
+  height: calc(6 / 720 * 100cqw);
   display: inline-block;
   background: var(--moss);
   border-radius: 50%;
@@ -174,25 +181,25 @@
   z-index: 2;
   font-family: var(--serif);
   line-height: 0.93;
-  font-size: clamp(26px, 3.2vw, 48px);
+  font-size: calc(40 / 720 * 100cqw);
   letter-spacing: -0.05em;
 }
 
 .relay-landing .caption-a {
-  top: 91px;
-  left: 7%;
+  top: calc(72 / 410 * 100%);
+  left: calc(36 / 720 * 100%);
 }
 
 .relay-landing .caption-b {
-  right: 7%;
-  bottom: 81px;
+  top: calc(318 / 410 * 100%);
+  right: calc(36 / 720 * 100%);
   text-align: right;
 }
 
 .relay-landing .diagram-cross {
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: calc(18 / 720 * 100cqw);
+  height: calc(18 / 720 * 100cqw);
   z-index: 2;
 }
 
@@ -205,25 +212,25 @@
 }
 
 .relay-landing .diagram-cross::before {
-  width: 1px;
-  height: 18px;
-  left: 9px;
+  width: calc(1 / 720 * 100cqw);
+  height: calc(18 / 720 * 100cqw);
+  left: calc(9 / 720 * 100cqw);
 }
 
 .relay-landing .diagram-cross::after {
-  width: 18px;
-  height: 1px;
-  top: 9px;
+  width: calc(18 / 720 * 100cqw);
+  height: calc(1 / 720 * 100cqw);
+  top: calc(9 / 720 * 100cqw);
 }
 
 .relay-landing .cross-a {
-  top: 89px;
-  left: 51%;
+  top: calc(42 / 410 * 100%);
+  left: calc(350 / 720 * 100%);
 }
 
 .relay-landing .cross-b {
-  bottom: 70px;
-  right: 49%;
+  top: calc(374 / 410 * 100%);
+  left: calc(350 / 720 * 100%);
   transform: rotate(45deg);
 }
 
@@ -235,6 +242,10 @@
   z-index: 1;
 }
 
+.relay-landing .diagram-lines-mobile {
+  display: none;
+}
+
 .relay-landing .diagram-lines path {
   fill: none;
   stroke: var(--copper);
@@ -242,6 +253,7 @@
   stroke-dasharray: 7 6;
   opacity: 0.8;
   animation: dash 18s linear infinite;
+  vector-effect: non-scaling-stroke;
 }
 
 .relay-landing .diagram-lines circle {
@@ -252,54 +264,73 @@
   position: absolute;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 10px;
+  gap: calc(7 / 720 * 100cqw);
+  padding: calc(4.5 / 720 * 100cqw) calc(10 / 720 * 100cqw);
   border: 1px solid rgba(25, 27, 23, 0.28);
   background: rgba(251, 250, 245, 0.83);
   z-index: 4;
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: calc(9.5 / 720 * 100cqw);
   color: var(--charcoal-muted);
   box-shadow: 4px 5px 0 rgba(25, 27, 23, 0.04);
 }
 
 .relay-landing .diagram-node svg {
   color: var(--copper);
+  width: calc(15 / 720 * 100cqw);
+  height: calc(15 / 720 * 100cqw);
+  flex: none;
 }
 
 .relay-landing .diagram-node b {
   font-weight: 500;
   color: var(--charcoal);
-  margin-left: 5px;
+  margin-left: calc(5 / 720 * 100cqw);
 }
 
 .relay-landing .node-a {
-  top: 20%;
-  left: 8%;
+  top: calc(47 / 410 * 100%);
+  right: calc(530 / 720 * 100%);
+  transform: translateY(-50%);
 }
 
 .relay-landing .node-b {
-  top: 36%;
-  left: 17%;
+  top: calc(173 / 410 * 100%);
+  right: calc(520 / 720 * 100%);
+  transform: translateY(-50%);
 }
 
 .relay-landing .node-c {
-  bottom: 18%;
-  left: 12%;
+  top: calc(313 / 410 * 100%);
+  right: calc(505 / 720 * 100%);
+  transform: translateY(-50%);
 }
 
 .relay-landing .node-d {
-  bottom: 29%;
-  right: 9%;
+  top: calc(275 / 410 * 100%);
+  left: calc(480 / 720 * 100%);
+  width: calc(160 / 720 * 100%);
+  min-height: calc(26 / 720 * 100cqw);
+  justify-content: center;
+  gap: calc(5 / 720 * 100cqw);
+  padding-inline: calc(6 / 720 * 100cqw);
+  font-size: calc(9.5 / 720 * 100cqw);
+  white-space: nowrap;
+}
+
+.relay-landing .node-d svg {
+  width: calc(12 / 720 * 100cqw);
+  height: calc(12 / 720 * 100cqw);
 }
 
 .relay-landing .context-card {
   position: absolute;
-  width: min(285px, 45%);
-  right: 7%;
-  top: 29%;
+  box-sizing: border-box;
+  width: calc(258 / 720 * 100%);
+  left: calc(410 / 720 * 100%);
+  top: calc(89 / 410 * 100%);
   z-index: 5;
-  padding: 17px 18px 15px;
+  padding: calc(17 / 720 * 100cqw) calc(18 / 720 * 100cqw) calc(15 / 720 * 100cqw);
   border: 1px solid var(--charcoal);
   background: var(--charcoal);
   color: var(--paper);
@@ -316,50 +347,57 @@
 
 .relay-landing .context-card .eyebrow {
   color: #aaa99d;
-  font-size: 7px;
+  font-size: calc(7 / 720 * 100cqw);
 }
 
 .relay-landing .signal-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: calc(4 / 720 * 100cqw);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: calc(7 / 720 * 100cqw);
   color: var(--moss);
   text-transform: uppercase;
 }
 
+.relay-landing .signal-pill svg,
+.relay-landing .context-card-foot svg {
+  width: calc(12 / 720 * 100cqw);
+  height: calc(12 / 720 * 100cqw);
+  flex: none;
+}
+
 .relay-landing .context-card-title {
-  margin: 25px 0 7px;
+  margin: calc(15 / 720 * 100cqw) 0 calc(7 / 720 * 100cqw);
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: calc(22 / 720 * 100cqw);
   font-weight: 400;
   letter-spacing: -0.03em;
 }
 
 .relay-landing .context-card p {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: calc(9 / 720 * 100cqw);
   line-height: 1.6;
   color: #b7b6a9;
-  max-width: 215px;
+  max-width: calc(215 / 720 * 100cqw);
 }
 
 .relay-landing .context-card-foot {
   display: flex;
   justify-content: space-between;
-  margin-top: 24px;
-  padding-top: 10px;
+  margin-top: calc(16 / 720 * 100cqw);
+  padding-top: calc(10 / 720 * 100cqw);
   border-top: 1px solid var(--line-light);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: calc(7 / 720 * 100cqw);
   color: #aaa99d;
 }
 
 .relay-landing .context-card-foot span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: calc(5 / 720 * 100cqw);
 }
 
 .relay-landing .context-card-foot span:last-child {
@@ -368,11 +406,11 @@
 
 .relay-landing .diagram-index {
   position: absolute;
-  bottom: 17px;
-  left: 20px;
+  top: calc(390 / 410 * 100%);
+  left: calc(20 / 720 * 100%);
   z-index: 3;
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: calc(8 / 720 * 100cqw);
   color: var(--charcoal-muted);
 }
 

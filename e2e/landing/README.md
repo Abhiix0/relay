@@ -1,59 +1,32 @@
 # Landing visual baseline
 
-## How it works
+The visual harness captures the header navigation, hero container and copy
+elements, diagram, ticker, every later section, and footer as separate crops at
+1440px and 375px. This keeps layout changes in the hero from shifting the
+captures of later sections.
 
 | Directory | Purpose |
 |---|---|
-| `baseline/golden/` | Committed golden PNGs — the frozen reference |
-| `baseline/current/` | Freshly captured PNGs — generated on each run, not committed |
-| `baseline/diff/` | Annotated diff images — generated on each run, not committed |
+| `baseline/golden/` | Committed crop references |
+| `baseline/current/` | Captures from the current build |
+| `baseline/diff/` | Annotated pixel diffs |
 
-## Workflow
-
-### First time / intentional design change
+## Capture and compare
 
 ```sh
-# 1. Build and preview the local app
-pnpm build && pnpm preview
-
-# 2. In another terminal, stamp the new golden baseline
-pnpm test:visual:baseline
-
-# 3. Commit baseline/golden/*.png
-git add baseline/golden && git commit -m "chore: update visual baseline"
+pnpm build
+pnpm preview
+pnpm test:visual:capture
+pnpm test:visual:diff
 ```
 
-### Normal dev flow (verify nothing changed)
+To intentionally approve a new design, capture the new references with
+`pnpm test:visual:baseline`, inspect the hero before and after crops, and commit
+the intended images from `baseline/golden/`.
 
-```sh
-pnpm build && pnpm preview &
-pnpm test:visual        # capture + diff
-```
+The Playwright checks also measure the hero at eight viewport widths, verify
+connector alignment and clearances, test CTA visibility, and record six seconds
+of the diagram animations.
 
-### CI
-
-CI runs `pnpm test:visual` inside the `visual` job. The preview server is
-started as a background step. The `baseline/golden/` PNGs are already
-committed so no capture step is needed.
-
-## Font rendering across OS
-
-Golden PNGs are captured with Chromium build **1148** (Playwright 1.49.1) and
-three stabilisation flags:
-
-```
---font-render-hinting=none
---disable-font-subpixel-positioning
---force-device-scale-factor=1
-```
-
-If CI (ubuntu-latest) diverges from a local Windows capture, re-stamp the
-golden baseline from inside the CI environment:
-
-```sh
-# Run the baseline capture job directly in CI once, download the artifacts,
-# and commit them as the new golden set.
-```
-
-The threshold is **0.1%** of pixels per image. This absorbs trivial
-anti-aliasing differences while catching any real layout or style change.
+Visual tests use Chromium 1148 with font-rendering hints and device scale factor
+flags pinned in `playwright.config.ts`. The per-crop threshold remains 0.1%.

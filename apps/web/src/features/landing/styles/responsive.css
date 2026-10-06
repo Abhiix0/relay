@@ -26,9 +26,6 @@
   .relay-landing .hero-art {
     width: 100%;
   }
-  .relay-landing .hero-diagram {
-    min-height: 430px;
-  }
   .relay-landing .features-section {
     grid-template-columns: 1fr;
     gap: 44px;
@@ -161,53 +158,6 @@
   }
   .relay-landing .hero-metrics b {
     font-size: 21px;
-  }
-  .relay-landing .hero-diagram {
-    min-height: 420px;
-  }
-  .relay-landing .diagram-caption {
-    font-size: 28px;
-  }
-  .relay-landing .caption-a {
-    top: 85px;
-    left: 6%;
-  }
-  .relay-landing .caption-b {
-    bottom: 71px;
-    right: 6%;
-  }
-  .relay-landing .context-card {
-    width: 57%;
-    right: 5%;
-    top: 31%;
-    padding: 13px;
-  }
-  .relay-landing .context-card-title {
-    font-size: 17px;
-    margin-top: 19px;
-  }
-  .relay-landing .context-card p {
-    font-size: 8px;
-  }
-  .relay-landing .node-a {
-    top: 18%;
-    left: 5%;
-  }
-  .relay-landing .node-b {
-    top: 38%;
-    left: 7%;
-  }
-  .relay-landing .node-c {
-    bottom: 15%;
-    left: 5%;
-  }
-  .relay-landing .node-d {
-    bottom: 29%;
-    right: 5%;
-  }
-  .relay-landing .diagram-node {
-    font-size: 7px;
-    padding: 6px 7px;
   }
   .relay-landing .diagram-node b {
     display: none;
@@ -434,5 +384,138 @@
   }
   .relay-landing .site-footer .wordmark {
     font-size: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .relay-landing .hero-diagram {
+    aspect-ratio: 360 / 440;
+  }
+  .relay-landing .diagram-lines {
+    display: none;
+  }
+  .relay-landing .diagram-lines-mobile {
+    display: block;
+  }
+  .relay-landing .diagram-topline {
+    top: calc(13 / 440 * 100%);
+    left: calc(14 / 360 * 100%);
+    right: calc(14 / 360 * 100%);
+    font-size: calc(7.5 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-live {
+    gap: calc(5 / 360 * 100cqw);
+  }
+  .relay-landing .live-dot {
+    width: calc(6 / 360 * 100cqw);
+    height: calc(6 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-caption {
+    font-size: calc(25 / 360 * 100cqw);
+  }
+  .relay-landing .caption-a {
+    top: calc(37 / 440 * 100%);
+    left: calc(16 / 360 * 100%);
+  }
+  .relay-landing .caption-b {
+    top: calc(415 / 440 * 100%);
+    right: calc(14 / 360 * 100%);
+    font-size: calc(13 / 360 * 100cqw);
+  }
+  .relay-landing .cross-a {
+    top: calc(98 / 440 * 100%);
+    left: calc(294 / 360 * 100%);
+  }
+  .relay-landing .cross-b {
+    top: calc(405 / 440 * 100%);
+    left: calc(174 / 360 * 100%);
+  }
+  .relay-landing .diagram-node {
+    gap: calc(5 / 360 * 100cqw);
+    padding: calc(6 / 360 * 100cqw) calc(7 / 360 * 100cqw);
+    font-size: calc(10 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-node svg {
+    width: calc(13 / 360 * 100cqw);
+    height: calc(13 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-node b {
+    display: none;
+  }
+  .relay-landing .node-a {
+    top: calc(120 / 440 * 100%);
+    right: calc(160 / 360 * 100%);
+  }
+  .relay-landing .node-b {
+    top: calc(174 / 440 * 100%);
+    right: calc(160 / 360 * 100%);
+  }
+  .relay-landing .node-c {
+    top: calc(220 / 440 * 100%);
+    right: calc(160 / 360 * 100%);
+  }
+  .relay-landing .node-d {
+    top: calc(376 / 440 * 100%);
+    left: calc(190 / 360 * 100%);
+    width: calc(150 / 360 * 100%);
+    min-height: calc(24 / 360 * 100cqw);
+    font-size: calc(10.2 / 360 * 100cqw);
+  }
+  .relay-landing .context-card {
+    top: calc(254 / 440 * 100%);
+    left: calc(138 / 360 * 100%);
+    width: calc(212 / 360 * 100%);
+    padding: calc(9 / 360 * 100cqw);
+  }
+  .relay-landing .context-card .eyebrow,
+  .relay-landing .signal-pill {
+    font-size: calc(6.5 / 360 * 100cqw);
+  }
+  .relay-landing .signal-pill {
+    gap: calc(3 / 360 * 100cqw);
+  }
+  .relay-landing .signal-pill svg {
+    width: calc(9 / 360 * 100cqw);
+    height: calc(9 / 360 * 100cqw);
+  }
+  .relay-landing .context-card-title {
+    margin: calc(9 / 360 * 100cqw) 0 calc(4 / 360 * 100cqw);
+    font-size: calc(16 / 360 * 100cqw);
+  }
+  .relay-landing .context-card p {
+    max-width: calc(180 / 360 * 100cqw);
+    font-size: calc(8 / 360 * 100cqw);
+    line-height: 1.35;
+  }
+  .relay-landing .context-card-foot {
+    margin-top: calc(8 / 360 * 100cqw);
+    padding-top: calc(6 / 360 * 100cqw);
+    font-size: calc(6.5 / 360 * 100cqw);
+  }
+  .relay-landing .context-card-foot svg {
+    width: calc(10 / 360 * 100cqw);
+    height: calc(10 / 360 * 100cqw);
+  }
+  .relay-landing .context-card-foot span {
+    gap: calc(4 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-index {
+    top: calc(421 / 440 * 100%);
+    left: calc(14 / 360 * 100%);
+    font-size: calc(7 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-cross {
+    width: calc(14 / 360 * 100cqw);
+    height: calc(14 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-cross::before {
+    width: calc(1 / 360 * 100cqw);
+    height: calc(14 / 360 * 100cqw);
+    left: calc(7 / 360 * 100cqw);
+  }
+  .relay-landing .diagram-cross::after {
+    width: calc(14 / 360 * 100cqw);
+    height: calc(1 / 360 * 100cqw);
+    top: calc(7 / 360 * 100cqw);
   }
 }

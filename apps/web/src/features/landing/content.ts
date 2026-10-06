@@ -149,7 +149,6 @@ export const heroContent = {
   lede: "Connect your GitHub repositories, get instant project context, and use AI to onboard, search, and handoff — all in one place.",
   cta: {
     primary: "Start with your repo",
-    secondary: "Watch the idea",
   },
   metrics: [
     { value: "100", suffix: "+", label: "projects indexed" },

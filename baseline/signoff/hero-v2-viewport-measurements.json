@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1366,
+    "height": 768,
+    "header": {
+      "top": 0,
+      "bottom": 88,
+      "height": 88
+    },
+    "cta": {
+      "top": 629.953125,
+      "bottom": 677.953125,
+      "height": 48
+    },
+    "metrics": {
+      "top": 677.953125,
+      "bottom": 790.453125,
+      "height": 112.5
+    },
+    "viewportHeight": 768
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "header": {
+      "top": 0,
+      "bottom": 88,
+      "height": 88
+    },
+    "cta": {
+      "top": 653.125,
+      "bottom": 701.125,
+      "height": 48
+    },
+    "metrics": {
+      "top": 701.125,
+      "bottom": 813.625,
+      "height": 112.5
+    },
+    "viewportHeight": 900
+  }
+]

@@ -1,7 +1,7 @@
 /**
  * compare.ts
- * Diffs baseline/golden/ (committed) vs baseline/current/ (just captured).
- * Threshold: 0.1% of pixels per image.
+ * Diffs stable per-section and per-element crops in golden/ and current/.
+ * Threshold: 0.1% of pixels per crop.
  * Writes annotated diff images to baseline/diff/.
  *
  * Run: pnpm test:visual:diff
@@ -58,11 +58,22 @@ interface Row {
   note: string;
 }
 
-const goldenFiles = fs.existsSync(GOLDEN)
-  ? fs.readdirSync(GOLDEN).filter(f => f.endsWith(".png"))
-  : [];
+const suffixes = ["1440", "375"] as const;
+const sections = ["overview", "workflow", "features", "dashboard", "quote", "cta", "footer"] as const;
+const copyCrops = ["kicker", "h1", "lede", "actions", "metrics"] as const;
+const goldenFiles = [
+  ...suffixes.flatMap((suffix) => [
+    `nav-${suffix}.png`,
+    `hero-container-${suffix}.png`,
+    ...copyCrops.map((crop) => `hero-copy-${crop}-${suffix}.png`),
+    `hero-diagram-${suffix}.png`,
+    `ticker-${suffix}.png`,
+    ...sections.map((section) => `section-${section}-${suffix}.png`),
+  ]),
+  "nav-menu-open-375.png",
+];
 
-if (goldenFiles.length === 0) {
+if (!fs.existsSync(GOLDEN) || goldenFiles.length === 0) {
   console.error(
     "\nNo baseline/golden/*.png found.\n" +
     "Run `pnpm test:visual:baseline` first to stamp the golden baseline.\n"
@@ -85,6 +96,19 @@ for (const file of goldenFiles) {
       pct: "N/A",
       pass: false,
       note: "MISSING in baseline/current/ — run `pnpm test:visual:capture` first",
+    });
+    anyFail = true;
+    continue;
+  }
+
+  if (!fs.existsSync(gPath)) {
+    rows.push({
+      file,
+      diffPx: -1,
+      totalPx: 0,
+      pct: "N/A",
+      pass: false,
+      note: "MISSING in baseline/golden/ — run `pnpm test:visual:baseline` to stamp the new crop",
     });
     anyFail = true;
     continue;

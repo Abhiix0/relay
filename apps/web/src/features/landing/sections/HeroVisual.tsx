@@ -62,15 +62,30 @@ export function HeroVisual() {
       <svg
         className="diagram-lines"
         viewBox="0 0 720 410"
-        preserveAspectRatio="none"
+        preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
-        <path d="M120 88 H245 V170 H330" />
-        <path d="M117 240 H245 V170 H330" />
-        <path d="M330 170 H455 V86 H600" />
-        <path d="M330 170 H455 V274 H600" />
-        <circle cx="330" cy="170" r="7" />
-        <circle cx="455" cy="170" r="5" />
+        <path d="M190 47 H310 V173" />
+        <path d="M200 173 H310" />
+        <path d="M215 313 H310 V173" />
+        <path d="M310 173 H410" />
+        <path d="M560 250 V275" />
+        <circle cx="310" cy="173" r="7" />
+        <circle cx="360" cy="173" r="5" />
+      </svg>
+      <svg
+        className="diagram-lines diagram-lines-mobile"
+        viewBox="0 0 360 440"
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+      >
+        <path d="M200 120 H220 V174" />
+        <path d="M200 174 H220" />
+        <path d="M200 220 H220 V174" />
+        <path d="M220 174 H270 V248" />
+        <path d="M265 360 V376" />
+        <circle cx="220" cy="174" r="7" />
+        <circle cx="238" cy="174" r="5" />
       </svg>
       <div className="context-card">
         <div className="context-card-head">

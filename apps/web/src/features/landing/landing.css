@@ -140,27 +140,10 @@
 .relay-landing .button-copper:hover {
   background: var(--copper-dark);
 }
-.relay-landing .button-ghost {
-  background: transparent;
-  color: var(--charcoal);
-  border: 1px solid var(--line);
-}
-.relay-landing .button-ghost:hover {
-  background: var(--paper);
-}
 .relay-landing .button-small {
   min-height: 36px;
   padding: 0 14px;
   font-size: 9px;
-}
-.relay-landing .play-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 21px;
-  height: 21px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
 }
 .relay-landing .menu-button {
   display: none;

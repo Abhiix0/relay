@@ -40,7 +40,7 @@ export default function HomePage() {
       />
 
       <main id="main-content" tabIndex={-1}>
-        <Hero onCtaClick={scrollTo} HeroVisual={HeroVisual} />
+        <Hero HeroVisual={HeroVisual} />
         <ProductOverview />
         <Workflow />
         <Features />

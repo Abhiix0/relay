@@ -3,16 +3,15 @@
  * Includes the main value proposition and visual diagram.
  */
 
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { heroContent, tickerItems } from "../content";
 
 interface HeroProps {
-  onCtaClick: (target: string) => void;
   HeroVisual: React.ComponentType;
 }
 
-export function Hero({ onCtaClick, HeroVisual }: HeroProps) {
+export function Hero({ HeroVisual }: HeroProps) {
   return (
     <>
       <section className="hero-section section-wrap" id="top">
@@ -31,15 +30,6 @@ export function Hero({ onCtaClick, HeroVisual }: HeroProps) {
             <Link to="/sign-in" className="button button-copper">
               {heroContent.cta.primary} <ArrowRight size={15} />
             </Link>
-            <button
-              className="button button-ghost"
-              onClick={() => onCtaClick("product")}
-            >
-              <span className="play-icon">
-                <Play size={12} fill="currentColor" />
-              </span>{" "}
-              {heroContent.cta.secondary}
-            </button>
           </div>
           <div className="hero-metrics">
             {heroContent.metrics.map((metric, idx) => (
