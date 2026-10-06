@@ -2,11 +2,19 @@
 
 .relay-landing .features-section {
   display: grid;
-  grid-template-columns: 315px 1fr;
-  gap: 66px;
+  grid-template-columns: 110px 315px 1fr;
+  column-gap: 38px;
   padding-top: 26px;
   padding-bottom: 159px;
   border-top: 1px solid var(--line);
+}
+
+.relay-landing .feature-index-panel {
+  padding-top: 11px;
+}
+
+.relay-landing .feature-detail {
+  margin-left: 28px;
 }
 
 .relay-landing .feature-index-panel > p {
@@ -426,4 +434,22 @@
 
 .relay-landing .abstract-footer span:first-child {
   color: var(--moss);
+}
+
+@media (max-width: 960px) {
+  .relay-landing #features.features-section {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .relay-landing #features .feature-detail {
+    margin-top: 44px;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .relay-landing #features .feature-detail {
+    margin-top: 36px;
+  }
 }

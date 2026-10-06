@@ -18,8 +18,12 @@ export function Features() {
 
   return (
     <section className="features-section section-wrap" id="features">
+      <div className="section-aside">
+        <span className="section-number">03</span>
+        <span className="vertical-rule" aria-hidden="true" />
+        <span className="section-caption">The relay system</span>
+      </div>
       <div className="feature-index-panel">
-        <div className="eyebrow">{featuresContent.eyebrow}</div>
         <h2>
           {featuresContent.title.line1}
           <br />
