@@ -196,20 +196,16 @@ export const dashboardContent = {
 } as const;
 
 export const finalCtaContent = {
-  eyebrow: "READY WHEN YOU ARE",
   title: {
     line1: "Start with",
     line2: "the unknown.",
   },
   body: "Connect a repository and let Relay show you what's already there.",
   cta: "Bring your repo",
-  note: "No credit card. Just context.",
 } as const;
 
 export const footerContent = {
   tagline: "From codebase to context.",
-  links: ["Product", "How it works", "Features", "Contact"],
-  linkHrefs: ["#product", "#workflow", "#features", "#contact"],
   meta: {
     copyright: "© 2026 Relay",
     tagline: "Built for the curious",

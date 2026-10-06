@@ -5,7 +5,8 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 30px;
-  min-height: 155px;
+  min-height: 0;
+  padding-top: 36px;
   padding-bottom: 28px;
   border-top: 1px solid var(--line);
 }
@@ -21,24 +22,17 @@
   color: var(--charcoal-muted);
 }
 
-.relay-landing .footer-links,
 .relay-landing .footer-meta {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 8px;
   font-family: var(--mono);
   font-size: 8px;
   text-transform: uppercase;
   color: var(--charcoal-muted);
 }
 
-.relay-landing .site-footer nav {
-  display: contents;
-}
-
-.relay-landing .footer-links a:hover {
-  color: var(--copper);
-}
-
 .relay-landing .footer-meta {
   color: #8a8a80;
+  text-align: right;
 }

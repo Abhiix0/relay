@@ -62,143 +62,143 @@
       "iteration": "1",
       "playState": "running"
     },
-    "dashOffset": "-56.7749px",
+    "dashOffset": "-56.5165px",
     "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-    "pulseTime": 7299.634000014592,
-    "cardY": 344.77740478515625,
+    "pulseTime": 7266.401000003703,
+    "cardY": 344.8630676269531,
     "visiblePathAnimations": 1,
     "hiddenPathAnimations": 0
   },
   "samples": [
     {
-      "dashOffset": "-4.66615px",
+      "dashOffset": "-4.66641px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 347.3841552734375
+      "cardY": 347.3836975097656
     },
     {
-      "dashOffset": "-6.3516px",
+      "dashOffset": "-6.35159px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
       "cardY": 345.8628234863281
     },
     {
-      "dashOffset": "-8.03626px",
+      "dashOffset": "-8.55581px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.4250793457031
+      "cardY": 345.2723083496094
     },
     {
-      "dashOffset": "-9.5926px",
+      "dashOffset": "-10.24px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.94720458984375
+      "cardY": 344.7333984375
     },
     {
-      "dashOffset": "-11.2775px",
+      "dashOffset": "-12.0548px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.38006591796875
+      "cardY": 344.1121826171875
     },
     {
-      "dashOffset": "-12.9627px",
+      "dashOffset": "-13.74px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.8025207519531
+      "cardY": 343.545166015625
     },
     {
-      "dashOffset": "-14.6482px",
+      "dashOffset": "-15.4254px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.2591857910156
+      "cardY": 343.03094482421875
     },
     {
-      "dashOffset": "-16.3331px",
+      "dashOffset": "-17.1103px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.7874755859375
+      "cardY": 342.60107421875
     },
     {
-      "dashOffset": "-18.0183px",
+      "dashOffset": "-18.9254px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.41107177734375
+      "cardY": 342.25213623046875
     },
     {
-      "dashOffset": "-19.5733px",
+      "dashOffset": "-20.6106px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.15771484375
+      "cardY": 342.0395202636719
     },
     {
-      "dashOffset": "-21.258px",
+      "dashOffset": "-22.1651px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 341.9859313964844
+      "cardY": 341.9360656738281
     },
     {
-      "dashOffset": "-23.0728px",
+      "dashOffset": "-23.8511px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 341.91461181640625
+      "cardY": 341.9178771972656
     },
     {
-      "dashOffset": "-24.8876px",
+      "dashOffset": "-25.5357px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 341.9537353515625
+      "cardY": 341.9952392578125
     },
     {
-      "dashOffset": "-26.4434px",
+      "dashOffset": "-27.2212px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.0789489746094
+      "cardY": 342.1750793457031
     },
     {
-      "dashOffset": "-28.1281px",
+      "dashOffset": "-29.1649px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.31610107421875
+      "cardY": 342.5154113769531
     },
     {
-      "dashOffset": "-30.2022px",
+      "dashOffset": "-30.9802px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.75445556640625
+      "cardY": 342.95819091796875
     },
     {
-      "dashOffset": "-32.017px",
+      "dashOffset": "-32.6649px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.25872802734375
+      "cardY": 343.46087646484375
     },
     {
-      "dashOffset": "-33.9614px",
+      "dashOffset": "-34.4802px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.8896179199219
+      "cardY": 344.0669250488281
     },
     {
-      "dashOffset": "-35.7765px",
+      "dashOffset": "-36.1654px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.51300048828125
+      "cardY": 344.6453552246094
     },
     {
-      "dashOffset": "-37.332px",
+      "dashOffset": "-37.8503px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.0303039550781
+      "cardY": 345.1929626464844
     },
     {
-      "dashOffset": "-39.0175px",
+      "dashOffset": "-39.5352px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.5337829589844
+      "cardY": 345.6717834472656
     },
     {
-      "dashOffset": "-40.573px",
+      "dashOffset": "-41.2207px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.92095947265625
+      "cardY": 346.0567321777344
     },
     {
-      "dashOffset": "-42.2572px",
+      "dashOffset": "-42.9059px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.24127197265625
+      "cardY": 346.3359680175781
     },
     {
-      "dashOffset": "-44.0725px",
+      "dashOffset": "-44.8503px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.46636962890625
+      "cardY": 346.5254211425781
     },
     {
-      "dashOffset": "-45.7569px",
+      "dashOffset": "-46.535px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.5671081542969
+      "cardY": 346.5804748535156
     },
     {
-      "dashOffset": "-47.9617px",
+      "dashOffset": "-48.0908px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.5528869628906
+      "cardY": 346.5469970703125
     },
     {
       "dashOffset": "-49.7762px",
@@ -206,24 +206,24 @@
       "cardY": 346.4150390625
     },
     {
-      "dashOffset": "-51.3313px",
+      "dashOffset": "-51.4606px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.19964599609375
+      "cardY": 346.17755126953125
     },
     {
-      "dashOffset": "-53.0159px",
+      "dashOffset": "-53.2757px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.8631286621094
+      "cardY": 345.80194091796875
     },
     {
-      "dashOffset": "-54.8307px",
+      "dashOffset": "-54.8315px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.38818359375
+      "cardY": 345.3879699707031
     },
     {
-      "dashOffset": "-56.7749px",
+      "dashOffset": "-56.5165px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.77740478515625
+      "cardY": 344.8630676269531
     }
   ]
 }
