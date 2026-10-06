@@ -56,9 +56,14 @@ jobs:
 
   visual:
     name: Visual regression
-    runs-on: ubuntu-latest
+    # The committed golden PNGs were captured on Windows. Keep the capture OS
+    # aligned so platform fonts do not create false visual regressions.
+    runs-on: windows-latest
     # Only run on PRs and pushes to main — skip for trivial commits if needed
     needs: ci
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout code
@@ -91,10 +96,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Install the pinned Chromium browser (build 1148, Playwright 1.49.1)
-      # This is the same build used to capture the golden PNGs locally.
+      # Install the pinned Chromium browser (build 1148, Playwright 1.49.1).
+      # The visual job uses the golden images' Windows font environment.
       - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
 
       - name: Build app
         run: pnpm build
