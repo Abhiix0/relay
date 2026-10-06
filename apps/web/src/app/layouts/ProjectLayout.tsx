@@ -5,7 +5,10 @@ import { useProject } from "@/lib/api/hooks";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProjectNotFound } from "@/components/ui/project-not-found";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProjectNav } from "@/components/layout/ProjectNav";
+import { ProjectSidebar } from "@/components/layout/ProjectSidebar";
+import { TopBar } from "@/components/layout/TopBar";
+import { ShellMountedProvider } from "@/components/layout/AppShell";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import type { Project } from "@/lib/api/types";
 
 /* ── Project context ─────────────────────────────────────────── */
@@ -26,12 +29,16 @@ export function useProjectContext(): Project {
 /* ── Layout ──────────────────────────────────────────────────── */
 
 /**
- * Resolves the project once for the whole subtree and makes it available
- * via useProjectContext(). Renders ProjectNav above the outlet.
+ * ProjectLayout — authenticated shell for project-scoped pages.
  *
- * AppLayout's AppShell (showProjectNav=false) already provides the
- * header/offline-banner/footer/main wrapper, so this layout only adds
- * the nav strip and the project context provider.
+ * Resolves the project once, exposes it via useProjectContext(), and
+ * renders the board-matching dark left sidebar + top bar.
+ *
+ * AppLayout is the *parent* in the route tree, but ProjectLayout renders
+ * its own complete shell (wrapping Outlet) rather than adding to
+ * AppLayout's shell. AppLayout's Outlet renders this component, so
+ * ShellMountedContext is already true — ProjectLayout replaces the
+ * inner content entirely without double-mounting headers.
  */
 export function ProjectLayout() {
   const { id } = useParams<{ id: string }>();
@@ -43,14 +50,23 @@ export function ProjectLayout() {
 
   if (isLoading) {
     return (
-      <>
-        <ProjectNav />
-        <div className="space-y-6" aria-live="polite" aria-busy="true">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
-      </>
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+        <TopBar projectMode />
+        <main
+          id="main-content"
+          role="main"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto px-4 sm:px-6 py-8 focus-visible:outline-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="mx-auto max-w-7xl space-y-6">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -68,9 +84,31 @@ export function ProjectLayout() {
   }
 
   return (
-    <ProjectContext.Provider value={project}>
-      <ProjectNav />
-      <Outlet />
-    </ProjectContext.Provider>
+    <ErrorBoundary>
+      <ShellMountedProvider>
+        <ProjectContext.Provider value={project}>
+          {/* Full-page layout replacing AppLayout's shell for project routes */}
+          <div className="flex h-screen overflow-hidden bg-[var(--product-surface)] text-paper font-sans selection:bg-copper selection:text-paper">
+            {/* Project-scoped sidebar */}
+            <ProjectSidebar project={project} />
+
+            {/* Right: topbar + content */}
+            <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+              <TopBar projectMode />
+              <main
+                id="main-content"
+                role="main"
+                tabIndex={-1}
+                className="flex-1 overflow-y-auto px-4 sm:px-6 py-8 focus-visible:outline-none"
+              >
+                <div className="mx-auto max-w-7xl">
+                  <Outlet />
+                </div>
+              </main>
+            </div>
+          </div>
+        </ProjectContext.Provider>
+      </ShellMountedProvider>
+    </ErrorBoundary>
   );
 }
