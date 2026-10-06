@@ -58,4 +58,26 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  /* ── highlight.js token colours (surface-code background) ── */
+  .hljs-keyword,
+  .hljs-selector-tag   { color: #c69bb4; }   /* purple-pink  */
+  .hljs-built_in,
+  .hljs-type           { color: #7f9cad; }   /* blue         */
+  .hljs-string,
+  .hljs-attr           { color: #9dbba0; }   /* moss/success  */
+  .hljs-number,
+  .hljs-literal        { color: #e5b34e; }   /* sun/warning   */
+  .hljs-comment        { color: #5c5d54; font-style: italic; }
+  .hljs-variable,
+  .hljs-template-variable { color: #c6603e; } /* copper       */
+  .hljs-function,
+  .hljs-title          { color: #fbfaf5; font-weight: 500; }
+  .hljs-params         { color: #aaa99d; }
+  .hljs-property       { color: #c6a060; }
+  .hljs-tag            { color: #c69bb4; }
+  .hljs-name           { color: #7f9cad; }
+  .hljs-meta           { color: #5c5d54; }
+  .hljs-deletion       { color: #c0392b; background: rgba(192,57,43,0.15); }
+  .hljs-addition       { color: #9dbba0; background: rgba(157,187,160,0.15); }
 }

@@ -1,65 +1,102 @@
 /**
  * Relay Design Tokens
- * Based on RELAY_Developer_Tool_Design_System_Board.png
+ * Source of truth: RELAY_Developer_Tool_Design_System_Board.png
+ *
+ * Token decisions (pixel-sampled from board PNG):
+ *   --error       #c0392b  Board "Failing" red (distinct from --copper #c6603e)
+ *   --success     #9dbba0  Board "Healthy" moss green  (unchanged)
+ *   --warning     #e5b34e  Board "Indexing" amber       (unchanged)
+ *   --copper      #c6603e  Primary action / brand accent
+ *   --focus-ring  #c6603e  copper — consistent with selection highlight
+ *   --overlay     rgba(25,27,23,0.72)  dark-product overlay at 72% opacity
  */
 
 :root {
-  /* Brand Colors — Primary Palette */
-  --linen: #f2f0e7;
-  --linen-deep: #e9e5d9;
-  --paper: #fbfaf5;
-  --charcoal: #191b17;
-  --charcoal-soft: #282a25;
+  /* ── Brand palette ─────────────────────────────────────────── */
+  --linen:          #f2f0e7;
+  --linen-deep:     #e9e5d9;
+  --paper:          #fbfaf5;
+  --charcoal:       #191b17;
+  --charcoal-soft:  #282a25;
   --charcoal-muted: #5c5d54;
-  --carbon: #1a1c18;
-  --copper: #c6603e;
-  --copper-dark: #9e452d;
-  --moss: #9dbba0;
-  --sun: #e5b34e;
-  --blue: #7f9cad;
+  --carbon:         #1a1c18;
+  --copper:         #c6603e;
+  --copper-dark:    #9e452d;
+  --moss:           #9dbba0;
+  --sun:            #e5b34e;
+  --blue:           #7f9cad;
 
-  /* Status Colors */
-  --success: #9dbba0;
-  --warning: #e5b34e;
-  --error: #c6603e;
+  /* ── Status colors (board-sampled) ─────────────────────────── */
+  --success: #9dbba0;   /* board Healthy  — moss green               */
+  --warning: #e5b34e;   /* board Indexing — amber/sun                */
+  --error:   #c0392b;   /* board Failing  — red, distinct from copper */
 
-  /* Semantic Tokens — Light Mode (Linen Surfaces) */
-  --surface: var(--linen);
-  --surface-accent: var(--paper);
+  /* ── Semantic surface tokens ───────────────────────────────── */
+  --surface:         var(--linen);
+  --surface-accent:  var(--paper);
   --surface-product: var(--charcoal);
-  --border: rgba(25, 27, 23, 0.18);
-  --border-light: rgba(242, 240, 231, 0.18);
+  --surface-raised:  var(--linen-deep);   /* elevated cards/popovers in light */
+  --surface-code:    #1e201b;            /* code editor bg  (dark, near carbon)*/
+
+  /* ── Semantic border tokens ────────────────────────────────── */
+  --border:        rgba(25, 27, 23, 0.18);
+  --border-light:  rgba(242, 240, 231, 0.18);
   --border-accent: var(--copper);
-  --text: var(--charcoal);
-  --text-muted: var(--charcoal-muted);
+
+  /* ── Semantic text tokens ──────────────────────────────────── */
+  --text:         var(--charcoal);
+  --text-muted:   var(--charcoal-muted);
   --text-inverse: var(--paper);
 
-  /* Product Surfaces — Dark Mode Context */
-  --product-surface: var(--charcoal);
+  /* ── Dark-product surfaces ─────────────────────────────────── */
+  --product-surface:      var(--charcoal);
   --product-surface-soft: var(--charcoal-soft);
-  --product-border: rgba(242, 240, 231, 0.18);
-  --product-text: var(--paper);
-  --product-text-muted: #aaa99d;
+  --product-border:       rgba(242, 240, 231, 0.18);
+  --product-text:         var(--paper);
+  --product-text-muted:   #aaa99d;
 
-  /* Layout & Spacing */
-  --radius: 2px;
+  /* ── Sidebar tokens (dark-product sidebar) ─────────────────── */
+  --sidebar-bg:          #13150f;           /* slightly darker than charcoal  */
+  --sidebar-item-hover:  rgba(242, 240, 231, 0.06);
+  --sidebar-item-active: rgba(198, 96, 62, 0.22);
+  --sidebar-divider:     rgba(242, 240, 231, 0.10);
+
+  /* ── Focus ring ─────────────────────────────────────────────── */
+  --focus-ring:        var(--copper);
+  --focus-ring-offset: 2px;
+
+  /* ── Overlay (modal / drawer backdrop) ─────────────────────── */
+  --overlay: rgba(25, 27, 23, 0.72);
+
+  /* ── Chart / health indicator colors ───────────────────────── */
+  --chart-healthy:  #6f9a7d;   /* darker moss for data fills       */
+  --chart-warning:  #c9923a;   /* saturated amber for chart lines  */
+  --chart-critical: #c0392b;   /* matches --error                  */
+  --chart-idle:     #4a4c44;   /* muted charcoal for zero state    */
+  --chart-accent:   var(--copper);
+
+  /* ── Layout & spacing ───────────────────────────────────────── */
+  --radius:        2px;
   --section-width: min(1240px, calc(100% - 64px));
 
-  /* Typography */
-  --font-sans:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  /* ── Typography stacks ──────────────────────────────────────── */
+  --font-sans:  Inter, ui-sans-serif, system-ui, -apple-system,
+                BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
-  --font-mono:
-    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-mono:  "JetBrains Mono", "SFMono-Regular", Consolas,
+                "Liberation Mono", monospace;
 }
 
-/* Dark product surface context (for dashboard, explorer, etc.) */
+/* ── Dark-product surface context ──────────────────────────────
+   Applied on <div class="dark-product"> that wraps the app shell.
+   Overrides semantic tokens so components automatically adapt.
+──────────────────────────────────────────────────────────────── */
 .dark-product {
-  --surface: var(--product-surface);
+  --surface:        var(--product-surface);
   --surface-accent: var(--product-surface-soft);
-  --border: var(--product-border);
-  --border-light: var(--product-border);
-  --text: var(--product-text);
-  --text-muted: var(--product-text-muted);
+  --surface-raised: #303329;
+  --border:         var(--product-border);
+  --border-light:   var(--product-border);
+  --text:           var(--product-text);
+  --text-muted:     var(--product-text-muted);
 }

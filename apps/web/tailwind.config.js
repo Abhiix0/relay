@@ -5,50 +5,71 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Semantic tokens from design system
+        // ── Semantic surface tokens ──────────────────────────
         surface: {
           DEFAULT: "var(--surface)",
-          accent: "var(--surface-accent)",
-          product: "var(--surface-product)",
+          accent:   "var(--surface-accent)",
+          product:  "var(--surface-product)",
+          raised:   "var(--surface-raised)",
+          code:     "var(--surface-code)",
         },
+        // ── Semantic border tokens ───────────────────────────
         border: {
           DEFAULT: "var(--border)",
-          light: "var(--border-light)",
-          accent: "var(--border-accent)",
+          light:   "var(--border-light)",
+          accent:  "var(--border-accent)",
         },
+        // ── Semantic text tokens ─────────────────────────────
         text: {
           DEFAULT: "var(--text)",
-          muted: "var(--text-muted)",
+          muted:   "var(--text-muted)",
           inverse: "var(--text-inverse)",
         },
-        // Brand colors
+        // ── Brand palette ────────────────────────────────────
         linen: {
           DEFAULT: "var(--linen)",
-          deep: "var(--linen-deep)",
+          deep:    "var(--linen-deep)",
         },
-        paper: "var(--paper)",
+        paper:   "var(--paper)",
         charcoal: {
           DEFAULT: "var(--charcoal)",
-          soft: "var(--charcoal-soft)",
-          muted: "var(--charcoal-muted)",
+          soft:    "var(--charcoal-soft)",
+          muted:   "var(--charcoal-muted)",
         },
         carbon: "var(--carbon)",
         copper: {
           DEFAULT: "var(--copper)",
-          dark: "var(--copper-dark)",
+          dark:    "var(--copper-dark)",
         },
         moss: "var(--moss)",
-        sun: "var(--sun)",
+        sun:  "var(--sun)",
         blue: "var(--blue)",
-        // Status colors
+        // ── Status ───────────────────────────────────────────
         success: "var(--success)",
         warning: "var(--warning)",
-        error: "var(--error)",
+        error:   "var(--error)",
+        // ── Sidebar ──────────────────────────────────────────
+        sidebar: {
+          DEFAULT:     "var(--sidebar-bg)",
+          hover:       "var(--sidebar-item-hover)",
+          active:      "var(--sidebar-item-active)",
+          divider:     "var(--sidebar-divider)",
+        },
+        // ── Overlay ──────────────────────────────────────────
+        overlay: "var(--overlay)",
+        // ── Chart / health ────────────────────────────────────
+        chart: {
+          healthy:  "var(--chart-healthy)",
+          warning:  "var(--chart-warning)",
+          critical: "var(--chart-critical)",
+          idle:     "var(--chart-idle)",
+          accent:   "var(--chart-accent)",
+        },
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans:  ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         serif: ["Georgia", "Times New Roman", "serif"],
-        mono: ["JetBrains Mono", "SFMono-Regular", "Consolas", "monospace"],
+        mono:  ["JetBrains Mono", "SFMono-Regular", "Consolas", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
