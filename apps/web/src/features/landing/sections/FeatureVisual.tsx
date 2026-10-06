@@ -22,8 +22,12 @@ interface FeatureVisualProps {
 export function FeatureVisual({ feature }: FeatureVisualProps) {
   const Icon = feature.icon;
   return (
-    <div className={`feature-visual feature-visual-${feature.accent}`}>
-      <div className="visual-window-bar">
+    <div
+      className={`feature-visual feature-visual-${feature.accent}`}
+      role="img"
+      aria-label={`Illustration of Relay ${feature.label.toLowerCase()}`}
+    >
+      <div className="visual-window-bar" aria-hidden="true">
         <span />
         <span />
         <span />

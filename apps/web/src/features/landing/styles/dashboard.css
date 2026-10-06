@@ -176,7 +176,7 @@
   letter-spacing: 0.07em;
 }
 
-.relay-landing .dash-section-head a {
+.relay-landing .dash-view-all {
   display: flex;
   align-items: center;
   gap: 4px;

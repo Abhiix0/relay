@@ -6,8 +6,10 @@
     width: min(100% - 40px, 760px);
   }
   .relay-landing .main-nav {
-    gap: 17px;
     margin-left: 20px;
+  }
+  .relay-landing .main-nav-links {
+    gap: 17px;
   }
   .relay-landing .main-nav a,
   .relay-landing .text-link {
@@ -79,6 +81,11 @@
   .relay-landing .site-header {
     height: 70px;
   }
+  .relay-landing .skip-link:focus-visible {
+    top: 74px;
+    left: 16px;
+    transform: none;
+  }
   .relay-landing .main-nav {
     display: none;
     position: absolute;
@@ -93,15 +100,20 @@
     background: var(--linen);
     box-shadow: 0 10px 20px rgba(25, 27, 23, 0.07);
   }
+  .relay-landing .main-nav-links {
+    flex-direction: column;
+    gap: 0;
+  }
   .relay-landing .main-nav-open {
     display: flex;
   }
   .relay-landing .main-nav a {
+    display: block;
     padding: 13px 4px;
     border-bottom: 1px solid var(--line);
     font-size: 9px;
   }
-  .relay-landing .main-nav a:last-child {
+  .relay-landing .main-nav-links li:last-child a {
     border-bottom: 0;
   }
   .relay-landing .header-actions .hide-mobile {
@@ -170,7 +182,7 @@
     top: 31%;
     padding: 13px;
   }
-  .relay-landing .context-card h3 {
+  .relay-landing .context-card-title {
     font-size: 17px;
     margin-top: 19px;
   }

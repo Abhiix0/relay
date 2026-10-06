@@ -1,0 +1,1856 @@
+[
+  {
+    "state": "context",
+    "target": [
+      ".button-small"
+    ],
+    "html": "<a class=\"button button-copper button-small\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".hero-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".context-card-foot > span:nth-child(2)"
+    ],
+    "html": "<span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#191b17",
+        "contrastRatio": 4.24,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".section-number"
+    ],
+    "html": "<span class=\"section-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".workflow-card:nth-child(1) > .workflow-card-top > span"
+    ],
+    "html": "<span>01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".workflow-card:nth-child(2) > .workflow-card-top > span"
+    ],
+    "html": "<span>02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".workflow-card:nth-child(3) > .workflow-card-top > span"
+    ],
+    "html": "<span>03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      "#feature-tab-context > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      "#feature-tab-agent > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      "#feature-tab-onboarding > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      "#feature-tab-handoff > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">04</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      "#feature-tab-search > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">05</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".feature-badge"
+    ],
+    "html": "<div class=\"feature-badge badge-copper\">",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".dash-top > div:nth-child(1) > .mini-label"
+    ],
+    "html": "<span class=\"mini-label\">MONDAY, OCTOBER 06</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8c82",
+        "bgColor": "#ece9de",
+        "contrastRatio": 2.8,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".project-row:nth-child(2) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".status-purple"
+    ],
+    "html": "<em class=\"status-purple\">Indexing…</em>",
+    "checks": [
+      {
+        "fgColor": "#8174ad",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.43,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".project-row:nth-child(4) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".dash-question > span"
+    ],
+    "html": "<span>Ask Relay about this project…</span>",
+    "checks": [
+      {
+        "fgColor": "#87877d",
+        "bgColor": "#f4f2ea",
+        "contrastRatio": 3.23,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".final-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".footer-meta > span:nth-child(1)"
+    ],
+    "html": "<span>© 2026 Relay</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "context",
+    "target": [
+      ".footer-meta > span:nth-child(2)"
+    ],
+    "html": "<span>Built for the curious</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".button-small"
+    ],
+    "html": "<a class=\"button button-copper button-small\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".hero-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".context-card-foot > span:nth-child(2)"
+    ],
+    "html": "<span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#191b17",
+        "contrastRatio": 4.24,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".section-number"
+    ],
+    "html": "<span class=\"section-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".workflow-card:nth-child(1) > .workflow-card-top > span"
+    ],
+    "html": "<span>01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".workflow-card:nth-child(2) > .workflow-card-top > span"
+    ],
+    "html": "<span>02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".workflow-card:nth-child(3) > .workflow-card-top > span"
+    ],
+    "html": "<span>03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      "#feature-tab-context > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      "#feature-tab-agent > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      "#feature-tab-onboarding > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      "#feature-tab-handoff > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">04</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      "#feature-tab-search > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">05</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".feature-badge"
+    ],
+    "html": "<div class=\"feature-badge badge-moss\">",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.97,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".mini-label"
+    ],
+    "html": "<span class=\"mini-label\">MONDAY, OCTOBER 06</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8c82",
+        "bgColor": "#ece9de",
+        "contrastRatio": 2.8,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".project-row:nth-child(2) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".status-purple"
+    ],
+    "html": "<em class=\"status-purple\">Indexing…</em>",
+    "checks": [
+      {
+        "fgColor": "#8174ad",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.43,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".project-row:nth-child(4) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".dash-question > span"
+    ],
+    "html": "<span>Ask Relay about this project…</span>",
+    "checks": [
+      {
+        "fgColor": "#87877d",
+        "bgColor": "#f4f2ea",
+        "contrastRatio": 3.23,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".final-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".footer-meta > span:nth-child(1)"
+    ],
+    "html": "<span>© 2026 Relay</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "agent",
+    "target": [
+      ".footer-meta > span:nth-child(2)"
+    ],
+    "html": "<span>Built for the curious</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".button-small"
+    ],
+    "html": "<a class=\"button button-copper button-small\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".hero-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".context-card-foot > span:nth-child(2)"
+    ],
+    "html": "<span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#191b17",
+        "contrastRatio": 4.24,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".section-number"
+    ],
+    "html": "<span class=\"section-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".workflow-card:nth-child(1) > .workflow-card-top > span"
+    ],
+    "html": "<span>01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".workflow-card:nth-child(2) > .workflow-card-top > span"
+    ],
+    "html": "<span>02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".workflow-card:nth-child(3) > .workflow-card-top > span"
+    ],
+    "html": "<span>03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      "#feature-tab-context > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      "#feature-tab-agent > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      "#feature-tab-onboarding > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      "#feature-tab-handoff > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">04</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      "#feature-tab-search > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">05</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".feature-badge"
+    ],
+    "html": "<div class=\"feature-badge badge-sun\">",
+    "checks": [
+      {
+        "fgColor": "#ae7e17",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.17,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".mini-label"
+    ],
+    "html": "<span class=\"mini-label\">MONDAY, OCTOBER 06</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8c82",
+        "bgColor": "#ece9de",
+        "contrastRatio": 2.8,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".project-row:nth-child(2) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".status-purple"
+    ],
+    "html": "<em class=\"status-purple\">Indexing…</em>",
+    "checks": [
+      {
+        "fgColor": "#8174ad",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.43,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".project-row:nth-child(4) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".dash-question > span"
+    ],
+    "html": "<span>Ask Relay about this project…</span>",
+    "checks": [
+      {
+        "fgColor": "#87877d",
+        "bgColor": "#f4f2ea",
+        "contrastRatio": 3.23,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".final-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".footer-meta > span:nth-child(1)"
+    ],
+    "html": "<span>© 2026 Relay</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "onboarding",
+    "target": [
+      ".footer-meta > span:nth-child(2)"
+    ],
+    "html": "<span>Built for the curious</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".button-small"
+    ],
+    "html": "<a class=\"button button-copper button-small\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".hero-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".context-card-foot > span:nth-child(2)"
+    ],
+    "html": "<span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#191b17",
+        "contrastRatio": 4.24,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".section-number"
+    ],
+    "html": "<span class=\"section-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".workflow-card:nth-child(1) > .workflow-card-top > span"
+    ],
+    "html": "<span>01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".workflow-card:nth-child(2) > .workflow-card-top > span"
+    ],
+    "html": "<span>02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".workflow-card:nth-child(3) > .workflow-card-top > span"
+    ],
+    "html": "<span>03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      "#feature-tab-context > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      "#feature-tab-agent > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      "#feature-tab-onboarding > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      "#feature-tab-handoff > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">04</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      "#feature-tab-search > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">05</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".mini-label"
+    ],
+    "html": "<span class=\"mini-label\">MONDAY, OCTOBER 06</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8c82",
+        "bgColor": "#ece9de",
+        "contrastRatio": 2.8,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".project-row:nth-child(2) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".status-purple"
+    ],
+    "html": "<em class=\"status-purple\">Indexing…</em>",
+    "checks": [
+      {
+        "fgColor": "#8174ad",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.43,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".project-row:nth-child(4) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".dash-question > span"
+    ],
+    "html": "<span>Ask Relay about this project…</span>",
+    "checks": [
+      {
+        "fgColor": "#87877d",
+        "bgColor": "#f4f2ea",
+        "contrastRatio": 3.23,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".final-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".footer-meta > span:nth-child(1)"
+    ],
+    "html": "<span>© 2026 Relay</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "handoff",
+    "target": [
+      ".footer-meta > span:nth-child(2)"
+    ],
+    "html": "<span>Built for the curious</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".button-small"
+    ],
+    "html": "<a class=\"button button-copper button-small\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".hero-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".context-card-foot > span:nth-child(2)"
+    ],
+    "html": "<span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#191b17",
+        "contrastRatio": 4.24,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".section-number"
+    ],
+    "html": "<span class=\"section-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".workflow-card:nth-child(1) > .workflow-card-top > span"
+    ],
+    "html": "<span>01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".workflow-card:nth-child(2) > .workflow-card-top > span"
+    ],
+    "html": "<span>02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".workflow-card:nth-child(3) > .workflow-card-top > span"
+    ],
+    "html": "<span>03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f5f4ec",
+        "contrastRatio": 3.7,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      "#feature-tab-context > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">01</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      "#feature-tab-agent > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">02</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      "#feature-tab-onboarding > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">03</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      "#feature-tab-handoff > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">04</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      "#feature-tab-search > .feature-tab-number"
+    ],
+    "html": "<span class=\"feature-tab-number\">05</span>",
+    "checks": [
+      {
+        "fgColor": "#c6603e",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.57,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".mini-label"
+    ],
+    "html": "<span class=\"mini-label\">MONDAY, OCTOBER 06</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8c82",
+        "bgColor": "#ece9de",
+        "contrastRatio": 2.8,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".project-row:nth-child(2) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".status-purple"
+    ],
+    "html": "<em class=\"status-purple\">Indexing…</em>",
+    "checks": [
+      {
+        "fgColor": "#8174ad",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.43,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".project-row:nth-child(4) > em"
+    ],
+    "html": "<em>Healthy</em>",
+    "checks": [
+      {
+        "fgColor": "#4f815d",
+        "bgColor": "#ece9de",
+        "contrastRatio": 3.73,
+        "fontSize": "5.3pt (7px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".dash-question > span"
+    ],
+    "html": "<span>Ask Relay about this project…</span>",
+    "checks": [
+      {
+        "fgColor": "#87877d",
+        "bgColor": "#f4f2ea",
+        "contrastRatio": 3.23,
+        "fontSize": "6.8pt (9px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".final-actions > .button-copper.button[href$=\"sign-in\"]"
+    ],
+    "html": "<a class=\"button button-copper\" href=\"/sign-in\" data-discover=\"true\">",
+    "checks": [
+      {
+        "fgColor": "#fbfaf5",
+        "bgColor": "#c6603e",
+        "contrastRatio": 3.9,
+        "fontSize": "7.5pt (10px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".footer-meta > span:nth-child(1)"
+    ],
+    "html": "<span>© 2026 Relay</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "state": "search",
+    "target": [
+      ".footer-meta > span:nth-child(2)"
+    ],
+    "html": "<span>Built for the curious</span>",
+    "checks": [
+      {
+        "fgColor": "#8a8a80",
+        "bgColor": "#f2f0e7",
+        "contrastRatio": 3.05,
+        "fontSize": "6.0pt (8px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  }
+]

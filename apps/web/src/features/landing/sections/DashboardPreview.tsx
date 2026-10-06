@@ -20,7 +20,7 @@ import { RelayMark } from "../parts";
 
 export function DashboardPreview() {
   return (
-    <div className="dashboard-frame">
+    <div className="dashboard-frame" aria-hidden="true">
       <div className="dashboard-sidebar">
         <RelayMark compact />
         <div className="dash-nav">
@@ -76,9 +76,9 @@ export function DashboardPreview() {
           <div className="recent-projects">
             <div className="dash-section-head">
               <span>Recent projects</span>
-              <a href="#demo">
+              <span className="dash-view-all">
                 View all <ArrowUpRight size={12} />
-              </a>
+              </span>
             </div>
             <div className="project-row">
               <div className="project-icon project-icon-copper">S</div>

@@ -4,6 +4,7 @@
  */
 
 import { ArrowRight, Play } from "lucide-react";
+import { Link } from "react-router";
 import { heroContent, tickerItems } from "../content";
 
 interface HeroProps {
@@ -17,7 +18,7 @@ export function Hero({ onCtaClick, HeroVisual }: HeroProps) {
       <section className="hero-section section-wrap" id="top">
         <div className="hero-copy reveal-up">
           <div className="kicker">
-            <span className="kicker-line" /> {heroContent.kicker}
+            <span className="kicker-line" aria-hidden="true" /> {heroContent.kicker}
           </div>
           <h1>
             {heroContent.title.line1}
@@ -27,9 +28,9 @@ export function Hero({ onCtaClick, HeroVisual }: HeroProps) {
           </h1>
           <p className="hero-lede">{heroContent.lede}</p>
           <div className="hero-actions">
-            <a className="button button-copper" href="/sign-in">
+            <Link to="/sign-in" className="button button-copper">
               {heroContent.cta.primary} <ArrowRight size={15} />
-            </a>
+            </Link>
             <button
               className="button button-ghost"
               onClick={() => onCtaClick("product")}

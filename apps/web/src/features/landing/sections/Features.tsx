@@ -33,13 +33,40 @@ export function Features() {
         >
           {features.map((feature) => {
             const Icon = feature.icon;
+            const selected = activeFeature === feature.id;
             return (
               <button
+                id={`feature-tab-${feature.id}`}
                 key={feature.id}
                 className={`feature-tab ${activeFeature === feature.id ? "feature-tab-active" : ""}`}
+                tabIndex={selected ? 0 : -1}
                 onClick={() => setActiveFeature(feature.id)}
+                onKeyDown={(event) => {
+                  const tabButtons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("[role='tab']");
+                  let nextIndex = features.findIndex((item) => item.id === feature.id);
+
+                  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                    nextIndex = (nextIndex + 1) % features.length;
+                  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                    nextIndex = (nextIndex - 1 + features.length) % features.length;
+                  } else if (event.key === "Home") {
+                    nextIndex = 0;
+                  } else if (event.key === "End") {
+                    nextIndex = features.length - 1;
+                  } else {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  const nextFeature = features[nextIndex];
+                  if (nextFeature) {
+                    setActiveFeature(nextFeature.id);
+                    tabButtons?.[nextIndex]?.focus();
+                  }
+                }}
                 role="tab"
-                aria-selected={activeFeature === feature.id}
+                aria-selected={selected}
+                aria-controls="feature-panel"
               >
                 <span className="feature-tab-number">{feature.number}</span>
                 <Icon size={15} />
@@ -50,7 +77,14 @@ export function Features() {
           })}
         </div>
       </div>
-      <div className="feature-detail" key={active.id}>
+      <div
+        id="feature-panel"
+        className="feature-detail"
+        key={active.id}
+        role="tabpanel"
+        aria-labelledby={`feature-tab-${active.id}`}
+        tabIndex={0}
+      >
         <div className="feature-detail-copy">
           <div className={`feature-badge badge-${active.accent}`}>
             <active.icon size={16} /> {active.label}

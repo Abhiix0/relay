@@ -47,9 +47,15 @@
 }
 
 .relay-landing .main-nav {
+  margin-left: 54px;
+}
+
+.relay-landing .main-nav-links {
   display: flex;
   gap: 30px;
-  margin-left: 54px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .relay-landing .main-nav a,

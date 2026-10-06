@@ -11,7 +11,7 @@ export function ProductOverview() {
     <section className="overview-section section-wrap" id="product">
       <div className="section-aside">
         <span className="section-number">{overviewContent.sectionNumber}</span>
-        <span className="vertical-rule" />
+        <span className="vertical-rule" aria-hidden="true" />
         <span className="section-caption">{overviewContent.sectionCaption}</span>
       </div>
       <div className="overview-content">

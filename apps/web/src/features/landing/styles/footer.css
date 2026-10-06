@@ -31,6 +31,10 @@
   color: var(--charcoal-muted);
 }
 
+.relay-landing .site-footer nav {
+  display: contents;
+}
+
 .relay-landing .footer-links a:hover {
   color: var(--copper);
 }

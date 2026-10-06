@@ -12,6 +12,7 @@ export function RelayMark({ compact = false }: RelayMarkProps) {
   return (
     <span
       className={`wordmark ${compact ? "wordmark-compact" : ""}`}
+      role="img"
       aria-label="Relay"
     >
       <span className="mark" aria-hidden="true">

@@ -17,6 +17,7 @@ export function HeroVisual() {
   return (
     <div
       className="hero-diagram"
+      role="img"
       aria-label="Illustration of a codebase becoming project context"
     >
       <div className="diagram-topline">
@@ -25,7 +26,7 @@ export function HeroVisual() {
           <span className="live-dot" /> syncing
         </span>
       </div>
-      <div className="diagram-grid" />
+      <div className="diagram-grid" aria-hidden="true" />
       <div className="diagram-caption caption-a">
         FROM
         <br />
@@ -78,7 +79,7 @@ export function HeroVisual() {
             <CircleDot size={11} /> grounded
           </span>
         </div>
-        <h3>Authentication flow</h3>
+        <div className="context-card-title">Authentication flow</div>
         <p>
           Token validation runs at the edge before background jobs are queued.
         </p>

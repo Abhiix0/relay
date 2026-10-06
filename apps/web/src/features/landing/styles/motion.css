@@ -55,3 +55,44 @@
 .relay-landing .reveal-right {
   animation: reveal-up 0.7s 0.12s ease both;
 }
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html:has(.relay-landing) {
+    scroll-behavior: auto !important;
+  }
+
+  .relay-landing .reveal-up,
+  .relay-landing .reveal-right {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .relay-landing .live-dot {
+    animation: none;
+  }
+
+  .relay-landing .diagram-lines path {
+    animation: none;
+  }
+
+  .relay-landing .context-card {
+    transform: rotate(-1.1deg);
+  }
+
+  .relay-landing .button:hover,
+  .relay-landing .workflow-card:hover,
+  .relay-landing .workflow-card:hover .card-arrow,
+  .relay-landing .feature-tab-active .feature-chevron {
+    transform: none !important;
+  }
+
+  .relay-landing *,
+  .relay-landing *::before,
+  .relay-landing *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

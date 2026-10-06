@@ -23,11 +23,11 @@ export function Workflow() {
           <p>{workflowContent.note}</p>
         </div>
       </div>
-      <div className="workflow-grid">
+      <ol className="workflow-grid">
         {workflow.map((step) => {
           const Icon = step.icon;
           return (
-            <article className="workflow-card" key={step.number}>
+            <li className="workflow-card" key={step.number}>
               <div className="workflow-card-top">
                 <span>{step.number}</span>
                 <Icon size={19} />
@@ -45,10 +45,10 @@ export function Workflow() {
               >
                 <ArrowUpRight size={16} />
               </a>
-            </article>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </section>
   );
 }

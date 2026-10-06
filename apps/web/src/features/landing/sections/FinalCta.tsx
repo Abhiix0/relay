@@ -4,6 +4,7 @@
  */
 
 import { ArrowRight, ArrowUpRight, GitBranch, Sparkles } from "lucide-react";
+import { Link } from "react-router";
 import { finalCtaContent } from "../content";
 
 export function FinalCta() {
@@ -18,15 +19,15 @@ export function FinalCta() {
         </h2>
         <p>{finalCtaContent.body}</p>
         <div className="final-actions">
-          <a className="button button-copper" href="/sign-in">
+          <Link to="/sign-in" className="button button-copper">
             {finalCtaContent.cta} <ArrowRight size={15} />
-          </a>
+          </Link>
           <span className="final-note">
             <span className="live-dot" /> {finalCtaContent.note}
           </span>
         </div>
       </div>
-      <div className="final-diagram">
+      <div className="final-diagram" aria-hidden="true">
         <div className="final-grid" />
         <div className="final-node final-node-a">
           <GitBranch size={14} /> repo

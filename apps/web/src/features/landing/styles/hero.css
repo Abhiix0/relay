@@ -329,7 +329,7 @@
   text-transform: uppercase;
 }
 
-.relay-landing .context-card h3 {
+.relay-landing .context-card-title {
   margin: 25px 0 7px;
   font-family: var(--serif);
   font-size: 22px;
