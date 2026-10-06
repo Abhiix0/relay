@@ -59,7 +59,7 @@ interface Row {
 }
 
 const suffixes = ["1440", "375"] as const;
-const sections = ["overview", "workflow", "features", "dashboard", "quote", "cta", "footer"] as const;
+const sections = ["overview", "workflow", "features", "dashboard", "cta", "footer"] as const;
 const copyCrops = ["kicker", "h1", "lede", "actions", "metrics"] as const;
 const goldenFiles = [
   ...suffixes.flatMap((suffix) => [

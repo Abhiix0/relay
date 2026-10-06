@@ -1,9 +1,20 @@
 /* Dashboard preview section */
 
 .relay-landing .dashboard-section {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  column-gap: 38px;
   padding-top: 25px;
-  padding-bottom: 156px;
+  padding-bottom: 156.234375px;
   border-top: 1px solid var(--line);
+}
+
+.relay-landing .dashboard-content {
+  min-width: 0;
+}
+
+.relay-landing .dashboard-heading-title {
+  padding-top: 11px;
 }
 
 .relay-landing .dashboard-heading {
@@ -22,7 +33,7 @@
   color: var(--charcoal-muted);
   font-size: 12px;
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .relay-landing .dashboard-frame {
@@ -33,6 +44,18 @@
   border: 1px solid var(--line);
   background: #ece9de;
   box-shadow: 9px 10px 0 rgba(25, 27, 23, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+@media (max-width: 680px) {
+  .relay-landing .dashboard-section {
+    display: block;
+  }
+
+  .relay-landing .dashboard-frame {
+    border-radius: 12px;
+  }
 }
 
 .relay-landing .dashboard-sidebar {

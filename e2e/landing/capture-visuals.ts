@@ -66,7 +66,6 @@ export async function captureVisuals(page: Page, directory: string) {
       ["workflow", "#workflow"],
       ["features", "#features"],
       ["dashboard", "#demo"],
-      ["quote", "#about"],
       ["cta", "#contact"],
       ["footer", ".site-footer"],
     ] as const) {

@@ -1310,43 +1310,6 @@
   color: var(--copper);
 }
 
-.relay-landing .quote-section {
-  padding-top: 101px;
-  padding-bottom: 150px;
-  text-align: center;
-}
-.relay-landing .quote-mark {
-  font-family: var(--serif);
-  color: var(--copper);
-  font-size: 58px;
-  line-height: 0.6;
-}
-.relay-landing .quote-section blockquote {
-  max-width: 790px;
-  margin: 23px auto 25px;
-  font-family: var(--serif);
-  font-size: clamp(32px, 4.2vw, 56px);
-  line-height: 1.04;
-  letter-spacing: -0.05em;
-  font-weight: 400;
-}
-.relay-landing .quote-credit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  color: var(--charcoal-muted);
-  font-family: var(--mono);
-  font-size: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-.relay-landing .credit-line {
-  width: 42px;
-  height: 1px;
-  background: var(--line);
-}
-
 .relay-landing .final-cta {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
@@ -1898,19 +1861,6 @@
   }
   .relay-landing .project-row small {
     display: none;
-  }
-  .relay-landing .quote-section {
-    padding-top: 70px;
-    padding-bottom: 105px;
-  }
-  .relay-landing .quote-section blockquote {
-    font-size: 38px;
-  }
-  .relay-landing .quote-credit {
-    line-height: 1.5;
-  }
-  .relay-landing .credit-line {
-    width: 20px;
   }
   .relay-landing .final-cta {
     display: block;

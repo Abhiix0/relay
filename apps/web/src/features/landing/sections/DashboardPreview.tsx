@@ -47,7 +47,7 @@ export function DashboardPreview() {
       <div className="dashboard-main">
         <div className="dash-top">
           <div>
-            <span className="mini-label">MONDAY, OCTOBER 06</span>
+            <span className="mini-label">YOUR WORKSPACE</span>
             <h3>
               Good to see you, Abhi<span className="copper-dot">.</span>
             </h3>
@@ -84,7 +84,7 @@ export function DashboardPreview() {
               <div className="project-icon project-icon-copper">S</div>
               <div>
                 <b>Spawn</b>
-                <span>AbhiXO / Spawn</span>
+                <span>Abhiix0 / Spawn</span>
               </div>
               <em>Healthy</em>
               <small>4h ago</small>
@@ -93,7 +93,7 @@ export function DashboardPreview() {
               <div className="project-icon project-icon-blue">P</div>
               <div>
                 <b>Preflight</b>
-                <span>AbhiXO / Preflight</span>
+                <span>Abhiix0 / Preflight</span>
               </div>
               <em className="status-purple">Indexing…</em>
               <small>1d ago</small>
@@ -102,7 +102,7 @@ export function DashboardPreview() {
               <div className="project-icon project-icon-moss">D</div>
               <div>
                 <b>Dev tools</b>
-                <span>AbhiXO / dev-tools</span>
+                <span>Abhiix0 / dev-tools</span>
               </div>
               <em>Healthy</em>
               <small>3d ago</small>

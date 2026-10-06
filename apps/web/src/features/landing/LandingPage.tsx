@@ -6,7 +6,6 @@ import "./styles/overview.css";
 import "./styles/workflow.css";
 import "./styles/features.css";
 import "./styles/dashboard.css";
-import "./styles/quote.css";
 import "./styles/cta.css";
 import "./styles/footer.css";
 import "./styles/motion.css";

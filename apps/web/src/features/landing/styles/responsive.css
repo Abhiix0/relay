@@ -213,7 +213,7 @@
   }
   .relay-landing .workflow-section {
     display: block;
-    padding-bottom: 104px;
+    padding-bottom: 104.390625px;
   }
   .relay-landing .workflow-section .section-aside {
     padding-top: 0;
@@ -296,7 +296,7 @@
     width: 90%;
   }
   .relay-landing .dashboard-section {
-    padding-bottom: 105px;
+    padding-bottom: 104px;
   }
   .relay-landing .dashboard-heading {
     display: block;
@@ -345,19 +345,6 @@
   }
   .relay-landing .project-row small {
     display: none;
-  }
-  .relay-landing .quote-section {
-    padding-top: 70px;
-    padding-bottom: 105px;
-  }
-  .relay-landing .quote-section blockquote {
-    font-size: 38px;
-  }
-  .relay-landing .quote-credit {
-    line-height: 1.5;
-  }
-  .relay-landing .credit-line {
-    width: 20px;
   }
   .relay-landing .final-cta {
     display: block;

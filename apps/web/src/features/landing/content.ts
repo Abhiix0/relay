@@ -188,19 +188,11 @@ export const featuresContent = {
 } as const;
 
 export const dashboardContent = {
-  eyebrow: "A CALMER COMMAND CENTER",
   title: {
     line1: "Good context",
     line2: "looks like this.",
   },
   body: "One view for the projects you're learning, the questions you're answering, and the context you're leaving behind.",
-  linkText: "Get early access",
-} as const;
-
-export const quoteContent = {
-  quote:
-    "Relay gives the codebase a memory — so every new person can start from understanding, not assumptions.",
-  attribution: "Designed for teams inheriting ambitious software",
 } as const;
 
 export const finalCtaContent = {
@@ -228,7 +220,7 @@ export const navLinks = [
   { label: "Product", href: "#product" },
   { label: "How it works", href: "#workflow" },
   { label: "Features", href: "#features" },
-  { label: "About", href: "#about" },
+  { label: "About", href: "#demo" },
 ] as const;
 
 export const tickerItems = [

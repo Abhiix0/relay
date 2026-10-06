@@ -6,7 +6,6 @@ import { ProductOverview } from "./sections/ProductOverview";
 import { Workflow } from "./sections/Workflow";
 import { Features } from "./sections/Features";
 import { Dashboard } from "./sections/Dashboard";
-import { Quote } from "./sections/Quote";
 import { FinalCta } from "./sections/FinalCta";
 import { Footer } from "./sections/Footer";
 
@@ -45,7 +44,6 @@ export default function HomePage() {
         <Workflow />
         <Features />
         <Dashboard />
-        <Quote />
         <FinalCta />
       </main>
       <Footer />
