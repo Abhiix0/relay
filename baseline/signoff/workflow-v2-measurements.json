@@ -1,0 +1,32 @@
+[
+  {
+    "viewportWidth": 1440,
+    "sectionHeight": 663,
+    "cardHeights": [
+      263.40625,
+      263.40625,
+      263.40625
+    ],
+    "dividerTops": [
+      543.53125,
+      543.53125,
+      543.53125
+    ],
+    "noteHeight": 38.09375
+  },
+  {
+    "viewportWidth": 375,
+    "sectionHeight": 1168.8125,
+    "cardHeights": [
+      261.375,
+      235.875,
+      261.375
+    ],
+    "dividerTops": [
+      289.671875,
+      534.546875,
+      804.921875
+    ],
+    "noteHeight": 38.09375
+  }
+]

@@ -170,7 +170,6 @@ export const overviewContent = {
 } as const;
 
 export const workflowContent = {
-  eyebrow: "HOW IT WORKS / THREE MOVES",
   title: {
     line1: "From codebase",
     line2: "to context.",

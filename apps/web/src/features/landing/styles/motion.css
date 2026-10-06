@@ -83,7 +83,6 @@
 
   .relay-landing .button:hover,
   .relay-landing .workflow-card:hover,
-  .relay-landing .workflow-card:hover .card-arrow,
   .relay-landing .feature-tab-active .feature-chevron {
     transform: none !important;
   }

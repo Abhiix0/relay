@@ -659,34 +659,6 @@
   background: var(--line);
   margin: 60px 0 22px;
 }
-.relay-landing .workflow-card-body {
-  max-width: 255px;
-}
-.relay-landing .workflow-card-body h3 {
-  margin: 13px 0 10px;
-  font-family: var(--serif);
-  font-size: 26px;
-  line-height: 1.02;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-}
-.relay-landing .workflow-card-body p {
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--charcoal-muted);
-}
-.relay-landing .card-arrow {
-  position: absolute;
-  bottom: 19px;
-  right: 21px;
-  display: inline-flex;
-  color: var(--copper);
-  transition: transform 0.2s ease;
-}
-.relay-landing .workflow-card:hover .card-arrow {
-  transform: translate(3px, -3px);
-}
-
 .relay-landing .features-section {
   display: grid;
   grid-template-columns: 315px 1fr;
@@ -1816,9 +1788,6 @@
   }
   .relay-landing .workflow-card-line {
     margin: 35px 0 17px;
-  }
-  .relay-landing .workflow-card-body h3 {
-    font-size: 25px;
   }
   .relay-landing .features-section {
     padding-bottom: 104px;

@@ -212,7 +212,11 @@
     margin-bottom: 24px;
   }
   .relay-landing .workflow-section {
+    display: block;
     padding-bottom: 104px;
+  }
+  .relay-landing .workflow-section .section-aside {
+    padding-top: 0;
   }
   .relay-landing .workflow-head {
     display: block;
@@ -226,13 +230,11 @@
     margin-top: 35px;
   }
   .relay-landing .workflow-card {
-    min-height: 228px;
+    min-height: 0;
   }
-  .relay-landing .workflow-card-line {
-    margin: 35px 0 17px;
-  }
-  .relay-landing .workflow-card-body h3 {
+  .relay-landing .workflow-card-heading h3 {
     font-size: 25px;
+    min-height: 0;
   }
   .relay-landing .features-section {
     padding-bottom: 104px;
