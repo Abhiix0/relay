@@ -62,168 +62,168 @@
       "iteration": "1",
       "playState": "running"
     },
-    "dashOffset": "-59.3683px",
+    "dashOffset": "-59.497px",
     "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-    "pulseTime": 7633.0699999926,
-    "cardY": 343.8908386230469,
+    "pulseTime": 7649.618000007237,
+    "cardY": 343.8471984863281,
     "visiblePathAnimations": 1,
     "hiddenPathAnimations": 0
   },
   "samples": [
     {
-      "dashOffset": "-5.8331px",
+      "dashOffset": "-0.648822px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.079833984375
+      "cardY": 364.5738525390625
     },
     {
-      "dashOffset": "-7.64766px",
+      "dashOffset": "-2.46234px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.5341796875
+      "cardY": 355.93524169921875
     },
     {
-      "dashOffset": "-9.20348px",
+      "dashOffset": "-4.14778px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.0720520019531
+      "cardY": 348.4666748046875
     },
     {
-      "dashOffset": "-11.018px",
+      "dashOffset": "-5.83322px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.46923828125
+      "cardY": 346.07977294921875
     },
     {
-      "dashOffset": "-12.5736px",
+      "dashOffset": "-7.64778px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.9344177246094
+      "cardY": 345.5341491699219
     },
     {
-      "dashOffset": "-14.2588px",
+      "dashOffset": "-11.0182px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.3795166015625
+      "cardY": 344.46917724609375
     },
     {
-      "dashOffset": "-15.9442px",
+      "dashOffset": "-13.0917px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.8885192871094
+      "cardY": 343.7591857910156
     },
     {
-      "dashOffset": "-17.6289px",
+      "dashOffset": "-14.9068px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.48883056640625
+      "cardY": 343.181396484375
     },
     {
-      "dashOffset": "-19.3143px",
+      "dashOffset": "-16.7216px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.19354248046875
+      "cardY": 342.691650390625
     },
     {
-      "dashOffset": "-20.9993px",
+      "dashOffset": "-18.9248px",
+      "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
+      "cardY": 342.2522277832031
+    },
+    {
+      "dashOffset": "-20.9991px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
       "cardY": 342.0055236816406
     },
     {
-      "dashOffset": "-22.8141px",
+      "dashOffset": "-22.8142px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
       "cardY": 341.91790771484375
     },
     {
-      "dashOffset": "-24.6289px",
+      "dashOffset": "-24.4993px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 341.94134521484375
+      "cardY": 341.93597412109375
     },
     {
-      "dashOffset": "-26.3143px",
+      "dashOffset": "-26.1844px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.065185546875
+      "cardY": 342.0519714355469
     },
     {
-      "dashOffset": "-27.999px",
+      "dashOffset": "-27.8695px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.2940979003906
+      "cardY": 342.272705078125
     },
     {
-      "dashOffset": "-29.6844px",
+      "dashOffset": "-29.8137px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 342.6303405761719
+      "cardY": 342.6604309082031
     },
     {
-      "dashOffset": "-31.499px",
+      "dashOffset": "-31.628px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.104736328125
+      "cardY": 343.14239501953125
     },
     {
-      "dashOffset": "-33.0538px",
+      "dashOffset": "-33.443px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.5865783691406
+      "cardY": 343.715087890625
     },
     {
-      "dashOffset": "-34.7389px",
+      "dashOffset": "-35.1287px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.15594482421875
+      "cardY": 344.29034423828125
     },
     {
-      "dashOffset": "-36.4247px",
+      "dashOffset": "-37.0724px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.7326965332031
+      "cardY": 344.9466552734375
     },
     {
-      "dashOffset": "-38.1093px",
+      "dashOffset": "-39.4057px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.2718505859375
+      "cardY": 345.6380920410156
     },
     {
-      "dashOffset": "-39.9247px",
+      "dashOffset": "-41.4796px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.76971435546875
+      "cardY": 346.10662841796875
     },
     {
-      "dashOffset": "-41.6093px",
+      "dashOffset": "-43.4248px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.1307067871094
+      "cardY": 346.4002685546875
     },
     {
-      "dashOffset": "-43.5538px",
+      "dashOffset": "-45.7573px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.4146728515625
+      "cardY": 346.567138671875
     },
     {
-      "dashOffset": "-45.6278px",
+      "dashOffset": "-48.0907px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.56292724609375
+      "cardY": 346.5469970703125
     },
     {
-      "dashOffset": "-47.8315px",
+      "dashOffset": "-49.906px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.5582580566406
+      "cardY": 346.4005432128906
     },
     {
-      "dashOffset": "-49.517px",
+      "dashOffset": "-51.7206px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.44207763671875
+      "cardY": 346.13134765625
     },
     {
-      "dashOffset": "-51.4609px",
+      "dashOffset": "-53.6647px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 346.1775207519531
+      "cardY": 345.7059020996094
     },
     {
-      "dashOffset": "-53.6641px",
+      "dashOffset": "-55.4788px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.7060546875
+      "cardY": 345.19427490234375
     },
     {
-      "dashOffset": "-55.6091px",
+      "dashOffset": "-57.5528px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 345.15399169921875
+      "cardY": 344.5143737792969
     },
     {
-      "dashOffset": "-57.5533px",
+      "dashOffset": "-59.497px",
       "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 344.51422119140625
-    },
-    {
-      "dashOffset": "-59.3683px",
-      "pulseShadow": "rgba(157, 187, 160, 0.25) 0px 0px 0px 3px",
-      "cardY": 343.8908386230469
+      "cardY": 343.8471984863281
     }
   ]
 }
