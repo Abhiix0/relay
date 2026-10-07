@@ -124,6 +124,26 @@ The Docker setup uses:
 - Gzip compression and security headers
 - Health checks for container monitoring
 
+## GitHub sign-in setup
+
+1. Create a GitHub OAuth App (Settings → Developer settings → OAuth Apps).
+   - Local: homepage `http://localhost:5200`, callback `http://localhost:5200/api/v1/auth/github/callback`
+   - Production: homepage `https://<your-domain>`, callback `https://<your-domain>/api/v1/auth/github/callback`
+2. Copy `apps/api/.env.example` to `apps/api/.env` and fill in:
+
+| Variable | Notes |
+| --- | --- |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | From the OAuth App |
+| `GITHUB_SCOPE` | Default `read:user user:email public_repo` |
+| `GITHUB_CALLBACK_URL` | Optional; overrides the derived callback URL |
+| `TOKEN_ENCRYPTION_KEY` | 32 bytes base64: `openssl rand -base64 32` |
+| `PUBLIC_APP_URL` | Browser origin, e.g. `http://localhost:5200` |
+| `MONGODB_URI` | e.g. `mongodb://localhost:27017/relay` (compose overrides it) |
+
+`PUBLIC_APP_URL` must equal the origin the browser uses, so the `relay_sid` cookie stays same-origin (`/api` is proxied by Vite in dev and nginx in Docker).
+
+`VITE_USE_MOCKS`: `.env.development` defaults to `true` (MSW mocks). Set it to `false` in `apps/web/.env.development.local` for real login. Never set it in production.
+
 ## Project Structure
 
 ```
