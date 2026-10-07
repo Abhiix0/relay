@@ -73,17 +73,13 @@ export function SignInCard() {
     }
   };
 
-  const handleGithubSignIn = async () => {
+  const handleGithubSignIn = () => {
+    // Full-page navigation to the API OAuth start. Do not SPA-navigate to
+    // /dashboard here — that races the redirect, flashes dashboard unauthenticated,
+    // and /auth/me 401-bounces back to /sign-in before GitHub ever runs.
     setGeneralError(null);
-    try {
-      setIsGithubLoading(true);
-      await signInWithGithub();
-      navigate("/dashboard");
-    } catch (err) {
-      setGeneralError(err instanceof Error ? err.message : "GitHub authentication failed");
-    } finally {
-      setIsGithubLoading(false);
-    }
+    setIsGithubLoading(true);
+    signInWithGithub();
   };
 
   return (

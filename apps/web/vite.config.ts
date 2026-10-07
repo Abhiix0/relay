@@ -11,12 +11,16 @@ export default defineConfig({
     },
   },
   // 5173 sits in a common Windows Hyper-V excluded range (EACCES on listen).
+  // Bind `localhost` (not 127.0.0.1) so the cookie host matches PUBLIC_APP_URL.
   server: {
-    host: '127.0.0.1',
+    host: 'localhost',
     port: 5200,
     strictPort: true,
     proxy: {
-      '/api': { target: 'http://127.0.0.1:4000', changeOrigin: false },
+      '/api': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: false,
+      },
     },
   },
   test: {
