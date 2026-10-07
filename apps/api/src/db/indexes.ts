@@ -19,7 +19,8 @@ export async function ensureIndexes(db: Db): Promise<void> {
     c.artifacts.createIndex({ projectId: 1, type: 1, updatedAt: -1 }),
     c.chunks.createIndex(
       { projectId: 1, text: "text", path: "text", title: "text" },
-      { name: "chunks_text" },
+      // chunks.language holds slugs like "typescript"; keep Mongo from treating it as a stemming language
+      { name: "chunks_text", language_override: "_textLanguage" },
     ),
     c.chunks.createIndex({ projectId: 1, language: 1 }),
     c.chunks.createIndex({ projectId: 1, gen: 1 }),
