@@ -7,6 +7,8 @@ import { errorHandler, notFoundHandler } from "./middleware/error";
 import { requestId } from "./middleware/requestId";
 import type { GithubClient } from "./integrations/github";
 import { authRouter } from "./routes/auth";
+import { projectsRouter } from "./routes/projects";
+import { syncRouter } from "./routes/sync";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -43,7 +45,11 @@ export function createApp(deps: AppDeps = {}): Express {
   router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });
-  if (deps.db && deps.github) router.use(authRouter(deps.db, deps.github));
+  if (deps.db && deps.github) {
+    router.use(authRouter(deps.db, deps.github));
+    router.use(projectsRouter(deps.db, deps.github));
+    router.use(syncRouter(deps.db));
+  }
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 

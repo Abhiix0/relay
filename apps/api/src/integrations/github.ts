@@ -7,11 +7,23 @@ export interface GithubUser {
   avatarUrl: string | null;
 }
 
+export interface GithubRepo {
+  id: number;
+  full_name: string;
+  name: string;
+  owner: string;
+  description: string | null;
+  language: string | null;
+  default_branch: string;
+  private: boolean;
+}
+
 export interface GithubClient {
   buildAuthorizeUrl(state: string): string;
   exchangeCode(code: string): Promise<string>;
   getUser(token: string): Promise<GithubUser>;
   getPrimaryEmail(token: string): Promise<string | null>;
+  getRepo(token: string, fullName: string): Promise<GithubRepo | null>;
 }
 
 const headers = (token: string) => ({
@@ -67,6 +79,33 @@ export function createGithubClient(): GithubClient {
         token,
       );
       return emails.find((e) => e.primary && e.verified)?.email ?? null;
+    },
+    async getRepo(token, fullName) {
+      const res = await fetch(`https://api.github.com/repos/${fullName}`, {
+        headers: headers(token),
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`GitHub request failed: ${res.status}`);
+      const r = (await res.json()) as {
+        id: number;
+        full_name: string;
+        name: string;
+        owner: { login: string };
+        description: string | null;
+        language: string | null;
+        default_branch: string;
+        private: boolean;
+      };
+      return {
+        id: r.id,
+        full_name: r.full_name,
+        name: r.name,
+        owner: r.owner.login,
+        description: r.description,
+        language: r.language,
+        default_branch: r.default_branch,
+        private: r.private,
+      };
     },
   };
 }
