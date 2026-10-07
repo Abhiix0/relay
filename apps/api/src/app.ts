@@ -11,6 +11,12 @@ import { authRouter } from "./routes/auth";
 import { projectsRouter } from "./routes/projects";
 import { syncRouter } from "./routes/sync";
 
+/** Request path without the query string, so OAuth codes and states never reach the logs. */
+export function stripQuery(url: string): string {
+  const i = url.indexOf("?");
+  return i === -1 ? url : url.slice(0, i);
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -42,7 +48,19 @@ export function createApp(deps: AppDeps): Express {
     });
 
   app.use(requestId);
-  app.use(pinoHttp({ logger, genReqId: (req) => (req as express.Request).id }));
+  app.use(
+    pinoHttp({
+      logger,
+      genReqId: (req) => (req as express.Request).id,
+      serializers: {
+        req: (req: express.Request) => ({
+          id: req.id,
+          method: req.method,
+          path: stripQuery(req.originalUrl ?? req.url),
+        }),
+      },
+    }),
+  );
   app.use(helmet());
   app.use(express.json({ limit: "1mb" }));
 

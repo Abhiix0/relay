@@ -53,8 +53,8 @@ export interface GithubReadme {
 }
 
 export interface GithubClient {
-  buildAuthorizeUrl(state: string): string;
-  exchangeCode(code: string): Promise<string>;
+  buildAuthorizeUrl(state: string, redirectUri: string): string;
+  exchangeCode(code: string, redirectUri: string): Promise<{ accessToken: string; scope: string }>;
   getUser(token: string): Promise<GithubUser>;
   getPrimaryEmail(token: string): Promise<string | null>;
   getRepo(token: string, fullName: string): Promise<GithubRepo | null>;
@@ -82,8 +82,12 @@ const headers = (token: string) => ({
   "User-Agent": "relay-api",
 });
 
-async function getJson<T>(url: string, token: string): Promise<T> {
-  const res = await fetch(url, { headers: headers(token) });
+function ghFetch(url: string, init: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+}
+
+async function getJson<T>(url: string, token: string, timeoutMs?: number): Promise<T> {
+  const res = await ghFetch(url, { headers: headers(token) }, timeoutMs);
   return (await check(res)).json() as Promise<T>;
 }
 
@@ -97,7 +101,7 @@ const API = "https://api.github.com";
 
 /** per_page=1 trick: the last page number in the Link header is the total count. */
 async function countViaLink(url: string, token: string): Promise<number> {
-  const raw = await fetch(url, { headers: headers(token) });
+  const raw = await ghFetch(url, { headers: headers(token) });
   if (raw.status === 409) return 0; // empty repository
   const res = await check(raw);
   const last = /[?&]page=(\d+)>; rel="last"/.exec(res.headers.get("link") ?? "");
@@ -127,29 +131,40 @@ const toThread = (t: RawThread): GithubThread => ({
 
 export function createGithubClient(): GithubClient {
   return {
-    buildAuthorizeUrl(state) {
+    buildAuthorizeUrl(state, redirectUri) {
       const c = loadConfig();
       const u = new URL("https://github.com/login/oauth/authorize");
       u.searchParams.set("client_id", c.GITHUB_CLIENT_ID);
       u.searchParams.set("scope", c.GITHUB_SCOPE);
+      u.searchParams.set("redirect_uri", redirectUri);
       u.searchParams.set("state", state);
       return u.toString();
     },
-    async exchangeCode(code) {
+    async exchangeCode(code, redirectUri) {
       const c = loadConfig();
-      const res = await fetch("https://github.com/login/oauth/access_token", {
-        method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({
-          client_id: c.GITHUB_CLIENT_ID,
-          client_secret: c.GITHUB_CLIENT_SECRET,
-          code,
-        }),
-      });
+      const res = await ghFetch(
+        "https://github.com/login/oauth/access_token",
+        {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify({
+            client_id: c.GITHUB_CLIENT_ID,
+            client_secret: c.GITHUB_CLIENT_SECRET,
+            code,
+            redirect_uri: redirectUri,
+          }),
+        },
+        10_000,
+      );
       if (!res.ok) throw new Error(`GitHub token exchange failed: ${res.status}`);
-      const body = (await res.json()) as { access_token?: string };
+      const body = (await res.json()) as {
+        access_token?: string;
+        scope?: string;
+        error?: string;
+      };
+      if (body.error) throw new Error(`GitHub token exchange rejected: ${body.error}`);
       if (!body.access_token) throw new Error("GitHub token exchange returned no token");
-      return body.access_token;
+      return { accessToken: body.access_token, scope: body.scope ?? "" };
     },
     async getUser(token) {
       const u = await getJson<{
@@ -157,18 +172,23 @@ export function createGithubClient(): GithubClient {
         login: string;
         name: string | null;
         avatar_url: string | null;
-      }>("https://api.github.com/user", token);
+      }>("https://api.github.com/user", token, 10_000);
       return { id: u.id, login: u.login, name: u.name, avatarUrl: u.avatar_url };
     },
     async getPrimaryEmail(token) {
-      const emails = await getJson<{ email: string; primary: boolean; verified: boolean }[]>(
-        "https://api.github.com/user/emails",
-        token,
-      );
-      return emails.find((e) => e.primary && e.verified)?.email ?? null;
+      try {
+        const emails = await getJson<{ email: string; primary: boolean; verified: boolean }[]>(
+          "https://api.github.com/user/emails",
+          token,
+          10_000,
+        );
+        return emails.find((e) => e.primary && e.verified)?.email ?? null;
+      } catch {
+        return null;
+      }
     },
     async getRepo(token, fullName) {
-      const res = await fetch(`https://api.github.com/repos/${fullName}`, {
+      const res = await ghFetch(`https://api.github.com/repos/${fullName}`, {
         headers: headers(token),
       });
       if (res.status === 404) return null;
@@ -217,7 +237,7 @@ export function createGithubClient(): GithubClient {
       return buf.includes(0) ? null : buf.toString("utf8");
     },
     async listCommits(token, full, limit) {
-      const res = await fetch(`${API}/repos/${full}/commits?per_page=${limit}`, {
+      const res = await ghFetch(`${API}/repos/${full}/commits?per_page=${limit}`, {
         headers: headers(token),
       });
       if (res.status === 409) return []; // empty repository
@@ -249,7 +269,7 @@ export function createGithubClient(): GithubClient {
       return raw.map(toThread);
     },
     async getReadme(token, full) {
-      const res = await fetch(`${API}/repos/${full}/readme`, { headers: headers(token) });
+      const res = await ghFetch(`${API}/repos/${full}/readme`, { headers: headers(token) });
       if (res.status === 404) return null;
       await check(res);
       const r = (await res.json()) as { path: string; content: string; html_url: string };

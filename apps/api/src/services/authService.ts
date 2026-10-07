@@ -1,7 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { Db, ObjectId } from "mongodb";
 import { getCollections, type UserDoc } from "../db/collections";
-import { loadConfig } from "../config";
 import { encrypt } from "../lib/crypto";
 import type { GithubUser } from "../integrations/github";
 
@@ -9,10 +8,10 @@ export const SESSION_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
 export async function upsertUserFromGithub(
   db: Db,
-  input: { profile: GithubUser; email: string | null; token: string },
+  input: { profile: GithubUser; email: string | null; token: string; scope: string },
 ): Promise<UserDoc> {
   const { users } = getCollections(db);
-  const { profile, email, token } = input;
+  const { profile, email, token, scope } = input;
   const now = new Date();
   const user = await users.findOneAndUpdate(
     { githubId: profile.id },
@@ -23,7 +22,7 @@ export async function upsertUserFromGithub(
         name: profile.name?.trim() || profile.login,
         avatarUrl: profile.avatarUrl,
         encToken: encrypt(token),
-        scope: loadConfig().GITHUB_SCOPE,
+        scope,
         updatedAt: now,
       },
       $setOnInsert: { createdAt: now },

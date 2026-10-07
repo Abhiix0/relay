@@ -19,17 +19,28 @@ export class FakeGithub implements GithubClient {
   };
   email: string | null = "octo@example.com";
 
-  buildAuthorizeUrl(state: string): string {
-    return `https://github.com/login/oauth/authorize?state=${state}`;
+  /** scope GitHub reports as granted */
+  grantedScope = "read:user public_repo";
+  /** redirect_uri passed to exchangeCode */
+  exchangeRedirectUri: string | null = null;
+  emailThrows = false;
+
+  buildAuthorizeUrl(state: string, redirectUri: string): string {
+    return `https://github.com/login/oauth/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
   }
-  async exchangeCode(code: string): Promise<string> {
+  async exchangeCode(
+    code: string,
+    redirectUri: string,
+  ): Promise<{ accessToken: string; scope: string }> {
+    this.exchangeRedirectUri = redirectUri;
     if (code === "bad") throw new Error("exchange failed");
-    return FAKE_TOKEN;
+    return { accessToken: FAKE_TOKEN, scope: this.grantedScope };
   }
   async getUser(): Promise<GithubUser> {
     return this.profile;
   }
   async getPrimaryEmail(): Promise<string | null> {
+    if (this.emailThrows) throw new Error("emails down");
     return this.email;
   }
 

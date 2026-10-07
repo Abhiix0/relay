@@ -2,6 +2,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "mongodb";
 import { userSchema } from "@web-types/types";
+import { stripQuery } from "../app";
 import { getCollections } from "../db/collections";
 import { FAKE_TOKEN, FakeGithub } from "../test/fakes";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
@@ -105,5 +106,81 @@ describe("auth", () => {
       await getCollections(db).sessions.countDocuments({ _id: cookie.split("=")[1]! }),
     ).toBe(0);
     expect((await request(app()).get("/api/v1/auth/me").set("Cookie", cookie)).status).toBe(401);
+  });
+
+  it("authorize URL carries redirect_uri and the same one is used for the exchange", async () => {
+    const gh = new FakeGithub();
+    const a = makeTestApp({ db, github: gh });
+    const res = await request(a).get("/api/v1/auth/github");
+    const redirect = new URL(res.headers.location!).searchParams.get("redirect_uri");
+    expect(redirect).toBe("http://localhost:5200/api/v1/auth/github/callback");
+    await request(a)
+      .get("/api/v1/auth/github/callback?code=good&state=abc")
+      .set("Cookie", "relay_oauth_state=abc");
+    expect(gh.exchangeRedirectUri).toBe(redirect);
+  });
+
+  it("state cookie is scoped to the auth path", async () => {
+    const res = await request(app()).get("/api/v1/auth/github");
+    expect(pick(res, "relay_oauth_state")).toMatch(/Path=\/api\/v1\/auth/i);
+  });
+
+  it("stores the granted scope, not the configured one", async () => {
+    const gh = new FakeGithub();
+    gh.grantedScope = "read:user";
+    await request(makeTestApp({ db, github: gh }))
+      .get("/api/v1/auth/github/callback?code=good&state=abc")
+      .set("Cookie", "relay_oauth_state=abc");
+    expect((await getCollections(db).users.findOne({ githubId: 4242 }))!.scope).toBe("read:user");
+  });
+
+  it("login succeeds with noreply email when getPrimaryEmail throws", async () => {
+    const gh = new FakeGithub();
+    gh.profile = { id: 8, login: "mailless", name: null, avatarUrl: null };
+    gh.emailThrows = true;
+    const res = await request(makeTestApp({ db, github: gh }))
+      .get("/api/v1/auth/github/callback?code=good&state=abc")
+      .set("Cookie", "relay_oauth_state=abc");
+    expect(res.headers.location).toBe("http://localhost:5200/dashboard");
+    expect((await getCollections(db).users.findOne({ githubId: 8 }))!.email).toBe(
+      "mailless@users.noreply.github.com",
+    );
+  });
+
+  it("deletes the previous session on login", async () => {
+    const { cookie } = await loginAs(db);
+    const oldSid = cookie.split("=")[1]!;
+    const res = await request(app())
+      .get("/api/v1/auth/github/callback?code=good&state=abc")
+      .set("Cookie", [cookie, "relay_oauth_state=abc"]);
+    expect(res.headers.location).toBe("http://localhost:5200/dashboard");
+    expect(await getCollections(db).sessions.countDocuments({ _id: oldSid })).toBe(0);
+  });
+
+  it("a state of different length redirects to oauth_failed", async () => {
+    const res = await request(app())
+      .get("/api/v1/auth/github/callback?code=good&state=abcd")
+      .set("Cookie", "relay_oauth_state=abc");
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe(fail);
+  });
+
+  it("rate limits the callback per IP", async () => {
+    const a = app();
+    const hit = () =>
+      request(a)
+        .get("/api/v1/auth/github/callback?code=good&state=abc")
+        .set("Cookie", "relay_oauth_state=abc");
+    for (let i = 0; i < 30; i++) expect((await hit()).headers.location).toContain("/dashboard");
+    const limited = await hit();
+    expect(limited.status).toBe(302);
+    expect(limited.headers.location).toBe(fail);
+  });
+
+  it("log serializer strips the query string", () => {
+    expect(stripQuery("/api/v1/auth/github/callback?code=secret&state=s")).toBe(
+      "/api/v1/auth/github/callback",
+    );
+    expect(stripQuery("/api/v1/healthz")).toBe("/api/v1/healthz");
   });
 });
