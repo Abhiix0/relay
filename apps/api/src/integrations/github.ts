@@ -59,7 +59,11 @@ export interface GithubClient {
   getPrimaryEmail(token: string): Promise<string | null>;
   getRepo(token: string, fullName: string): Promise<GithubRepo | null>;
   /** blobs only */
-  getTree(token: string, full: string, branch: string): Promise<GithubTreeEntry[]>;
+  getTree(
+    token: string,
+    full: string,
+    branch: string,
+  ): Promise<{ entries: GithubTreeEntry[]; truncated: boolean }>;
   /** decoded text, or null when the blob is binary */
   getBlob(token: string, full: string, sha: string): Promise<string | null>;
   listCommits(token: string, full: string, limit: number): Promise<GithubCommit[]>;
@@ -93,7 +97,9 @@ const API = "https://api.github.com";
 
 /** per_page=1 trick: the last page number in the Link header is the total count. */
 async function countViaLink(url: string, token: string): Promise<number> {
-  const res = await check(await fetch(url, { headers: headers(token) }));
+  const raw = await fetch(url, { headers: headers(token) });
+  if (raw.status === 409) return 0; // empty repository
+  const res = await check(raw);
   const last = /[?&]page=(\d+)>; rel="last"/.exec(res.headers.get("link") ?? "");
   if (last) return Number(last[1]);
   return ((await res.json()) as unknown[]).length;
@@ -189,12 +195,21 @@ export function createGithubClient(): GithubClient {
       };
     },
     async getTree(token, full, branch) {
-      const t = await getJson<{
+      const res = await fetch(
+        `${API}/repos/${full}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+        { headers: headers(token) },
+      );
+      if (res.status === 409) return { entries: [], truncated: false }; // empty repository
+      const t = (await (await check(res)).json()) as {
         tree: { path: string; type: string; sha: string; size?: number }[];
-      }>(`${API}/repos/${full}/git/trees/${encodeURIComponent(branch)}?recursive=1`, token);
-      return t.tree
-        .filter((e) => e.type === "blob")
-        .map((e) => ({ path: e.path, sha: e.sha, size: e.size ?? 0 }));
+        truncated?: boolean;
+      };
+      return {
+        entries: t.tree
+          .filter((e) => e.type === "blob")
+          .map((e) => ({ path: e.path, sha: e.sha, size: e.size ?? 0 })),
+        truncated: t.truncated === true,
+      };
     },
     async getBlob(token, full, sha) {
       const b = await getJson<{ content: string }>(`${API}/repos/${full}/git/blobs/${sha}`, token);
@@ -202,13 +217,15 @@ export function createGithubClient(): GithubClient {
       return buf.includes(0) ? null : buf.toString("utf8");
     },
     async listCommits(token, full, limit) {
-      const raw = await getJson<
-        {
-          sha: string;
-          html_url: string;
-          commit: { message: string; author: { name: string; date: string } | null };
-        }[]
-      >(`${API}/repos/${full}/commits?per_page=${limit}`, token);
+      const res = await fetch(`${API}/repos/${full}/commits?per_page=${limit}`, {
+        headers: headers(token),
+      });
+      if (res.status === 409) return []; // empty repository
+      const raw = (await (await check(res)).json()) as {
+        sha: string;
+        html_url: string;
+        commit: { message: string; author: { name: string; date: string } | null };
+      }[];
       return raw.map((c) => ({
         sha: c.sha,
         message: c.commit.message,

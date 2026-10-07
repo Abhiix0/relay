@@ -4,7 +4,8 @@ import { getCollections, type ProjectDoc } from "../db/collections";
 import { deleteProject } from "../services/projectService";
 import { newJob } from "../services/syncService";
 import { FakeGithub } from "../test/fakes";
-import { loginAs, startTestDb, stopTestDb } from "../test/helpers";
+import request from "supertest";
+import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
 import { createSyncRunner } from "./syncRunner";
 
 let db: Db;
@@ -132,19 +133,100 @@ describe("sync runner", () => {
     expect((await c.projects.findOne({ _id: project._id }))?.syncStatus).toBe("failed");
   });
 
-  it("deleting the project aborts the run and leaves no rows", async () => {
+  it("deleting the project mid-sync waits for the run and leaves no rows", async () => {
     const { github, project, c, runner } = await setup();
     let open!: () => void;
     github.gate = new Promise<void>((r) => (open = r));
     await c.syncJobs.insertOne(newJob(project._id));
     const done = runner.start(project._id);
     await new Promise((r) => setTimeout(r, 50));
-    await deleteProject(db, project, runner);
+    // abort() resolves only once the run settles, so release the gate while deleting
+    const deleting = deleteProject(db, project, runner);
     open();
+    await deleting;
     await done;
-    for (const col of [c.repoFiles, c.chunks, c.artifacts, c.syncJobs] as const) {
+    for (const col of [c.repoFiles, c.chunks, c.artifacts, c.syncJobs, c.activityEvents] as const) {
       expect(await (col as typeof c.chunks).countDocuments({ projectId: project._id })).toBe(0);
     }
     expect(await c.projects.findOne({ _id: project._id })).toBeNull();
+  });
+
+  it("failure in counts keeps the previous generation fully intact", async () => {
+    const { github, project, c, sync } = await setup();
+    await sync();
+    const chunksBefore = await c.chunks.countDocuments({ projectId: project._id, gen: 1 });
+    github.failOn = "countCommits";
+    const job = await sync();
+    expect(job.status).toBe("failed");
+    expect(await c.chunks.countDocuments({ projectId: project._id, gen: 1 })).toBe(chunksBefore);
+    expect(await c.repoFiles.countDocuments({ projectId: project._id, gen: 1 })).toBe(5);
+    for (const col of [c.chunks, c.repoFiles, c.artifacts] as const) {
+      expect(await (col as typeof c.chunks).countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
+    }
+    expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(1);
+  });
+
+  it("listPulls failure also leaves no new-generation rows", async () => {
+    const { github, project, c, sync } = await setup();
+    github.failOn = "listPulls";
+    expect((await sync()).status).toBe("failed");
+    expect(await c.chunks.countDocuments({ projectId: project._id })).toBe(0);
+    expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(0);
+  });
+
+  it("afterSync throwing does not fail the job or drop data", async () => {
+    const { github, project, c } = await setup();
+    const runner = createSyncRunner({
+      db,
+      github,
+      afterSync: async () => {
+        throw new Error("hook boom");
+      },
+    });
+    const job = newJob(project._id);
+    await c.syncJobs.insertOne(job);
+    await runner.start(project._id);
+    expect((await c.syncJobs.findOne({ _id: job._id }))?.status).toBe("succeeded");
+    expect(await c.repoFiles.countDocuments({ projectId: project._id, gen: 1 })).toBe(5);
+    expect(await c.chunks.countDocuments({ projectId: project._id, gen: 1 })).toBeGreaterThan(0);
+    expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(1);
+  });
+
+  it("readme yields only file chunks, no readme-type chunks", async () => {
+    const { project, c, sync } = await setup();
+    await sync();
+    const chunks = await c.chunks.find({ projectId: project._id }).toArray();
+    expect(chunks.some((x) => x.type === ("readme" as string))).toBe(false);
+    expect(chunks.some((x) => x.type === "file" && x.path === "README.md")).toBe(true);
+    expect(await c.artifacts.countDocuments({ projectId: project._id, type: "readme" })).toBe(1);
+  });
+
+  it("does not fetch blobs for binary extensions", async () => {
+    const { github, sync } = await setup();
+    await sync();
+    expect(github.blobCalls).not.toContain("sha:logo.png");
+    expect(github.blobCalls).toContain("sha:src/main.rs");
+  });
+
+  it("refreshes description and default branch from the repository", async () => {
+    const { github, project, c, sync } = await setup();
+    github.addRepo("acme/widget", { description: "Fresh description", default_branch: "trunk" });
+    await sync();
+    expect(await c.projects.findOne({ _id: project._id })).toMatchObject({
+      description: "Fresh description",
+      defaultBranch: "trunk",
+    });
+  });
+
+  it("returns 413 for a JSON body over 1MB", async () => {
+    const { cookie } = await loginAs(db);
+    const app = makeTestApp({ db, github: new FakeGithub() });
+    const res = await request(app)
+      .post("/api/v1/projects")
+      .set("Cookie", cookie)
+      .set("Content-Type", "application/json")
+      .send(JSON.stringify({ fullName: "a/b", description: "x".repeat(1_100_000) }));
+    expect(res.status).toBe(413);
+    expect(res.body.message).toBe("Request body too large");
   });
 });

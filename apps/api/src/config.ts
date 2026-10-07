@@ -14,18 +14,28 @@ const schema = z.object({
     (v) => Buffer.from(v, "base64").length === 32,
     "must be 32 bytes, base64-encoded",
   ),
-  PUBLIC_APP_URL: z.string().url().default("http://localhost:5173"),
-  ANTHROPIC_API_KEY: secret("test-anthropic-key"),
-  LLM_MODEL: z.string().default("claude-sonnet-5-5"),
+  PUBLIC_APP_URL: z.string().url().default("http://localhost:5200"),
+  GROQ_API_KEY: secret("test-groq-key"),
+  LLM_MODEL: z.string().default("llama-3.3-70b-versatile"),
 });
 
 export type Config = z.infer<typeof schema>;
 
-export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const parsed = schema.safeParse(env);
+let cached: Config | undefined;
+
+/** Test hook: forget the memoized config. */
+export function resetConfig(): void {
+  cached = undefined;
+}
+
+/** Memoized for the process env; an explicit env is parsed fresh and not cached. */
+export function loadConfig(env?: NodeJS.ProcessEnv): Config {
+  if (!env && cached) return cached;
+  const parsed = schema.safeParse(env ?? process.env);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`Invalid environment configuration:\n${issues}`);
   }
+  if (!env) cached = parsed.data;
   return parsed.data;
 }

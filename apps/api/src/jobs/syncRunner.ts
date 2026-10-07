@@ -1,3 +1,4 @@
+import pino, { type Logger } from "pino";
 import { ObjectId, type Db } from "mongodb";
 import {
   getCollections,
@@ -12,26 +13,33 @@ import { chunk } from "../lib/chunker";
 import { detectLanguage } from "../lib/language";
 import { isExcludedPath, isLockfile } from "../lib/secrets";
 
-export const MAX_FILES = 5000;
+export const MAX_FILES = 2000;
 export const MAX_FILE_BYTES = 256 * 1024;
 const MAX_GLOBAL = 2;
 const BLOB_CONCURRENCY = 8;
+const FILE_BATCH = 100;
+const BINARY_EXT = new Set(
+  "png jpg jpeg gif webp ico pdf zip gz tar woff woff2 ttf eot mp3 mp4 mov wasm".split(" "),
+);
 
 export interface SyncContext {
   projectId: ObjectId;
   generation: number;
+  signal: AbortSignal;
 }
 
 export interface SyncRunner {
   /** Resolves when the run ends; never rejects. */
   start(projectId: ObjectId): Promise<void>;
-  abort(projectId: ObjectId): void;
+  /** Resolves once that project's run (if any) has fully settled. */
+  abort(projectId: ObjectId): Promise<void>;
   recoverOrphans(): Promise<void>;
 }
 
 export interface SyncRunnerDeps {
   db: Db;
   github: GithubClient;
+  logger?: Logger;
   /** analysis / onboarding arrive in a later phase */
   afterSync?: (ctx: SyncContext) => Promise<void>;
 }
@@ -39,6 +47,7 @@ export interface SyncRunnerDeps {
 const noopAfterSync = async (): Promise<void> => {};
 
 class Aborted extends Error {}
+class RepoNotFound extends Error {}
 
 function healthLabel(overall: number): string {
   return overall >= 75 ? "Healthy" : overall >= 50 ? "Needs attention" : "At risk";
@@ -57,6 +66,20 @@ function computeHealth(paths: string[], recentCommits: number, hasReadme: boolea
   return { overall, documentation, activity: activityScore };
 }
 
+/** README/docs first, then root config, then src, then the rest (stable). */
+function priority(path: string): number {
+  const lower = path.toLowerCase();
+  if (lower.startsWith("docs/") || /^readme/.test(lower)) return 0;
+  if (!path.includes("/")) return 1;
+  if (lower.startsWith("src/")) return 2;
+  return 3;
+}
+
+function isBinaryPath(path: string): boolean {
+  const dot = path.lastIndexOf(".");
+  return dot !== -1 && BINARY_EXT.has(path.slice(dot + 1).toLowerCase());
+}
+
 async function pool<T>(items: T[], size: number, fn: (item: T) => Promise<void>): Promise<void> {
   let next = 0;
   const worker = async () => {
@@ -72,9 +95,15 @@ async function insertBatched<T extends object>(
   for (let i = 0; i < docs.length; i += 500) await insert(docs.slice(i, i + 500));
 }
 
-export function createSyncRunner({ db, github, afterSync = noopAfterSync }: SyncRunnerDeps): SyncRunner {
+export function createSyncRunner({
+  db,
+  github,
+  logger = pino({ level: "silent" }),
+  afterSync = noopAfterSync,
+}: SyncRunnerDeps): SyncRunner {
   const c = getCollections(db);
   const controllers = new Map<string, AbortController>();
+  const running = new Map<string, Promise<void>>();
   const waiting: (() => void)[] = [];
   let active = 0;
 
@@ -91,8 +120,14 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
     else active--;
   };
 
-  async function run(project: ProjectDoc, jobId: ObjectId, signal: AbortSignal): Promise<void> {
+  async function run(
+    project: ProjectDoc,
+    jobId: ObjectId,
+    signal: AbortSignal,
+    state: { committed: boolean },
+  ): Promise<void> {
     const projectId = project._id;
+    const pid = projectId.toHexString();
     const newGen = project.syncGeneration + 1;
     const check = () => {
       if (signal.aborted) throw new Aborted();
@@ -109,41 +144,23 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
 
     // 0-10 metadata
     const repo = await github.getRepo(token, full);
-    if (!repo) throw new GithubAccessError(404);
+    if (!repo) throw new RepoNotFound();
     const branch = repo.default_branch;
     await progress(10);
 
-    // 10-35 tree + blobs
-    const tree = (await github.getTree(token, full, branch))
-      .filter((e) => !isExcludedPath(e.path))
-      .slice(0, MAX_FILES);
+    // 10-40 fetch everything (tree listing, text sources, stats) before writing anything
+    const { entries, truncated } = await github.getTree(token, full, branch);
+    const eligible = entries.filter((e) => !isExcludedPath(e.path));
+    if (truncated || eligible.length > MAX_FILES) {
+      logger.warn({ projectId: pid }, "file cap hit; indexing a prioritized subset");
+    }
+    const tree = eligible
+      .map((e, i) => ({ e, i, p: priority(e.path) }))
+      .sort((a, b) => a.p - b.p || a.i - b.i)
+      .slice(0, MAX_FILES)
+      .map((x) => x.e);
     await progress(15);
-    const files: RepoFileDoc[] = tree.map((e) => ({
-      _id: new ObjectId(),
-      projectId,
-      path: e.path,
-      name: e.path.split("/").pop() ?? e.path,
-      language: detectLanguage(e.path),
-      size: e.size,
-      sha: e.sha,
-      isBinary: false,
-      isLarge: e.size > MAX_FILE_BYTES,
-      content: null,
-      gen: newGen,
-    }));
-    await pool(
-      files.filter((f) => !f.isLarge && !isLockfile(f.path)),
-      BLOB_CONCURRENCY,
-      async (f) => {
-        check();
-        const text = await github.getBlob(token, full, f.sha);
-        if (text === null) f.isBinary = true;
-        else f.content = text;
-      },
-    );
-    await progress(35);
 
-    // 35-50 readme, 50-65 commits, 65-80 issues + PRs
     const now = new Date();
     const artifacts: ArtifactDoc[] = [];
     const add = (a: Omit<ArtifactDoc, "_id" | "projectId" | "gen">) =>
@@ -162,7 +179,7 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
         updatedAt: now,
       });
     }
-    await progress(50);
+    await progress(20);
     const commits = await github.listCommits(token, full, 100);
     for (const cm of commits) {
       add({
@@ -177,11 +194,9 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
         updatedAt: cm.date,
       });
     }
-    await progress(65);
-    const [issues, pulls] = [
-      await github.listIssues(token, full, 100),
-      await github.listPulls(token, full, 100),
-    ];
+    await progress(25);
+    const issues = await github.listIssues(token, full, 100);
+    const pulls = await github.listPulls(token, full, 100);
     for (const [type, list] of [
       ["issue", issues],
       ["pr", pulls],
@@ -200,32 +215,71 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
         });
       }
     }
-    await progress(80);
+    await progress(30);
+    const [commitCount, releases, issueCount, prCount] = await Promise.all([
+      github.countCommits(token, full),
+      github.countReleases(token, full),
+      github.searchCount(token, full, "issue"),
+      github.searchCount(token, full, "pr"),
+    ]);
+    await progress(40);
 
-    // 80-90 chunk + write new generation
+    // 40-90 write the new generation: files + chunks per batch, then artifacts
     const repoUrl = `https://github.com/${full}`;
-    const chunks: ChunkDoc[] = [];
-    for (const f of files) {
-      if (f.content === null || isLockfile(f.path)) continue;
-      for (const ch of chunk(f.content)) {
-        chunks.push({
-          _id: new ObjectId(),
-          projectId,
-          artifactId: null,
-          type: "file",
-          path: f.path,
-          url: `${repoUrl}/blob/${branch}/${f.path}`,
-          title: f.path,
-          language: f.language,
-          startLine: ch.startLine,
-          text: ch.text,
-          gen: newGen,
-        });
+    for (let i = 0; i < tree.length; i += FILE_BATCH) {
+      const batch: RepoFileDoc[] = tree.slice(i, i + FILE_BATCH).map((e) => ({
+        _id: new ObjectId(),
+        projectId,
+        path: e.path,
+        name: e.path.split("/").pop() ?? e.path,
+        language: detectLanguage(e.path),
+        size: e.size,
+        sha: e.sha,
+        isBinary: isBinaryPath(e.path),
+        isLarge: e.size > MAX_FILE_BYTES,
+        content: null,
+        gen: newGen,
+      }));
+      await pool(
+        batch.filter((f) => !f.isBinary && !f.isLarge && !isLockfile(f.path)),
+        BLOB_CONCURRENCY,
+        async (f) => {
+          check();
+          const text = await github.getBlob(token, full, f.sha);
+          if (text === null) f.isBinary = true;
+          else f.content = text;
+        },
+      );
+      const chunks: ChunkDoc[] = [];
+      for (const f of batch) {
+        if (f.content === null || isLockfile(f.path)) continue;
+        for (const ch of chunk(f.content)) {
+          chunks.push({
+            _id: new ObjectId(),
+            projectId,
+            artifactId: null,
+            type: "file",
+            path: f.path,
+            url: `${repoUrl}/blob/${branch}/${f.path}`,
+            title: f.path,
+            language: f.language,
+            startLine: ch.startLine,
+            text: ch.text,
+            gen: newGen,
+          });
+        }
       }
+      check();
+      await insertBatched((d) => c.repoFiles.insertMany(d), batch);
+      await insertBatched((d) => c.chunks.insertMany(d), chunks);
+      await progress(40 + Math.floor((45 * Math.min(i + FILE_BATCH, tree.length)) / tree.length));
     }
+
+    const artifactChunks: ChunkDoc[] = [];
     for (const a of artifacts) {
+      if (a.type === "readme") continue; // already chunked as a file
       for (const ch of chunk(a.body || a.title)) {
-        chunks.push({
+        artifactChunks.push({
           _id: new ObjectId(),
           projectId,
           artifactId: a._id,
@@ -241,29 +295,15 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
       }
     }
     check();
-    await insertBatched((d) => c.repoFiles.insertMany(d), files);
     await insertBatched((d) => c.artifacts.insertMany(d), artifacts);
-    await insertBatched((d) => c.chunks.insertMany(d), chunks);
-    check();
-    // gen:null rows (decision mirrors) never match $lt
-    await Promise.all([
-      c.repoFiles.deleteMany({ projectId, gen: { $lt: newGen } }),
-      c.artifacts.deleteMany({ projectId, gen: { $lt: newGen } }),
-      c.chunks.deleteMany({ projectId, gen: { $lt: newGen } }),
-    ]);
+    await insertBatched((d) => c.chunks.insertMany(d), artifactChunks);
     await progress(90);
 
-    // 90-100 stats, health, hook, finalize
-    const [commitCount, releases, issueCount, prCount] = await Promise.all([
-      github.countCommits(token, full),
-      github.countReleases(token, full),
-      github.searchCount(token, full, "issue"),
-      github.searchCount(token, full, "pr"),
-    ]);
+    // single flip: generation pointer + stats + refreshed repo metadata
     const thirtyDays = Date.now() - 30 * 86_400_000;
     const recent = commits.filter((cm) => cm.date.getTime() >= thirtyDays).length;
     const health = computeHealth(
-      files.map((f) => f.path),
+      tree.map((e) => e.path),
       recent,
       readme !== null,
     );
@@ -273,12 +313,16 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
       {
         $set: {
           syncGeneration: newGen,
+          name: repo.name,
+          description: repo.description ?? project.description,
+          language: repo.language ?? project.language,
+          defaultBranch: repo.default_branch,
           stats: {
             commits: commitCount,
             pullRequests: prCount,
             issues: issueCount,
             releases,
-            files: files.length,
+            files: tree.length,
           },
           health,
           healthLabel: healthLabel(health.overall),
@@ -288,69 +332,108 @@ export function createSyncRunner({ db, github, afterSync = noopAfterSync }: Sync
         },
       },
     );
-    await afterSync({ projectId, generation: newGen });
+    state.committed = true;
+
+    // post-commit cleanup; gen:null rows (decision mirrors) never match $lt
+    try {
+      await Promise.all([
+        c.repoFiles.deleteMany({ projectId, gen: { $lt: newGen } }),
+        c.artifacts.deleteMany({ projectId, gen: { $lt: newGen } }),
+        c.chunks.deleteMany({ projectId, gen: { $lt: newGen } }),
+      ]);
+    } catch (err) {
+      logger.error({ projectId: pid, err: (err as Error).message }, "old generation cleanup failed");
+    }
+    try {
+      await afterSync({ projectId, generation: newGen, signal });
+    } catch (err) {
+      logger.error({ projectId: pid, err: (err as Error).message }, "afterSync failed");
+    }
+    if (signal.aborted) return;
     await c.syncJobs.updateOne(
       { _id: jobId },
       { $set: { status: "succeeded", progress: 100, error: null, completedAt: new Date() } },
     );
+    if (signal.aborted) return;
     await c.activityEvents.insertOne({
       _id: new ObjectId(),
       projectId,
       type: "sync",
       title: "Repository synced",
-      description: `Indexed ${files.length} files, ${commits.length} commits, ${issues.length + pulls.length} issues and pull requests.`,
+      description: `Indexed ${tree.length} files, ${commits.length} commits, ${issues.length + pulls.length} issues and pull requests.`,
       createdAt: new Date(),
     });
   }
 
-  async function execute(projectId: ObjectId): Promise<void> {
+  async function execute(projectId: ObjectId, ctrl: AbortController): Promise<void> {
     const project = await c.projects.findOne({ _id: projectId });
     const job = await c.syncJobs.findOne({ projectId, status: { $in: ["queued", "running"] } });
     if (!project || !job) return;
-    const ctrl = new AbortController();
-    controllers.set(projectId.toHexString(), ctrl);
     const newGen = project.syncGeneration + 1;
+    const state = { committed: false };
     try {
       await acquire();
       try {
         if (ctrl.signal.aborted) throw new Aborted();
-        await run(project, job._id, ctrl.signal);
+        await run(project, job._id, ctrl.signal, state);
       } finally {
         release();
       }
     } catch (err) {
-      // drop any partially written new generation; old data stays untouched
-      await Promise.all([
-        c.repoFiles.deleteMany({ projectId, gen: newGen }),
-        c.artifacts.deleteMany({ projectId, gen: newGen }),
-        c.chunks.deleteMany({ projectId, gen: newGen }),
-      ]).catch(() => undefined);
+      // drop a partially written new generation; old data stays untouched
+      if (!state.committed) {
+        await Promise.all([
+          c.repoFiles.deleteMany({ projectId, gen: newGen }),
+          c.artifacts.deleteMany({ projectId, gen: newGen }),
+          c.chunks.deleteMany({ projectId, gen: newGen }),
+        ]).catch(() => undefined);
+      }
       if (err instanceof Aborted) return;
+      logger.error(
+        { projectId: projectId.toHexString(), err: err instanceof Error ? err.message : "unknown" },
+        "sync failed",
+      );
       const message =
-        err instanceof GithubAccessError
-          ? "GitHub access revoked or rate limited"
-          : "Sync failed due to an unexpected error";
+        err instanceof RepoNotFound
+          ? "Repository not found or not accessible"
+          : err instanceof GithubAccessError
+            ? "GitHub access revoked or rate limited"
+            : "Sync failed due to an unexpected error";
       await c.syncJobs
         .updateOne(
           { _id: job._id },
           { $set: { status: "failed", error: message, completedAt: new Date() } },
         )
         .catch(() => undefined);
-      await c.projects
-        .updateOne(
-          { _id: projectId },
-          { $set: { syncStatus: "failed", healthLabel: "Sync failed", updatedAt: new Date() } },
-        )
-        .catch(() => undefined);
-    } finally {
-      controllers.delete(projectId.toHexString());
+      if (!state.committed) {
+        await c.projects
+          .updateOne(
+            { _id: projectId },
+            { $set: { syncStatus: "failed", healthLabel: "Sync failed", updatedAt: new Date() } },
+          )
+          .catch(() => undefined);
+      }
     }
   }
 
   return {
-    start: (projectId) => execute(projectId).catch(() => undefined),
-    abort(projectId) {
-      controllers.get(projectId.toHexString())?.abort();
+    start(projectId) {
+      const key = projectId.toHexString();
+      const ctrl = new AbortController();
+      controllers.set(key, ctrl);
+      const done: Promise<void> = execute(projectId, ctrl)
+        .catch(() => undefined)
+        .finally(() => {
+          if (controllers.get(key) === ctrl) controllers.delete(key);
+          if (running.get(key) === done) running.delete(key);
+        });
+      running.set(key, done);
+      return done;
+    },
+    async abort(projectId) {
+      const key = projectId.toHexString();
+      controllers.get(key)?.abort();
+      await running.get(key);
     },
     async recoverOrphans() {
       const orphans = await c.syncJobs.find({ status: { $in: ["queued", "running"] } }).toArray();

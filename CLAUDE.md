@@ -3,7 +3,7 @@
 Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onboarding plans, and handoff documents. The React frontend is DONE and is the contract. You are building `apps/api` to satisfy it.
 
 ## Stack
-- Monorepo: pnpm 10.18 workspaces, Node 22. `apps/web` (React 19, Vite 7, TanStack Query, zod 4, strict TS). `apps/api` (Express 5, TS strict, MongoDB native driver, zod 4, pino, Anthropic SDK).
+- Monorepo: pnpm 10.18 workspaces, Node 22. `apps/web` (React 19, Vite 7, TanStack Query, zod 4, strict TS). `apps/api` (Express 5, TS strict, MongoDB native driver, zod 4, pino, Groq SDK).
 - No Redis, no queue, no vector store, no webhooks, no SSE. Do not add them.
 
 ## Contract sources of truth (read these, don't re-explore the repo)
@@ -47,7 +47,7 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 - Web only: `pnpm --filter web check|lint|test`
 
 ## Environment (apps/api/.env.example; client-visible vars: none except VITE_USE_MOCKS)
-PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_SCOPE (default `read:user user:email public_repo`), TOKEN_ENCRYPTION_KEY (32 bytes base64), PUBLIC_APP_URL (e.g. http://localhost:5173), ANTHROPIC_API_KEY, LLM_MODEL (default claude-sonnet-5-5). Validate in `config.ts`; fail fast on boot. Never commit real values.
+PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_SCOPE (default `read:user user:email public_repo`), TOKEN_ENCRYPTION_KEY (32 bytes base64), PUBLIC_APP_URL (e.g. http://localhost:5200), GROQ_API_KEY, LLM_MODEL (default llama-3.3-70b-versatile). Validate in `config.ts`; fail fast on boot. Never commit real values.
 
 ## Product constraints
 - Evidence-grounded only: every project-specific claim must trace to a retrieved chunk. The agent is read-only (no tools, no GitHub writes).

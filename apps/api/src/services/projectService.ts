@@ -66,7 +66,7 @@ export async function createProject(
 }
 
 export async function deleteProject(db: Db, project: ProjectDoc, runner?: SyncRunner): Promise<void> {
-  runner?.abort(project._id);
+  await runner?.abort(project._id);
   const c = getCollections(db);
   const projectId = project._id;
   await Promise.all([

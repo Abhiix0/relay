@@ -22,8 +22,17 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
     return;
   }
   const e = err as { status?: number; type?: string };
-  if (e?.status === 400 && e.type?.startsWith("entity.")) {
-    res.status(400).json({ message: "Invalid request body", code: "bad_request" });
+  if (
+    typeof e?.status === "number" &&
+    e.status >= 400 &&
+    e.status < 500 &&
+    e.type?.startsWith("entity.")
+  ) {
+    res.status(e.status).json(
+      e.status === 413
+        ? { message: "Request body too large", code: "payload_too_large" }
+        : { message: "Invalid request body", code: "bad_request" },
+    );
     return;
   }
   // Log the error only, never bodies or cookies.

@@ -30,7 +30,7 @@ export interface AppDeps {
 
 export function createApp(deps: AppDeps = {}): Express {
   const app = express();
-  app.set("trust proxy", true);
+  app.set("trust proxy", 1);
   app.disable("x-powered-by");
 
   const logger = pino({
@@ -41,7 +41,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(requestId);
   app.use(pinoHttp({ logger, genReqId: (req) => (req as express.Request).id }));
   app.use(helmet());
-  app.use(express.json());
+  app.use(express.json({ limit: "1mb" }));
 
   const router = Router();
   router.get("/healthz", (_req, res) => {

@@ -1,3 +1,4 @@
+import pino from "pino";
 import { createApp } from "./app";
 import { createGithubClient } from "./integrations/github";
 import { loadConfig } from "./config";
@@ -9,7 +10,7 @@ const config = loadConfig();
 const handle = await connect(config.MONGODB_URI);
 await ensureIndexes(handle.db);
 const github = createGithubClient();
-const syncRunner = createSyncRunner({ db: handle.db, github });
+const syncRunner = createSyncRunner({ db: handle.db, github, logger: pino({ level: "info" }) });
 await syncRunner.recoverOrphans();
 const app = createApp({ db: handle.db, github, syncRunner });
 

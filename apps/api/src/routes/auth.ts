@@ -4,6 +4,7 @@ import type { Db } from "mongodb";
 import { loadConfig } from "../config";
 import type { GithubClient } from "../integrations/github";
 import { readCookie, requireUser } from "../middleware/auth";
+import { requireJson } from "../middleware/requireJson";
 import { toUser } from "../lib/serialize";
 import {
   SESSION_TTL_MS,
@@ -47,7 +48,8 @@ export function authRouter(db: Db, github: GithubClient): Router {
       res.clearCookie("relay_oauth_state", cookieBase());
       res.cookie("relay_sid", sid, { ...cookieBase(), maxAge: SESSION_TTL_MS });
       res.redirect(302, `${appUrl}/dashboard`);
-    } catch {
+    } catch (err) {
+      req.log?.error({ err: err instanceof Error ? err.message : "unknown" }, "oauth callback failed");
       fail();
     }
   });
@@ -56,7 +58,7 @@ export function authRouter(db: Db, github: GithubClient): Router {
     res.json(toUser(req.user!));
   });
 
-  router.post("/auth/logout", async (req, res) => {
+  router.post("/auth/logout", requireJson, async (req, res) => {
     const sid = readCookie(req, "relay_sid");
     if (sid) await destroySession(db, sid);
     res.clearCookie("relay_sid", cookieBase());

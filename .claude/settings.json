@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./**/node_modules/**)",
+      "Read(./pnpm-lock.yaml)",
+      "Read(./**/baseline/**)",
+      "Read(./**/dist/**)",
+      "Read(./temp_landing_full.txt)"
+    ]
+  }
+}

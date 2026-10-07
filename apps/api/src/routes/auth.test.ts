@@ -19,7 +19,7 @@ const pick = (res: request.Response, name: string) =>
 
 describe("auth", () => {
   const app = () => makeTestApp({ db, github: new FakeGithub() });
-  const fail = "http://localhost:5173/sign-in?error=oauth_failed";
+  const fail = "http://localhost:5200/sign-in?error=oauth_failed";
 
   it("GET /auth/github sets state cookie and redirects", async () => {
     const res = await request(app()).get("/api/v1/auth/github");
@@ -35,7 +35,7 @@ describe("auth", () => {
       .get("/api/v1/auth/github/callback?code=good&state=abc")
       .set("Cookie", "relay_oauth_state=abc");
     expect(res.status).toBe(302);
-    expect(res.headers.location).toBe("http://localhost:5173/dashboard");
+    expect(res.headers.location).toBe("http://localhost:5200/dashboard");
     const sid = pick(res, "relay_sid")!;
     expect(sid).toMatch(/HttpOnly/i);
     expect(sid).toMatch(/SameSite=Lax/i);
@@ -99,7 +99,7 @@ describe("auth", () => {
   it("logout deletes the session", async () => {
     const { cookie } = await loginAs(db);
     expect((await request(app()).get("/api/v1/auth/me").set("Cookie", cookie)).status).toBe(200);
-    const out = await request(app()).post("/api/v1/auth/logout").set("Cookie", cookie);
+    const out = await request(app()).post("/api/v1/auth/logout").set("Content-Type", "application/json").set("Cookie", cookie);
     expect(out.status).toBe(204);
     expect(
       await getCollections(db).sessions.countDocuments({ _id: cookie.split("=")[1]! }),

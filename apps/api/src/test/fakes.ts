@@ -74,12 +74,19 @@ export class FakeGithub implements GithubClient {
   private maybeFail(name: string): void {
     if (this.failOn === name) throw this.failWith;
   }
-  async getTree(): Promise<GithubTreeEntry[]> {
+  truncated = false;
+  /** shas passed to getBlob */
+  blobCalls: string[] = [];
+  async getTree(): Promise<{ entries: GithubTreeEntry[]; truncated: boolean }> {
     if (this.gate) await this.gate;
     this.maybeFail("getTree");
-    return [...this.files].map(([path, f]) => ({ path, sha: `sha:${path}`, size: f.size }));
+    return {
+      entries: [...this.files].map(([path, f]) => ({ path, sha: `sha:${path}`, size: f.size })),
+      truncated: this.truncated,
+    };
   }
   async getBlob(_t: string, _f: string, sha: string): Promise<string | null> {
+    this.blobCalls.push(sha);
     this.maybeFail("getBlob");
     return this.files.get(sha.slice(4))?.content ?? null;
   }
@@ -92,12 +99,14 @@ export class FakeGithub implements GithubClient {
     return this.issues;
   }
   async listPulls(): Promise<GithubThread[]> {
+    this.maybeFail("listPulls");
     return this.pulls;
   }
   async getReadme(): Promise<GithubReadme | null> {
     return this.readme;
   }
   async countCommits(): Promise<number> {
+    this.maybeFail("countCommits");
     return this.counts.commits;
   }
   async countReleases(): Promise<number> {

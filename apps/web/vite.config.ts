@@ -10,6 +10,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // 5173 sits in a common Windows Hyper-V excluded range (EACCES on listen).
+  server: {
+    host: '127.0.0.1',
+    port: 5200,
+    strictPort: true,
+  },
   test: {
     globals: true,
     environment: 'jsdom',
