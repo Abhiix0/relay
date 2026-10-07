@@ -24,7 +24,7 @@ export async function stopTestDb(): Promise<void> {
   server = undefined;
 }
 
-export function makeTestApp(deps: AppDeps = {}) {
+export function makeTestApp(deps: AppDeps) {
   return createApp(deps);
 }
 

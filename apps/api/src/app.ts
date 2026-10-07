@@ -1,6 +1,6 @@
 import express, { Router, type Express } from "express";
 import helmet from "helmet";
-import pino from "pino";
+import pino, { type Logger } from "pino";
 import { pinoHttp } from "pino-http";
 import type { Db } from "mongodb";
 import { errorHandler, notFoundHandler } from "./middleware/error";
@@ -22,21 +22,24 @@ declare global {
 
 // llm integration interface arrives in a later phase.
 export interface AppDeps {
-  db?: Db;
-  github?: GithubClient;
+  db: Db;
+  github: GithubClient;
   llm?: unknown;
   syncRunner?: SyncRunner;
+  logger?: Logger;
 }
 
-export function createApp(deps: AppDeps = {}): Express {
+export function createApp(deps: AppDeps): Express {
   const app = express();
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
 
-  const logger = pino({
-    level: process.env.NODE_ENV === "test" ? "silent" : "info",
-    redact: ["req.headers.authorization", "req.headers.cookie", 'res.headers["set-cookie"]'],
-  });
+  const logger =
+    deps.logger ??
+    pino({
+      level: process.env.NODE_ENV === "test" ? "silent" : "info",
+      redact: ["req.headers.authorization", "req.headers.cookie", 'res.headers["set-cookie"]'],
+    });
 
   app.use(requestId);
   app.use(pinoHttp({ logger, genReqId: (req) => (req as express.Request).id }));
@@ -47,11 +50,9 @@ export function createApp(deps: AppDeps = {}): Express {
   router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });
-  if (deps.db && deps.github) {
-    router.use(authRouter(deps.db, deps.github));
-    router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
-    router.use(syncRouter(deps.db, deps.syncRunner));
-  }
+  router.use(authRouter(deps.db, deps.github));
+  router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
+  router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 

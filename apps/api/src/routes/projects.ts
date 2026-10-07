@@ -1,11 +1,11 @@
 import { Router } from "express";
-import rateLimit from "express-rate-limit";
 import type { Db } from "mongodb";
 import { z } from "zod";
 import type { SyncRunner } from "../jobs/syncRunner";
 import type { GithubClient } from "../integrations/github";
 import { requireUser } from "../middleware/auth";
 import { loadOwnedProject } from "../middleware/loadOwnedProject";
+import { perUserLimit } from "../middleware/rateLimit";
 import { requireJson } from "../middleware/requireJson";
 import { toProject } from "../lib/serialize";
 import { createProject, deleteProject, listProjects } from "../services/projectService";
@@ -24,17 +24,7 @@ export function projectsRouter(db: Db, github: GithubClient, runner?: SyncRunner
   const router = Router();
   const auth = requireUser(db);
   const owned = loadOwnedProject(db);
-  const createLimit = rateLimit({
-    windowMs: 60_000,
-    limit: 5,
-    standardHeaders: true,
-    legacyHeaders: false,
-    keyGenerator: (req) => req.user?._id.toHexString() ?? "anon",
-    validate: { keyGeneratorIpFallback: false },
-    handler: (_req, res) => {
-      res.status(429).json({ message: "Too many requests", code: "rate_limited" });
-    },
-  });
+  const createLimit = perUserLimit(5);
 
   router.get("/projects", auth, async (req, res) => {
     res.json((await listProjects(db, req.user!._id)).map(toProject));

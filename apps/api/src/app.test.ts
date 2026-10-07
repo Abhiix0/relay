@@ -1,14 +1,21 @@
 import express from "express";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { projectSchema } from "@web-types/types";
 import { createApp } from "./app";
 import { AppError } from "./lib/errors";
 import { errorHandler } from "./middleware/error";
+import { FakeGithub } from "./test/fakes";
+import { startTestDb, stopTestDb } from "./test/helpers";
 
 describe("app foundation", () => {
-  const app = createApp();
+  let app: ReturnType<typeof createApp>;
+
+  beforeAll(async () => {
+    app = createApp({ db: await startTestDb(), github: new FakeGithub() });
+  });
+  afterAll(stopTestDb);
 
   it("healthz returns ok", async () => {
     const res = await request(app).get("/api/v1/healthz");
