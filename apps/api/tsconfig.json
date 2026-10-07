@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "noEmit": true,
     "types": ["node"],
-    "baseUrl": ".",
     "paths": { "@web-types/*": ["../web/src/lib/api/*"] }
   },
   "include": ["src", "*.config.ts"]
