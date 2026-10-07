@@ -23,7 +23,7 @@ Source of truth for building `apps/api`. The React frontend in `apps/web` is fin
 | Server-side sessions in Mongo, httpOnly cookie | AUTH-02 requires server-side invalidation. Same-origin cookies need zero client changes. No JWT. |
 | GitHub OAuth only | Ingestion needs the GitHub token. The email form has no register flow (see Risks). |
 | In-process sync runner, job state persisted in `sync_jobs` | The UI only needs `GET /sync` polling. Redis/queue is **NOT REQUIRED**. |
-| Anthropic SDK (`@anthropic-ai/sdk`), model from `LLM_MODEL` | Ask, handoff, onboarding generation. One call per generation, JSON output validated by zod. |
+| Groq SDK (`groq-sdk`), model from `LLM_MODEL` | Ask, handoff, onboarding generation. One call per generation, JSON output validated by zod. |
 | Mongo `$text` for Ask retrieval, regex for Search | Search UI shows substring, line number and matched text, which regex satisfies. Vector store/embeddings are **NOT REQUIRED** for the current UI. |
 | tsup to bundle the API, tsx for dev | The API imports `apps/web/src/lib/api/types.ts` (zod only, no React) via a path alias, so a bundler is needed. |
 | vitest + supertest + mongodb-memory-server | Same runner as web, no external services in tests. |
@@ -119,7 +119,7 @@ apps/api/
 **Search.** Regex (escaped, case-insensitive) over `chunks` where `path != null`, scoped by `projectId` (and `language` if given). Aggregation groups by `path` to get the first match per file, limit 50. Per-project queries run in parallel and merge, with explicit owned-project scoping.
 
 **Environment variables (`apps/api/.env.example`):**
-`PORT=4000`, `NODE_ENV`, `MONGODB_URI`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_SCOPE` (default `read:user user:email public_repo`), `TOKEN_ENCRYPTION_KEY` (32 bytes, base64), `PUBLIC_APP_URL` (e.g. `http://localhost:5173`), `ANTHROPIC_API_KEY`, `LLM_MODEL` (default `claude-sonnet-5-5`). Web: `VITE_USE_MOCKS`. **NOT REQUIRED:** `REDIS_URL`, `GITHUB_WEBHOOK_SECRET`, vector store vars, `SESSION_SECRET` (sessions use random server-side ids).
+`PORT=4000`, `NODE_ENV`, `MONGODB_URI`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_SCOPE` (default `read:user user:email public_repo`), `TOKEN_ENCRYPTION_KEY` (32 bytes, base64), `PUBLIC_APP_URL` (e.g. `http://localhost:5173`), `GROQ_API_KEY`, `LLM_MODEL` (default `llama-3.3-70b-versatile`). Web: `VITE_USE_MOCKS`. **NOT REQUIRED:** `REDIS_URL`, `GITHUB_WEBHOOK_SECRET`, vector store vars, `SESSION_SECRET` (sessions use random server-side ids).
 
 ## DATA MODEL
 
@@ -285,7 +285,7 @@ Run phases strictly in order. After each, run its verify command plus `pnpm --fi
 **Phase 1: API foundation**
 - Create `apps/api/{package.json, tsconfig.json, tsup.config.ts, vitest.config.ts, .env.example}` and `src/{server,app,config}.ts`, `middleware/{requestId,error}.ts`, `lib/{errors,ids,serialize}.ts`.
 - `tsconfig.json`: path alias `@web-types/*` → `../web/src/lib/api/*`. The same alias goes in the vitest and tsup configs.
-- Dependencies: express@5, zod@^4, mongodb, pino, pino-http, helmet, express-rate-limit, @anthropic-ai/sdk; dev: tsx, tsup, vitest, supertest, mongodb-memory-server, typescript 5.9.3.
+- Dependencies: express@5, zod@^4, mongodb, pino, pino-http, helmet, express-rate-limit, groq-sdk; dev: tsx, tsup, vitest, supertest, mongodb-memory-server, typescript 5.9.3.
 - `GET /api/v1/healthz` → `{ok:true}` (unauthenticated).
 - Scripts: `dev` (tsx watch), `build` (tsup), `check` (tsc --noEmit), `lint` (`tsc --noEmit` is acceptable if no ESLint is added), `test` (vitest run).
 - Verify: `pnpm --filter api check && pnpm --filter api test`.
@@ -306,7 +306,7 @@ Run phases strictly in order. After each, run its verify command plus `pnpm --fi
 2. `integrations/github.ts` repo/tree/blob/commits/issues/PRs/count helpers, plus `jobs/syncRunner.ts` and `routes/sync.ts`. Includes generation swap, boot recovery, project delete aborting the job.
 3. `routes/artifacts.ts`, `activity.ts`, `repository.ts` (tree + files).
 4. `routes/search.ts`. Read `features/search/SearchPage.tsx` and `mocks/data.ts` `mockSearchResults` first to match `language` and `fileName` values.
-5. `integrations/llm.ts` (interface plus Anthropic impl, JSON mode, zod validation, one retry), then `askService`/`routes/ask.ts`, `decisions.ts`.
+5. `integrations/llm.ts` (interface plus Groq impl, JSON mode, zod validation, one retry), then `askService`/`routes/ask.ts`, `decisions.ts`.
 6. Sync step 90–100: analysis, onboarding plan generation, health. Then `onboarding.ts` routes.
 7. `handoffService`/`routes/handoffs.ts` with the exact semantics above. Register static routes (`/current`, `/generate`, `/versions`) as written; there is no `/:version` param route.
 - Each route returns through `serialize.ts`. Each test `schema.parse`s the response with the matching web zod schema (`projectSchema`, `askAnswerSchema`, `handoffSchema`, `searchResultsSchema`, …).
@@ -351,5 +351,5 @@ Run phases strictly in order. After each, run its verify command plus `pnpm --fi
 7. **Synchronous LLM latency.** Ask and handoff generate block the HTTP request (tens of seconds). The client has no timeout and nginx is set to 120s. A very slow generation can still time out; fixing it would need a client change (async job plus polling).
 8. **In-process sync does not survive restarts or scale horizontally.** Boot recovery marks jobs failed, and the user re-syncs manually. Acceptable for a single instance. Redis/worker is deferred.
 9. **Onboarding plan is generated once** (first successful sync) and is not regenerated on later syncs. Item `artifactIds` can go stale if a later sync deletes artifacts. No UI exists to regenerate it.
-10. **`LLM_MODEL` default `claude-sonnet-5-5` is unverified.** Confirm the string against the Anthropic API before Phase 4 step 5.
+10. **`LLM_MODEL` default `llama-3.3-70b-versatile` is unverified.** Confirm the model id against the Groq API before Phase 4 step 5.
 11. **`ProjectArchitectureCard` and `SuggestedActionsCard`** source of data was not traced. `hooks.ts` has no endpoint beyond those listed, so they must consume `useProject`/onboarding data. If either renders fields absent from `Project`/`OnboardingData`, surface it in Phase 5 rather than adding endpoints.

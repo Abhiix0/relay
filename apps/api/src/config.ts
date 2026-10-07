@@ -15,7 +15,7 @@ const schema = z.object({
     "must be 32 bytes, base64-encoded",
   ),
   PUBLIC_APP_URL: z.string().url().default("http://localhost:5200"),
-  GROQ_API_KEY: secret("test-groq-key"),
+  GROQ_API_KEY: z.string().optional(),
   LLM_MODEL: z.string().default("llama-3.3-70b-versatile"),
 });
 

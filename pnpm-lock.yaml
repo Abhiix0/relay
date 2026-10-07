@@ -41,9 +41,6 @@ importers:
       express-rate-limit:
         specifier: ^8.0.0
         version: 8.7.1(express@5.2.1)
-      groq-sdk:
-        specifier: latest
-        version: 1.6.0
       helmet:
         specifier: ^8.0.0
         version: 8.3.0
@@ -2824,10 +2821,6 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
-
-  groq-sdk@1.6.0:
-    resolution: {integrity: sha512-ggMgo6n84aZdNObgkSbSxWrdAq4wABsViIRb5e4N15bMUtDLZVhqlgZOI7X4TeqdBMdaVUOuUdZxAZIp06u0vw==}
-    hasBin: true
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -7032,8 +7025,6 @@ snapshots:
       csstype: 3.1.3
 
   gopd@1.2.0: {}
-
-  groq-sdk@1.6.0: {}
 
   has-bigints@1.1.0: {}
 

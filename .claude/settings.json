@@ -6,7 +6,10 @@
       "Read(./pnpm-lock.yaml)",
       "Read(./**/baseline/**)",
       "Read(./**/dist/**)",
-      "Read(./temp_landing_full.txt)"
+      "Read(./temp_landing_full.txt)",
+      "Read(./**/.env)",
+      "Read(./**/.env.local)",
+      "Read(./**/.env.*.local)"
     ]
   }
 }

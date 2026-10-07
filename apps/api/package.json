@@ -11,7 +11,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "groq-sdk": "latest",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.0",
     "helmet": "^8.0.0",

@@ -37,7 +37,7 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 - Never index secret files (.env*, *.pem, *.key, id_rsa*, *secret*) or vendor/build dirs (`lib/secrets.ts`).
 
 ## Frontend integration rules
-- Frontend edits are limited to what the plan's Phase 5 lists (vite proxy, MSW opt-in via `VITE_USE_MOCKS`, 401 redirect, GitHub sign-in redirect, logout wiring, ProjectHero sync-end invalidation, file path encoding). No visual, layout, copy, or route changes.
+- Web edits are limited to the auth wiring files listed in the current phase prompt. No visual, layout, copy, or route changes.
 - Keep `pnpm test:visual` baselines untouched. Do not regenerate golden images.
 
 ## Commands
@@ -59,3 +59,9 @@ PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB
 - Never edit, skip, loosen or delete existing tests or visual baselines to get green. Fix the code. New tests assert the contract; do not weaken assertions or mock away the thing under test.
 - Keep the architecture consistent: new routes follow the route → service → collections pattern, use `loadOwnedProject`, return through `serialize.ts`, and get a contract test that parses the web zod schema plus an isolation test (other user → 404).
 - Work phase by phase in the order of the plan; run the phase's verify command before moving on. Do not re-investigate the frontend; use the contract files above.
+
+## Token discipline
+- Read only the files named in the prompt. Do not explore the repo.
+- No plans, no questions, no summaries. Stop and report in 2 lines if blocked.
+- Run targeted tests (`pnpm --filter api test <name>`) plus tsc. Run the full suite only when the prompt says so.
+- Final reply: max 5 lines: files changed + command results.
