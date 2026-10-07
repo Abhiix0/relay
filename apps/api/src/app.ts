@@ -5,6 +5,8 @@ import { pinoHttp } from "pino-http";
 import type { Db } from "mongodb";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 import { requestId } from "./middleware/requestId";
+import type { GithubClient } from "./integrations/github";
+import { authRouter } from "./routes/auth";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -15,14 +17,14 @@ declare global {
   }
 }
 
-// github and llm integration interfaces arrive in later phases.
+// llm integration interface arrives in a later phase.
 export interface AppDeps {
   db?: Db;
-  github?: unknown;
+  github?: GithubClient;
   llm?: unknown;
 }
 
-export function createApp(_deps: AppDeps = {}): Express {
+export function createApp(deps: AppDeps = {}): Express {
   const app = express();
   app.set("trust proxy", true);
   app.disable("x-powered-by");
@@ -41,6 +43,7 @@ export function createApp(_deps: AppDeps = {}): Express {
   router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });
+  if (deps.db && deps.github) router.use(authRouter(deps.db, deps.github));
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 
