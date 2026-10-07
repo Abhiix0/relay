@@ -3,7 +3,8 @@ import { getCollections, type ProjectDoc, type UserDoc } from "../db/collections
 import type { GithubClient, GithubRepo } from "../integrations/github";
 import { decrypt } from "../lib/crypto";
 import { AppError, conflict, notFound } from "../lib/errors";
-import { newJob, startSync } from "./syncService";
+import type { SyncRunner } from "../jobs/syncRunner";
+import { newJob } from "./syncService";
 
 export interface CreateProjectInput {
   fullName: string;
@@ -20,6 +21,7 @@ export async function createProject(
   github: GithubClient,
   user: UserDoc,
   input: CreateProjectInput,
+  runner?: SyncRunner,
 ): Promise<ProjectDoc> {
   const c = getCollections(db);
   let repo: GithubRepo | null;
@@ -59,11 +61,12 @@ export async function createProject(
     throw err;
   }
   await c.syncJobs.insertOne(newJob(project._id));
-  startSync(project._id);
+  if (runner) void runner.start(project._id);
   return project;
 }
 
-export async function deleteProject(db: Db, project: ProjectDoc): Promise<void> {
+export async function deleteProject(db: Db, project: ProjectDoc, runner?: SyncRunner): Promise<void> {
+  runner?.abort(project._id);
   const c = getCollections(db);
   const projectId = project._id;
   await Promise.all([

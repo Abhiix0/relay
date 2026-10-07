@@ -5,6 +5,7 @@ import { pinoHttp } from "pino-http";
 import type { Db } from "mongodb";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 import { requestId } from "./middleware/requestId";
+import type { SyncRunner } from "./jobs/syncRunner";
 import type { GithubClient } from "./integrations/github";
 import { authRouter } from "./routes/auth";
 import { projectsRouter } from "./routes/projects";
@@ -24,6 +25,7 @@ export interface AppDeps {
   db?: Db;
   github?: GithubClient;
   llm?: unknown;
+  syncRunner?: SyncRunner;
 }
 
 export function createApp(deps: AppDeps = {}): Express {
@@ -47,8 +49,8 @@ export function createApp(deps: AppDeps = {}): Express {
   });
   if (deps.db && deps.github) {
     router.use(authRouter(deps.db, deps.github));
-    router.use(projectsRouter(deps.db, deps.github));
-    router.use(syncRouter(deps.db));
+    router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
+    router.use(syncRouter(deps.db, deps.syncRunner));
   }
   router.use(notFoundHandler);
   app.use("/api/v1", router);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import type { Db } from "mongodb";
 import { z } from "zod";
+import type { SyncRunner } from "../jobs/syncRunner";
 import type { GithubClient } from "../integrations/github";
 import { requireUser } from "../middleware/auth";
 import { loadOwnedProject } from "../middleware/loadOwnedProject";
@@ -19,7 +20,7 @@ const createSchema = z.object({
   language: z.string().trim().max(50).optional(),
 });
 
-export function projectsRouter(db: Db, github: GithubClient): Router {
+export function projectsRouter(db: Db, github: GithubClient, runner?: SyncRunner): Router {
   const router = Router();
   const auth = requireUser(db);
   const owned = loadOwnedProject(db);
@@ -41,7 +42,7 @@ export function projectsRouter(db: Db, github: GithubClient): Router {
 
   router.post("/projects", auth, requireJson, createLimit, async (req, res) => {
     const input = createSchema.parse(req.body);
-    res.status(201).json(toProject(await createProject(db, github, req.user!, input)));
+    res.status(201).json(toProject(await createProject(db, github, req.user!, input, runner)));
   });
 
   router.get("/projects/:id", auth, owned, (req, res) => {
@@ -49,7 +50,7 @@ export function projectsRouter(db: Db, github: GithubClient): Router {
   });
 
   router.delete("/projects/:id", auth, owned, async (req, res) => {
-    await deleteProject(db, req.project!);
+    await deleteProject(db, req.project!, runner);
     res.status(204).end();
   });
 

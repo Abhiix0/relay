@@ -1,8 +1,8 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc, type SyncJobDoc } from "../db/collections";
 
-/** TODO(phase 4b): start the in-process sync runner. No-op until then. */
-export function startSync(_projectId: ObjectId): void {}
+export type StartSync = (projectId: ObjectId) => void;
+const noop: StartSync = () => {};
 
 const ACTIVE: SyncJobDoc["status"][] = ["queued", "running"];
 
@@ -23,7 +23,9 @@ export function newJob(projectId: ObjectId): SyncJobDoc {
 }
 
 /** Idempotent: returns the active job if one exists, else creates a running job. */
-export async function requestSync(db: Db, project: ProjectDoc): Promise<SyncJobDoc> {
+export async function requestSync(db: Db, project: ProjectDoc,
+  start: StartSync = noop,
+): Promise<SyncJobDoc> {
   const { syncJobs, projects } = getCollections(db);
   const activeQuery = { projectId: project._id, status: { $in: ACTIVE } };
   const active = await syncJobs.findOne(activeQuery);
@@ -42,6 +44,6 @@ export async function requestSync(db: Db, project: ProjectDoc): Promise<SyncJobD
     { _id: project._id },
     { $set: { syncStatus: "running", healthLabel: "Indexing in progress", updatedAt: new Date() } },
   );
-  startSync(project._id);
+  start(project._id);
   return job;
 }

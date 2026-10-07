@@ -13,9 +13,10 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { projectId: 1 },
       { unique: true, partialFilterExpression: { status: { $in: ["queued", "running"] } } },
     ),
-    c.repoFiles.createIndex({ projectId: 1, path: 1 }, { unique: true }),
+    // gen is part of the key so a new generation can coexist with the old one during the swap
+    c.repoFiles.createIndex({ projectId: 1, gen: 1, path: 1 }, { unique: true }),
     c.repoFiles.createIndex({ projectId: 1, gen: 1 }),
-    c.artifacts.createIndex({ projectId: 1, externalId: 1 }, { unique: true }),
+    c.artifacts.createIndex({ projectId: 1, gen: 1, externalId: 1 }, { unique: true }),
     c.artifacts.createIndex({ projectId: 1, type: 1, updatedAt: -1 }),
     c.chunks.createIndex(
       { projectId: 1, text: "text", path: "text", title: "text" },
