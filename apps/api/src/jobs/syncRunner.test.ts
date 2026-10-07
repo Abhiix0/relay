@@ -3,6 +3,7 @@ import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc } from "../db/collections";
 import { deleteProject } from "../services/projectService";
 import { newJob } from "../services/syncService";
+import { GithubAccessError } from "../integrations/github";
 import { FakeGithub } from "../test/fakes";
 import request from "supertest";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
@@ -228,5 +229,31 @@ describe("sync runner", () => {
       .send(JSON.stringify({ fullName: "a/b", description: "x".repeat(1_100_000) }));
     expect(res.status).toBe(413);
     expect(res.body.message).toBe("Request body too large");
+  });
+});
+
+describe("sync github token failures", () => {
+  it("revoked: job failed with revoked message, sessions purged", async () => {
+    const { github, project, c, sync } = await setup();
+    github.failOn = "getRepo";
+    github.failWith = new GithubAccessError(401, "revoked");
+    const job = await sync();
+    expect(job).toMatchObject({
+      status: "failed",
+      error: "GitHub access revoked. Sign in again to resync.",
+    });
+    expect(await c.sessions.countDocuments({ userId: project.ownerId })).toBe(0);
+  });
+
+  it("rate limited: job failed with rate-limit message, sessions untouched", async () => {
+    const { github, project, c, sync } = await setup();
+    github.failOn = "getRepo";
+    github.failWith = new GithubAccessError(403, "rate_limited");
+    const job = await sync();
+    expect(job).toMatchObject({
+      status: "failed",
+      error: "GitHub rate limit reached. Try again later.",
+    });
+    expect(await c.sessions.countDocuments({ userId: project.ownerId })).toBeGreaterThan(0);
   });
 });

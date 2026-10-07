@@ -12,6 +12,7 @@ import { decrypt } from "../lib/crypto";
 import { chunk } from "../lib/chunker";
 import { detectLanguage } from "../lib/language";
 import { isExcludedPath, isLockfile } from "../lib/secrets";
+import { purgeSessions } from "../services/githubErrors";
 
 export const MAX_FILES = 2000;
 export const MAX_FILE_BYTES = 256 * 1024;
@@ -138,8 +139,13 @@ export function createSyncRunner({
     };
 
     const user = await c.users.findOne({ _id: project.ownerId });
-    if (!user) throw new GithubAccessError(401);
-    const token = decrypt(user.encToken);
+    if (!user) throw new GithubAccessError(401, "revoked");
+    let token: string;
+    try {
+      token = decrypt(user.encToken);
+    } catch {
+      throw new GithubAccessError(401, "revoked");
+    }
     const full = project.fullName;
 
     // 0-10 metadata
@@ -393,12 +399,16 @@ export function createSyncRunner({
         { projectId: projectId.toHexString(), err: err instanceof Error ? err.message : "unknown" },
         "sync failed",
       );
-      const message =
-        err instanceof RepoNotFound
-          ? "Repository not found or not accessible"
-          : err instanceof GithubAccessError
-            ? "GitHub access revoked or rate limited"
-            : "Sync failed due to an unexpected error";
+      let message = "Sync failed due to an unexpected error";
+      if (err instanceof RepoNotFound) message = "Repository not found or not accessible";
+      else if (err instanceof GithubAccessError) {
+        if (err.kind === "revoked") {
+          message = "GitHub access revoked. Sign in again to resync.";
+          await purgeSessions(db, project.ownerId).catch(() => undefined);
+        } else if (err.kind === "rate_limited") {
+          message = "GitHub rate limit reached. Try again later.";
+        } else message = "GitHub denied access to this repository";
+      }
       await c.syncJobs
         .updateOne(
           { _id: job._id },

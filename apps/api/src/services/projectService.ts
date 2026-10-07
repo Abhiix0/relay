@@ -1,8 +1,8 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc, type UserDoc } from "../db/collections";
 import type { GithubClient, GithubRepo } from "../integrations/github";
-import { decrypt } from "../lib/crypto";
-import { AppError, conflict, notFound } from "../lib/errors";
+import { conflict, notFound } from "../lib/errors";
+import { decryptUserToken, mapGithubError } from "./githubErrors";
 import type { SyncRunner } from "../jobs/syncRunner";
 import { newJob } from "./syncService";
 
@@ -25,10 +25,11 @@ export async function createProject(
 ): Promise<ProjectDoc> {
   const c = getCollections(db);
   let repo: GithubRepo | null;
+  const token = await decryptUserToken(db, user);
   try {
-    repo = await github.getRepo(decrypt(user.encToken), input.fullName);
-  } catch {
-    throw new AppError(502, "upstream_error", "GitHub request failed");
+    repo = await github.getRepo(token, input.fullName);
+  } catch (err) {
+    throw await mapGithubError(db, user._id, err);
   }
   if (!repo) throw notFound("Repository not found or not accessible");
   if (await c.projects.findOne({ ownerId: user._id, repoId: repo.id })) {

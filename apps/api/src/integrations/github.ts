@@ -19,7 +19,10 @@ export interface GithubRepo {
 }
 
 export class GithubAccessError extends Error {
-  constructor(readonly status: number) {
+  constructor(
+    readonly status: number,
+    readonly kind: "revoked" | "forbidden" | "rate_limited" = status === 401 ? "revoked" : "forbidden",
+  ) {
     super("GitHub access revoked or rate limited");
     this.name = "GithubAccessError";
   }
@@ -92,7 +95,12 @@ async function getJson<T>(url: string, token: string, timeoutMs?: number): Promi
 }
 
 async function check(res: Response): Promise<Response> {
-  if (res.status === 401 || res.status === 403) throw new GithubAccessError(res.status);
+  if (res.status === 401) throw new GithubAccessError(401, "revoked");
+  if (res.status === 403) {
+    const limited =
+      res.headers.get("x-ratelimit-remaining") === "0" || res.headers.has("retry-after");
+    throw new GithubAccessError(403, limited ? "rate_limited" : "forbidden");
+  }
   if (!res.ok) throw new Error(`GitHub request failed: ${res.status}`);
   return res;
 }

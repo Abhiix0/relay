@@ -63,6 +63,7 @@ export class FakeGithub implements GithubClient {
     return repo;
   }
   async getRepo(_token: string, fullName: string): Promise<GithubRepo | null> {
+    this.maybeFail("getRepo");
     return this.repos.get(fullName.toLowerCase()) ?? null;
   }
 

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ObjectId, type Db } from "mongodb";
 import { projectSchema, syncJobSchema } from "@web-types/types";
 import { getCollections } from "../db/collections";
+import { GithubAccessError } from "../integrations/github";
 import { FakeGithub } from "../test/fakes";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
 
@@ -99,5 +100,60 @@ describe("projects", () => {
     let last = 0;
     for (let i = 0; i < 6; i++) last = (await post(app, cookie, "bad")).status;
     expect(last).toBe(429);
+  });
+});
+
+describe("github token failures", () => {
+  const sessionCount = (userId: ObjectId) =>
+    getCollections(db).sessions.countDocuments({ userId });
+
+  async function failing(err: GithubAccessError) {
+    const github = new FakeGithub();
+    github.addRepo("acme/widget");
+    github.failOn = "getRepo";
+    github.failWith = err;
+    const app = makeTestApp({ db, github });
+    const { cookie, user } = await loginAs(db);
+    return { app, cookie, user };
+  }
+
+  it("revoked token: 401, sessions purged, /auth/me is 401", async () => {
+    const { app, cookie, user } = await failing(new GithubAccessError(401, "revoked"));
+    expect(await sessionCount(user._id)).toBeGreaterThan(0);
+    const res = await post(app, cookie, "acme/widget");
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe("github_token_invalid");
+    expect(await sessionCount(user._id)).toBe(0);
+    expect((await request(app).get("/api/v1/auth/me").set("Cookie", cookie)).status).toBe(401);
+  });
+
+  it("rate limited: 429, sessions untouched", async () => {
+    const { app, cookie, user } = await failing(new GithubAccessError(403, "rate_limited"));
+    const res = await post(app, cookie, "acme/widget");
+    expect(res.status).toBe(429);
+    expect(res.body.code).toBe("github_rate_limited");
+    expect(await sessionCount(user._id)).toBeGreaterThan(0);
+  });
+
+  it("forbidden: 502, sessions untouched", async () => {
+    const { app, cookie, user } = await failing(new GithubAccessError(403, "forbidden"));
+    const res = await post(app, cookie, "acme/widget");
+    expect(res.status).toBe(502);
+    expect(res.body.code).toBe("upstream_error");
+    expect(await sessionCount(user._id)).toBeGreaterThan(0);
+  });
+
+  it("corrupted encToken behaves like revoked", async () => {
+    const app = setup();
+    const { cookie, user } = await loginAs(db);
+    await getCollections(db).users.updateOne(
+      { _id: user._id },
+      { $set: { "encToken.data": "AAAA" } },
+    );
+    const res = await post(app, cookie, "acme/widget");
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe("github_token_invalid");
+    expect(await sessionCount(user._id)).toBe(0);
+    expect((await request(app).get("/api/v1/auth/me").set("Cookie", cookie)).status).toBe(401);
   });
 });
