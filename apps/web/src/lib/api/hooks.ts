@@ -37,6 +37,12 @@ export function useProject(id?: string) {
   });
 }
 
+export function useLogout() {
+  return useMutation({
+    mutationFn: () => api.post<undefined>("/auth/logout"),
+  });
+}
+
 export function useCreateProject() {
   const queryClient = useQueryClient();
   return useMutation({

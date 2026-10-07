@@ -34,6 +34,13 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
+    if (
+      response.status === 401 &&
+      window.location.pathname !== "/" &&
+      window.location.pathname !== "/sign-in"
+    ) {
+      window.location.assign("/sign-in");
+    }
     const body = await response.json().catch(() => ({ message: response.statusText }));
     throw new ApiError(
       (body as { message?: string }).message ?? "Request failed",

@@ -34,6 +34,10 @@ const handoffs = [...mockHandoffs];
 let currentSyncJob = { ...mockSyncJob };
 
 export const handlers = [
+  http.get("/api/v1/auth/github", ({ request }) =>
+    HttpResponse.redirect(new URL("/dashboard", request.url).toString(), 302)
+  ),
+  http.post("/api/v1/auth/logout", () => new HttpResponse(null, { status: 204 })),
   // Auth
   http.get("/api/v1/auth/me", () => {
     return HttpResponse.json(mockUser);

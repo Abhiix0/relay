@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Github } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,12 +21,17 @@ import {
 
 export function SignInCard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = React.useState<SignInInput>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = React.useState<Partial<Record<keyof SignInInput, string>>>({});
-  const [generalError, setGeneralError] = React.useState<string | null>(null);
+  const [generalError, setGeneralError] = React.useState<string | null>(
+    searchParams.get("error") === "oauth_failed"
+      ? "GitHub sign-in failed. Please try again."
+      : null
+  );
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const [isGithubLoading, setIsGithubLoading] = React.useState(false);
 

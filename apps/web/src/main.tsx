@@ -15,7 +15,12 @@ import "@fontsource/jetbrains-mono/600.css";
 // Import styles
 import "@/styles/globals.css";
 
-import { enableMocking } from "./mocks/browser";
+async function enableMocking(): Promise<void> {
+  const env = (import.meta as unknown as { env: Record<string, string | undefined> }).env;
+  if (env.VITE_USE_MOCKS !== "true") return;
+  const { enableMocking: start } = await import("./mocks/browser");
+  await start();
+}
 
 const root = document.getElementById("root");
 
