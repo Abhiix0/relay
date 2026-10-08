@@ -28,7 +28,7 @@ export function RepositoryExplorerPage() {
         >
           <button
             onClick={() => refetch()}
-            className="text-xs text-copper hover:underline font-mono"
+            className="text-xs text-copper-text hover:underline font-mono"
           >
             Retry
           </button>
@@ -42,7 +42,7 @@ export function RepositoryExplorerPage() {
       <div className="space-y-6">
         {/* Page Header */}
         <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
             Repository Explorer
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">

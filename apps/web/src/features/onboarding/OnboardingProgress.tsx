@@ -79,7 +79,7 @@ export function OnboardingProgress({ data }: OnboardingProgressProps) {
             <CheckCircle2 className="h-4 w-4 text-copper" />
             <h2 className="text-sm font-semibold font-mono text-paper">Setup Progress</h2>
           </div>
-          <div className="text-xs font-mono text-copper font-semibold">
+          <div className="text-xs font-mono text-copper-text font-semibold">
             {completedCount}/{totalCount} ({progressPercent}%)
           </div>
         </div>

@@ -161,7 +161,7 @@ export function SignInCard() {
             onClick={(e) => {
               e.preventDefault();
             }}
-            className="text-copper hover:underline font-medium"
+            className="text-copper-text hover:underline font-medium"
           >
             Create one
           </a>

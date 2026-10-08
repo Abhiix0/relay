@@ -49,7 +49,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
 
         {decision.sources && decision.sources.length > 0 && (
           <div className="pt-2 border-t border-border/30 space-y-1.5">
-            <div className="text-[10px] font-mono uppercase text-copper">
+            <div className="text-[10px] font-mono uppercase text-copper-text">
               Evidence Citations ({decision.sources.length})
             </div>
             <div className="flex flex-wrap gap-2">
