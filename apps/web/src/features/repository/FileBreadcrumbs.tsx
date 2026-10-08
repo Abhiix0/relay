@@ -12,7 +12,7 @@ export function FileBreadcrumbs({ path }: FileBreadcrumbsProps) {
       {segments.map((segment, idx) => (
         <div key={idx} className="flex items-center gap-1.5 shrink-0">
           {idx > 0 && <ChevronRight className="h-3 w-3" />}
-          <span className={idx === segments.length - 1 ? "text-copper font-semibold" : ""}>
+          <span className={idx === segments.length - 1 ? "text-copper-text font-semibold" : ""}>
             {segment}
           </span>
         </div>

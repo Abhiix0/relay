@@ -26,7 +26,7 @@ export function HandoffSectionCard({ heading, body, sources }: HandoffSectionCar
 
         {sources && sources.length > 0 && (
           <div className="pt-2 border-t border-border/30 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-copper">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-copper-text">
               <FileCode2 className="h-3 w-3" />
               <span>Citations ({sources.length})</span>
             </div>

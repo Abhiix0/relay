@@ -15,7 +15,7 @@ export function ProfilePage() {
     <AppShell showProjectNav={false}>
       <div className="space-y-6 max-w-3xl mx-auto">
         <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
             User Account & Preferences
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">

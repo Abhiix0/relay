@@ -44,7 +44,7 @@ export function OnboardingPage() {
     <AppShell>
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
             Contributor Ramp-Up & Project Context
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
@@ -71,7 +71,7 @@ export function OnboardingPage() {
             action={
               <button
                 onClick={() => window.location.reload()}
-                className="text-xs text-copper hover:underline"
+                className="text-xs text-copper-text hover:underline"
               >
                 Refresh
               </button>
@@ -100,7 +100,7 @@ export function OnboardingPage() {
                       <Compass className="h-4 w-4 text-copper" />
                       <span>Contributor Checklist</span>
                     </div>
-                    <span className="text-copper font-semibold">
+                    <span className="text-copper-text font-semibold">
                       {completedCount} of {totalCount} completed ({progressPercent}%)
                     </span>
                   </div>
