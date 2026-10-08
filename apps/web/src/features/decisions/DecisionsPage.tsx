@@ -27,7 +27,7 @@ export function DecisionsPage() {
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
               Architecture Decision Records (ADRs)
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">

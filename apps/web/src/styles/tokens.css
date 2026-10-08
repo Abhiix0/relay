@@ -12,8 +12,17 @@
   --charcoal-soft: #282a25;
   --charcoal-muted: #5c5d54;
   --carbon: #1a1c18;
+
+  /* Copper — brand colour (decorative, large text ≥18px, borders, backgrounds) */
   --copper: #c6603e;
   --copper-dark: #9e452d;
+  /*
+   * --copper-text: AA-compliant copper for small text (<18px normal / <14px bold).
+   *   On light surfaces  use --copper-dark (9e452d → 5.50:1 on linen, 6.01:1 on paper).
+   *   On dark surfaces   use --copper-text (df7d60 → 5.98:1 on #191b17, 5.00:1 on #282a25).
+   */
+  --copper-text: var(--copper-dark);
+
   --moss: #9dbba0;
   --sun: #e5b34e;
   --blue: #7f9cad;
@@ -62,4 +71,11 @@
   --border-light: var(--product-border);
   --text: var(--product-text);
   --text-muted: var(--product-text-muted);
+  /*
+   * On dark surfaces, use a lighter copper value so small text meets WCAG AA.
+   * #df7d60 → 5.98:1 on #191b17 (surface), 5.00:1 on #282a25 (surface-accent).
+   * The brand copper #c6603e is still used for decorative elements (borders,
+   * bg fills, focus rings, large headings ≥18px) via the --copper variable.
+   */
+  --copper-text: #df7d60;
 }

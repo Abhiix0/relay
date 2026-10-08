@@ -36,6 +36,7 @@ export default {
         copper: {
           DEFAULT: "var(--copper)",
           dark: "var(--copper-dark)",
+          text: "var(--copper-text)",
         },
         moss: "var(--moss)",
         sun: "var(--sun)",

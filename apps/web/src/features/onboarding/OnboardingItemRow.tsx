@@ -56,7 +56,7 @@ export function OnboardingItemRow({
             <Link
               to={`/projects/${projectId}/ask?q=${encodeURIComponent(`How do I complete this onboarding task: "${item.title}"?`)}`}
             >
-              <Button size="sm" variant="ghost" className="h-6 text-[11px] gap-1 font-mono text-copper hover:text-paper p-0">
+              <Button size="sm" variant="ghost" className="h-6 text-[11px] gap-1 font-mono text-copper-text hover:text-paper p-0">
                 <Sparkles className="h-3 w-3" />
                 <span>Ask AI for guidance</span>
               </Button>
