@@ -37,7 +37,7 @@ describe("DashboardPage Component", () => {
       data: mockUser,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof apiHooks.useCurrentUser>);
+    } as unknown as ReturnType<typeof apiHooks.useCurrentUser>);
 
     vi.mocked(apiHooks.useProjects).mockReturnValue({
       data: [],
@@ -45,7 +45,7 @@ describe("DashboardPage Component", () => {
       isError: false,
       error: null,
       refetch: vi.fn(),
-    } as ReturnType<typeof apiHooks.useProjects>);
+    } as unknown as ReturnType<typeof apiHooks.useProjects>);
 
     renderDashboard();
 
@@ -58,7 +58,7 @@ describe("DashboardPage Component", () => {
       data: mockUser,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof apiHooks.useCurrentUser>);
+    } as unknown as ReturnType<typeof apiHooks.useCurrentUser>);
 
     vi.mocked(apiHooks.useProjects).mockReturnValue({
       data: mockProjects,
@@ -66,7 +66,7 @@ describe("DashboardPage Component", () => {
       isError: false,
       error: null,
       refetch: vi.fn(),
-    } as ReturnType<typeof apiHooks.useProjects>);
+    } as unknown as ReturnType<typeof apiHooks.useProjects>);
 
     renderDashboard();
 

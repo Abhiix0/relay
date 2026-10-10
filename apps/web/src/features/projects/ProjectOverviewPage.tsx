@@ -26,6 +26,13 @@ export function ProjectOverviewPage() {
     <ProjectGuard>
       {project && (
         <div className="space-y-8">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-copper hover:underline"
+          >
+            ← Back to Projects
+          </Link>
+
           {/* Project Header Banner */}
           <ProjectHero project={project} />
 
@@ -56,7 +63,7 @@ export function ProjectOverviewPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-copper" />
-                  <h3 className="font-serif text-lg font-normal text-paper">
+                  <h3 className="font-serif text-lg font-normal text-text">
                     Ask Relay about {project.name}
                   </h3>
                 </div>

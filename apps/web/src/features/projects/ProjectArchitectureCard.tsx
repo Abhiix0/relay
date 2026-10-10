@@ -36,7 +36,7 @@ export function ProjectArchitectureCard({ projectId }: ProjectArchitectureCardPr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-copper" />
-            <CardTitle className="text-base font-serif text-paper">
+            <CardTitle className="text-base font-serif text-text">
               Architectural Invariants & Core Modules
             </CardTitle>
           </div>
@@ -52,7 +52,7 @@ export function ProjectArchitectureCard({ projectId }: ProjectArchitectureCardPr
         {architecturalModules.map((mod) => (
           <div key={mod.name} className="py-3 first:pt-0 last:pb-0 space-y-1.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-paper">{mod.name}</span>
+              <span className="text-xs font-semibold text-text">{mod.name}</span>
               <Badge variant="default" className="text-[10px] font-mono border-border">
                 {mod.badge}
               </Badge>

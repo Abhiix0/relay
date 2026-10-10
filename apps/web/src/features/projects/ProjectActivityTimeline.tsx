@@ -30,7 +30,7 @@ export function ProjectActivityTimeline({ projectId }: ProjectActivityTimelinePr
       <CardHeader className="p-5 pb-3 border-b border-border/40">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-copper" />
-          <CardTitle className="text-base font-serif text-paper">
+          <CardTitle className="text-base font-serif text-text">
             Recent Codebase Events & Audit
           </CardTitle>
         </div>
@@ -47,7 +47,7 @@ export function ProjectActivityTimeline({ projectId }: ProjectActivityTimelinePr
                 </div>
                 <div className="flex-1 space-y-0.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-paper">{act.title}</span>
+                    <span className="font-medium text-text">{act.title}</span>
                     <span className="text-[10px] font-mono text-text-muted">
                       {new Date(act.createdAt).toLocaleDateString("en-US", {
                         month: "short",
