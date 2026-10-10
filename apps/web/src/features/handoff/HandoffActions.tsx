@@ -110,7 +110,7 @@ export function HandoffActions({
           size="sm"
           onClick={handleRegenerate}
           disabled={isRegenerating || isSaving}
-          className="text-xs font-mono text-text-muted hover:text-paper"
+          className="text-xs font-mono text-text-muted hover:text-text"
         >
           {isRegenerating ? (
             <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
@@ -125,7 +125,7 @@ export function HandoffActions({
           size="sm"
           onClick={handleExportMarkdown}
           disabled={isExporting || isRegenerating || isSaving}
-          className="text-xs font-mono border-border text-paper"
+          className="text-xs font-mono border-border text-text"
         >
           {isExporting ? (
             <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />

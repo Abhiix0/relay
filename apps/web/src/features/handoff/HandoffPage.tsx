@@ -111,11 +111,11 @@ export function HandoffPage() {
     <AppShell>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="border-b border-border pb-6 mb-6">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
+        <div className="border-b border-border/60 pb-6 mb-6">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold">
             Engineering Documentation & Knowledge Transfer
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             Project Handoff
           </h1>
           <p className="text-xs text-text-muted mt-1">
@@ -154,7 +154,7 @@ export function HandoffPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-copper" />
-                    <h2 className="text-lg font-semibold font-mono text-paper">
+                    <h2 className="text-lg font-semibold font-mono text-text">
                       {currentHandoff.title}
                     </h2>
                   </div>
@@ -164,7 +164,7 @@ export function HandoffPage() {
                 </div>
 
                 {currentHandoff.summary && (
-                  <p className="text-sm text-paper leading-relaxed bg-surface/50 p-4 rounded border border-border/30">
+                  <p className="text-sm text-text leading-relaxed bg-surface/50 p-4 rounded border border-border/30">
                     {currentHandoff.summary}
                   </p>
                 )}
