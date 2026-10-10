@@ -11,7 +11,8 @@ let server: MongoMemoryServer | undefined;
 let handle: DbHandle | undefined;
 
 export async function startTestDb() {
-  server = await MongoMemoryServer.create();
+  // many test files boot a mongod at once; the 10s default is too tight on a busy machine
+  server = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
   handle = await connect(server.getUri("relay_test"));
   await ensureIndexes(handle.db);
   return handle.db;
