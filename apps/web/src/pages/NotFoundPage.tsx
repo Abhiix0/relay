@@ -106,9 +106,9 @@ export function NotFoundPage() {
 
         {/* Button */}
         <Button variant="primary" asChild>
-          <Link to="/">
+          <Link to="/dashboard">
             <Home className="h-4 w-4 mr-2" />
-            Go back home
+            Go to Dashboard
           </Link>
         </Button>
       </div>
