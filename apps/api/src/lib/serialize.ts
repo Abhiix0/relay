@@ -3,6 +3,8 @@ import type {
   ArtifactDoc,
   AskAnswerDoc,
   DecisionDoc,
+  OnboardingPlanDoc,
+  ProjectAnalysisDoc,
   ProjectDoc,
   RepoFileDoc,
   SyncJobDoc,
@@ -96,6 +98,36 @@ export const toDecision = (d: DecisionDoc) => ({
   rationale: d.rationale,
   sources: d.sources,
   createdAt: iso(d.createdAt),
+});
+
+export const toOnboardingPlan = (p: OnboardingPlanDoc) => ({
+  id: p._id.toHexString(),
+  projectId: p.projectId.toHexString(),
+  title: p.title,
+  items: p.items,
+  createdAt: iso(p.createdAt),
+  updatedAt: iso(p.updatedAt),
+});
+
+export const toOnboardingData = (p: ProjectDoc, a: ProjectAnalysisDoc | null, handoffReady: boolean) => ({
+  id: a ? a._id.toHexString() : "pending",
+  projectId: p._id.toHexString(),
+  projectOverview: a?.projectOverview ?? {
+    name: p.name,
+    description: p.description,
+    repository: p.fullName,
+    primaryLanguage: p.language,
+    technologies: [],
+  },
+  architecture: a?.architecture ?? { summary: "", mainModules: [] },
+  keyFiles: a?.keyFiles ?? [],
+  gettingStarted: a?.gettingStarted ?? [],
+  progress: {
+    repositoryConnected: true,
+    repositoryIndexed: p.syncStatus === "succeeded",
+    structureAnalyzed: a !== null,
+    handoffReady,
+  },
 });
 
 export const toAskAnswer =(a: AskAnswerDoc) => ({

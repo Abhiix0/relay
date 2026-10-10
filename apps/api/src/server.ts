@@ -6,6 +6,7 @@ import { loadConfig } from "./config";
 import { close, connect } from "./db/client";
 import { ensureIndexes } from "./db/indexes";
 import { createSyncRunner } from "./jobs/syncRunner";
+import { run as runAnalysis } from "./services/analysisService";
 
 const logger = pino({
   level: "info",
@@ -17,9 +18,15 @@ try {
   const handle = await connect(config.MONGODB_URI);
   await ensureIndexes(handle.db);
   const github = createGithubClient();
-  const syncRunner = createSyncRunner({ db: handle.db, github, logger });
+  const llm = createGroqClient();
+  const syncRunner = createSyncRunner({
+    db: handle.db,
+    github,
+    logger,
+    afterSync: ({ projectId, signal }) => runAnalysis(handle.db, llm, projectId, signal, logger),
+  });
   await syncRunner.recoverOrphans();
-  const app = createApp({ db: handle.db, github, llm: createGroqClient(), syncRunner, logger });
+  const app = createApp({ db: handle.db, github, llm, syncRunner, logger });
 
   const server = app.listen(config.PORT, () => {
     logger.info(`api listening on :${config.PORT}`);

@@ -143,10 +143,16 @@ export interface OnboardingPlanDoc {
 export interface ProjectAnalysisDoc {
   _id: ObjectId;
   projectId: ObjectId;
-  overview: string;
-  architecture: string;
-  keyFiles: unknown[];
-  gettingStarted: unknown[];
+  projectOverview: {
+    name: string;
+    description: string;
+    repository: string;
+    primaryLanguage: string | null;
+    technologies: string[];
+  };
+  architecture: { summary: string; mainModules: { name: string; path: string; description: string }[] };
+  keyFiles: { id: string; path: string; description: string; category: "readme" | "config" | "entry" | "important" }[];
+  gettingStarted: { step: number; title: string; description: string }[];
   generatedAt: Date;
 }
 
