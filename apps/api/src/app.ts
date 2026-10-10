@@ -11,6 +11,7 @@ import { authRouter } from "./routes/auth";
 import { explorerRouter } from "./routes/explorer";
 import { githubReposRouter } from "./routes/githubRepos";
 import { projectsRouter } from "./routes/projects";
+import { searchRouter } from "./routes/search";
 import { syncRouter } from "./routes/sync";
 
 /** Request path without the query string, so OAuth codes and states never reach the logs. */
@@ -75,6 +76,7 @@ export function createApp(deps: AppDeps): Express {
   router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
   router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(explorerRouter(deps.db));
+  router.use(searchRouter(deps.db));
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 

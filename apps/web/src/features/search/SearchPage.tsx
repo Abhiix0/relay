@@ -31,7 +31,7 @@ export function SearchPage() {
     selectedLanguage === "all" ? null : selectedLanguage
   );
 
-  const languages = ["all", "rust", "typescript", "markdown", "json", "toml"];
+  const languages = ["all", "typescript", "javascript", "python", "go", "rust", "markdown", "json", "yaml", "css", "html", "shell", "toml"];
   const projectOptions = [
     { id: "all", name: "All Projects" },
     ...projects.map((p) => ({ id: p.id, name: p.name })),
