@@ -37,25 +37,35 @@ export function ProjectOverviewPage() {
           <ProjectHero project={project} />
 
           {/* Project Key Metrics */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Total Commits"
-              value={project.stats.commits.toLocaleString()}
-              accent="git"
-            />
-            <StatCard
-              label="Pull Requests"
-              value={project.stats.pullRequests.toLocaleString()}
-            />
-            <StatCard
-              label="Active Issues"
-              value={project.stats.issues.toLocaleString()}
-            />
-            <StatCard
-              label="Releases"
-              value={project.stats.releases.toLocaleString()}
-            />
-          </div>
+          {project.stats && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {typeof project.stats.commits === "number" && (
+                <StatCard
+                  label="Total Commits"
+                  value={project.stats.commits.toLocaleString()}
+                  accent="git"
+                />
+              )}
+              {typeof project.stats.pullRequests === "number" && (
+                <StatCard
+                  label="Pull Requests"
+                  value={project.stats.pullRequests.toLocaleString()}
+                />
+              )}
+              {typeof project.stats.issues === "number" && (
+                <StatCard
+                  label="Active Issues"
+                  value={project.stats.issues.toLocaleString()}
+                />
+              )}
+              {typeof project.stats.releases === "number" && (
+                <StatCard
+                  label="Releases"
+                  value={project.stats.releases.toLocaleString()}
+                />
+              )}
+            </div>
+          )}
 
           {/* Quick Grounded AI Query Bar */}
           <Card className="border-border bg-gradient-to-r from-surface-accent via-surface-accent to-surface p-6">

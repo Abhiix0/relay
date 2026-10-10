@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { BookOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -41,10 +42,10 @@ export function HandoffEmptyState({ projectId, onGenerate, isGenerating = false 
             asChild
             className="text-xs font-mono text-copper hover:text-paper"
           >
-            <a href={`/app/projects/${projectId}/ask?q=${encodeURIComponent("How should I structure a project handoff document for this codebase?")}`}>
+            <Link to={`/app/projects/${projectId}/ask?q=${encodeURIComponent("How should I structure a project handoff document for this codebase?")}`}>
               <BookOpen className="h-3 w-3 mr-1" />
               Ask AI for guidance
-            </a>
+            </Link>
           </Button>
         </div>
       }

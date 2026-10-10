@@ -130,7 +130,7 @@ export function ExplorerPage() {
           {/* Artifact Detail Preview (7 cols) */}
           <div className="lg:col-span-7">
             {activeArtifact ? (
-              <ArtifactPreview artifact={activeArtifact} projectId={id || "turborepo"} />
+              <ArtifactPreview artifact={activeArtifact} projectId={id || ""} />
             ) : (
               <EmptyState
                 title="Select an artifact"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Archive, Loader2, Search, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,6 @@ import { useDeleteProject, useProjects } from "@/lib/api/hooks";
 import type { Project } from "@/lib/api/types";
 
 export function ProjectsListPage() {
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -169,16 +168,18 @@ export function ProjectsListPage() {
             {filteredProjects.map((project) => (
               <Card
                 key={project.id}
-                onClick={() => navigate(`/app/projects/${project.id}`)}
-                className="cursor-pointer border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-lg group"
+                className="border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-lg group"
               >
                 <CardHeader className="p-5 pb-3">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-mono text-sm font-semibold text-paper group-hover:text-copper transition">
+                        <Link
+                          to={`/app/projects/${project.id}`}
+                          className="font-mono text-sm font-semibold text-text hover:text-copper transition"
+                        >
                           {project.fullName}
-                        </h3>
+                        </Link>
                         <StatusPill status={getSyncStatus(project.syncStatus)}>
                           {project.syncStatus === "succeeded"
                             ? "healthy"

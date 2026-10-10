@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { FileCode2, GitBranch, GitCommit, GitPullRequest, Sparkles, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -11,7 +11,6 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const navigate = useNavigate();
   const deleteProject = useDeleteProject();
 
   const getSyncStatus = (status: Project["syncStatus"]): "healthy" | "indexing" | "error" | "idle" => {
@@ -35,17 +34,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
   };
 
   return (
-    <Card
-      onClick={() => navigate(`/app/projects/${project.id}`)}
-      className="cursor-pointer border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-md flex flex-col justify-between group"
-    >
+    <Card className="border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-md flex flex-col justify-between group">
       <CardHeader className="space-y-2 p-5 pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             <GitBranch className="h-4 w-4 text-copper" />
-            <h3 className="font-mono text-sm font-semibold text-text group-hover:text-copper transition">
+            <Link
+              to={`/app/projects/${project.id}`}
+              className="font-mono text-sm font-semibold text-text hover:text-copper transition"
+            >
               {project.fullName}
-            </h3>
+            </Link>
           </div>
           <StatusPill status={getSyncStatus(project.syncStatus)}>
             {project.syncStatus}
