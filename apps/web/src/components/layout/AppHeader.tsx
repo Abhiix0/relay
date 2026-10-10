@@ -45,7 +45,7 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-surface/95 backdrop-blur px-4 sm:px-6 py-3">
+      <header className="sticky top-0 z-40 border-b border-border/40 bg-surface/95 backdrop-blur px-4 sm:px-6 py-3 shrink-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-6">
             {onMobileMenuToggle && (

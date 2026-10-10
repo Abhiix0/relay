@@ -26,7 +26,7 @@ export function ProjectNav() {
   ];
 
   return (
-    <div className="border-b border-border bg-surface px-6">
+    <div className="border-b border-border bg-surface px-6 shrink-0">
       <nav className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto py-1 scrollbar-none" aria-label="Project Navigation">
         {tabs.map((tab) => {
           const Icon = tab.icon;

@@ -23,7 +23,7 @@ import { defineConfig, devices } from "@playwright/test";
  *   font stack. See e2e/landing/README.md for the update procedure.
  */
 export default defineConfig({
-  testDir: "e2e/landing",
+  testDir: "e2e",
   outputDir: "baseline/.playwright-results",
   fullyParallel: false,
   retries: 0,

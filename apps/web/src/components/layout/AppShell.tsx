@@ -48,11 +48,11 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
     : [];
 
   return (
-    <div className="relay-app min-h-screen bg-surface text-text flex flex-col md:flex-row font-sans selection:bg-copper selection:text-paper">
+    <div className="relay-app h-screen h-[100dvh] max-h-[100dvh] bg-surface text-text flex flex-col md:flex-row font-sans selection:bg-copper selection:text-paper overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-charcoal text-paper border-r border-border/20 sticky top-0 h-screen shrink-0 z-30">
+      <aside className="hidden md:flex flex-col w-64 bg-charcoal text-paper border-r border-border/20 h-full shrink-0 z-30 overflow-hidden">
         {/* Brand */}
-        <div className="p-5 border-b border-border/20 flex items-center justify-between">
+        <div className="p-5 border-b border-border/20 flex items-center justify-between shrink-0">
           <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
             <RelayMark compact />
           </Link>
@@ -62,7 +62,7 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-none">
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-none min-h-0">
           {/* Main Links */}
           <div>
             <div className="px-3 mb-2 text-[10px] font-mono uppercase tracking-wider text-text-muted">
@@ -126,19 +126,19 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-border/20 text-[10px] font-mono text-text-muted">
+        <div className="p-4 border-t border-border/20 text-[10px] font-mono text-text-muted shrink-0">
           <span>RELAY · Codebase Intelligence</span>
         </div>
       </aside>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
         <AppHeader currentProjectId={id} onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <OfflineBanner />
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-charcoal text-paper border-b border-border/20 p-4 space-y-4">
+          <div className="md:hidden shrink-0 max-h-[50vh] overflow-y-auto bg-charcoal text-paper border-b border-border/20 p-4 space-y-4 z-20">
             <div>
               <div className="px-2 mb-1 text-[10px] font-mono uppercase tracking-wider text-text-muted">
                 Main Menu
@@ -183,16 +183,22 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
 
         {showProjectNav && id && <ProjectNav />}
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          {children}
-        </main>
+        {/* Central Scrollable Content Pane */}
+        <div
+          data-testid="app-content-scroll"
+          className="flex-1 flex flex-col min-h-0 min-w-0 overflow-y-auto"
+        >
+          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+            {children}
+          </main>
 
-        <footer className="border-t border-border/40 py-6 px-6 text-center text-[11px] font-mono text-text-muted bg-surface">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span>RELAY · Developer Codebase Intelligence</span>
-            <span>Evidence-grounded · Zero hallucinations</span>
-          </div>
-        </footer>
+          <footer className="shrink-0 border-t border-border/40 py-6 px-6 text-center text-[11px] font-mono text-text-muted bg-surface mt-auto">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+              <span>RELAY · Developer Codebase Intelligence</span>
+              <span>Evidence-grounded · Zero hallucinations</span>
+            </div>
+          </footer>
+        </div>
       </div>
     </div>
   );
