@@ -35,8 +35,10 @@ try {
   for (const sig of ["SIGINT", "SIGTERM"] as const) {
     process.on(sig, () => {
       logger.info(`${sig} received, shutting down`);
-      server.close(() => {
-        void close(handle).finally(() => process.exit(0));
+      void syncRunner.shutdown().finally(() => {
+        server.close(() => {
+          void close(handle).finally(() => process.exit(0));
+        });
       });
     });
   }

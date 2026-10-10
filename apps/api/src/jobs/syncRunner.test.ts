@@ -101,7 +101,7 @@ describe("sync runner", () => {
     expect(job.status).toBe("failed");
     expect(job.error).not.toContain("gho_");
     const p = (await c.projects.findOne({ _id: project._id }))!;
-    expect(p).toMatchObject({ syncStatus: "failed", healthLabel: "Sync failed", syncGeneration: 1 });
+    expect(p).toMatchObject({ syncStatus: "failed", healthLabel: "Last sync failed", syncGeneration: 1 });
     expect(await c.chunks.countDocuments({ projectId: project._id, gen: 1 })).toBe(before);
     expect(await c.chunks.countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
     expect(await c.repoFiles.countDocuments({ projectId: project._id, gen: 1 })).toBe(5);
@@ -165,6 +165,91 @@ describe("sync runner", () => {
       expect(await (col as typeof c.chunks).countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
     }
     expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(1);
+  });
+
+  it("failed re-sync leaves files, artifacts and stats identical", async () => {
+    const { github, project, c, sync } = await setup();
+    await sync();
+    const snap = async () => ({
+      files: await c.repoFiles.find({ projectId: project._id }).sort({ path: 1 }).toArray(),
+      artifacts: await c.artifacts.find({ projectId: project._id }).sort({ key: 1 }).toArray(),
+      p: (await c.projects.findOne({ _id: project._id }))!,
+    });
+    const before = await snap();
+    github.failOn = "listPulls";
+    expect((await sync()).status).toBe("failed");
+    const after = await snap();
+    expect(after.files).toEqual(before.files);
+    expect(after.artifacts).toEqual(before.artifacts);
+    expect(after.p).toMatchObject({
+      syncStatus: "failed",
+      healthLabel: "Last sync failed",
+      stats: before.p.stats,
+      health: before.p.health,
+      lastSyncedAt: before.p.lastSyncedAt,
+    });
+  });
+
+  it("first-ever failure gives 'Sync failed'", async () => {
+    const { github, project, c, sync } = await setup();
+    github.failOn = "listPulls";
+    await sync();
+    expect(await c.projects.findOne({ _id: project._id })).toMatchObject({
+      syncStatus: "failed",
+      healthLabel: "Sync failed",
+      lastSyncedAt: null,
+    });
+  });
+
+  it("leftover next-generation rows don't break the next sync", async () => {
+    const { project, c, sync } = await setup();
+    await c.repoFiles.insertOne({
+      _id: new ObjectId(), projectId: project._id, path: "stale.txt", name: "stale.txt", language: null,
+      size: 1, sha: "x", isBinary: false, isLarge: false, content: "stale", gen: 1,
+    });
+    expect((await sync()).status).toBe("succeeded");
+    const paths = (await c.repoFiles.find({ projectId: project._id, gen: 1 }).toArray()).map((f) => f.path);
+    expect(paths).not.toContain("stale.txt");
+    expect(paths).toHaveLength(5);
+  });
+
+  it("project stays running until afterSync finishes", async () => {
+    const { github, project, c } = await setup();
+    let open!: () => void;
+    const gate = new Promise<void>((r) => (open = r));
+    let entered!: () => void;
+    const inHook = new Promise<void>((r) => (entered = r));
+    const runner = createSyncRunner({
+      db,
+      github,
+      afterSync: async () => {
+        entered();
+        await gate;
+      },
+    });
+    const job = newJob(project._id);
+    await c.syncJobs.insertOne(job);
+    const done = runner.start(project._id);
+    await inHook;
+    expect(await c.projects.findOne({ _id: project._id })).toMatchObject({ syncStatus: "running", syncGeneration: 1 });
+    expect((await c.syncJobs.findOne({ _id: job._id }))?.status).toBe("running");
+    open();
+    await done;
+    expect((await c.projects.findOne({ _id: project._id }))?.syncStatus).toBe("succeeded");
+    expect((await c.syncJobs.findOne({ _id: job._id }))?.status).toBe("succeeded");
+  });
+
+  it("shutdown aborts runs and writes no status", async () => {
+    const { github, project, c, runner } = await setup();
+    let open!: () => void;
+    github.gate = new Promise<void>((r) => (open = r));
+    await c.syncJobs.insertOne(newJob(project._id));
+    void runner.start(project._id);
+    await new Promise((r) => setTimeout(r, 50));
+    const stopping = runner.shutdown();
+    open();
+    await stopping;
+    expect((await c.projects.findOne({ _id: project._id }))?.syncStatus).toBe("running");
   });
 
   it("listPulls failure also leaves no new-generation rows", async () => {

@@ -42,7 +42,13 @@ export async function requestSync(db: Db, project: ProjectDoc,
   }
   await projects.updateOne(
     { _id: project._id },
-    { $set: { syncStatus: "running", healthLabel: "Indexing in progress", updatedAt: new Date() } },
+    {
+      $set: {
+        syncStatus: "running",
+        ...(project.lastSyncedAt ? {} : { healthLabel: "Indexing in progress" }),
+        updatedAt: new Date(),
+      },
+    },
   );
   start(project._id);
   return job;

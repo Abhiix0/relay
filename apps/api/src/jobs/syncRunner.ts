@@ -37,6 +37,8 @@ export interface SyncRunner {
   /** Resolves once that project's run (if any) has fully settled. */
   abort(projectId: ObjectId): Promise<void>;
   recoverOrphans(): Promise<void>;
+  /** Aborts every run and waits for them to settle, at most 10s. */
+  shutdown(): Promise<void>;
 }
 
 export interface SyncRunnerDeps {
@@ -132,6 +134,13 @@ export function createSyncRunner({
     else active--;
   };
 
+  const dropGen = (projectId: ObjectId, gen: number) =>
+    Promise.all([
+      c.repoFiles.deleteMany({ projectId, gen }),
+      c.artifacts.deleteMany({ projectId, gen }),
+      c.chunks.deleteMany({ projectId, gen }),
+    ]);
+
   async function run(
     project: ProjectDoc,
     jobId: ObjectId,
@@ -149,6 +158,7 @@ export function createSyncRunner({
       await c.syncJobs.updateOne({ _id: jobId }, { $set: { progress: n } });
     };
 
+    await dropGen(projectId, newGen); // leftovers from a crashed run would collide with this one
     const user = await c.users.findOne({ _id: project.ownerId });
     if (!user) throw new GithubAccessError(401, "revoked");
     let token: string;
@@ -370,7 +380,6 @@ export function createSyncRunner({
           },
           health,
           healthLabel: healthLabel(health.overall),
-          syncStatus: "succeeded",
           lastSyncedAt: new Date(),
           updatedAt: new Date(),
         },
@@ -398,6 +407,7 @@ export function createSyncRunner({
       { _id: jobId },
       { $set: { status: "succeeded", progress: 100, error: null, completedAt: new Date() } },
     );
+    await c.projects.updateOne({ _id: projectId }, { $set: { syncStatus: "succeeded", updatedAt: new Date() } });
     if (signal.aborted) return;
     await c.activityEvents.insertOne({
       _id: new ObjectId(),
@@ -426,11 +436,7 @@ export function createSyncRunner({
     } catch (err) {
       // drop a partially written new generation; old data stays untouched
       if (!state.committed) {
-        await Promise.all([
-          c.repoFiles.deleteMany({ projectId, gen: newGen }),
-          c.artifacts.deleteMany({ projectId, gen: newGen }),
-          c.chunks.deleteMany({ projectId, gen: newGen }),
-        ]).catch(() => undefined);
+        await dropGen(projectId, newGen).catch(() => undefined);
       }
       if (err instanceof Aborted) return;
       logger.error(
@@ -457,7 +463,13 @@ export function createSyncRunner({
         await c.projects
           .updateOne(
             { _id: projectId },
-            { $set: { syncStatus: "failed", healthLabel: "Sync failed", updatedAt: new Date() } },
+            {
+              $set: {
+                syncStatus: "failed",
+                healthLabel: project.lastSyncedAt ? "Last sync failed" : "Sync failed",
+                updatedAt: new Date(),
+              },
+            },
           )
           .catch(() => undefined);
       }
@@ -483,10 +495,20 @@ export function createSyncRunner({
       controllers.get(key)?.abort();
       await running.get(key);
     },
+    async shutdown() {
+      for (const ctrl of controllers.values()) ctrl.abort();
+      let timer: NodeJS.Timeout | undefined;
+      const timeout = new Promise<void>((resolve) => (timer = setTimeout(resolve, 10_000)));
+      await Promise.race([Promise.all(running.values()), timeout]);
+      clearTimeout(timer);
+    },
     async recoverOrphans() {
       const orphans = await c.syncJobs.find({ status: { $in: ["queued", "running"] } }).toArray();
       if (orphans.length === 0) return;
       const ids = orphans.map((j) => j.projectId);
+      for (const p of await c.projects.find({ _id: { $in: ids } }).toArray()) {
+        await dropGen(p._id, p.syncGeneration + 1);
+      }
       await c.syncJobs.updateMany(
         { _id: { $in: orphans.map((j) => j._id) } },
         { $set: { status: "failed", error: "Interrupted by restart", completedAt: new Date() } },
