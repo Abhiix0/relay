@@ -21,7 +21,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-copper" />
-            <h3 className="font-mono text-sm font-semibold text-paper">
+            <h3 className="font-mono text-sm font-semibold text-text">
               {decision.title}
             </h3>
           </div>
@@ -37,7 +37,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
       <CardContent className="p-5 space-y-4">
         <div className="space-y-1">
           <div className="text-[10px] font-mono uppercase text-text-muted">Summary</div>
-          <p className="text-xs text-paper leading-relaxed">{decision.summary}</p>
+          <p className="text-xs text-text leading-relaxed">{decision.summary}</p>
         </div>
 
         <div className="space-y-1">

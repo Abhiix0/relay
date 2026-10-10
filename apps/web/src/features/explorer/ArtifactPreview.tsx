@@ -64,7 +64,7 @@ export function ArtifactPreview({ artifact, projectId }: ArtifactPreviewProps) {
         </div>
 
         <div>
-          <h2 className="text-base font-semibold text-paper font-mono">{artifact.title}</h2>
+          <h2 className="text-base font-semibold text-text font-mono">{artifact.title}</h2>
           {artifact.path && <FilePath path={artifact.path} className="mt-1" />}
         </div>
 
@@ -94,7 +94,7 @@ export function ArtifactPreview({ artifact, projectId }: ArtifactPreviewProps) {
             {error instanceof Error ? error.message : "Failed to load artifact."}
           </div>
         ) : (
-          <pre className="text-xs font-mono text-paper whitespace-pre-wrap break-words">{data?.body}</pre>
+          <pre className="text-xs font-mono text-text whitespace-pre-wrap break-words">{data?.body}</pre>
         )}
       </CardContent>
     </Card>

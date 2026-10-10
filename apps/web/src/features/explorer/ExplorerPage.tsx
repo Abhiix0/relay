@@ -42,7 +42,7 @@ export function ExplorerPage() {
           <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
             Codebase & Evidence Navigation
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             Explorer
           </h1>
           <p className="text-xs text-text-muted mt-1">
@@ -58,7 +58,7 @@ export function ExplorerPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search files and artifacts..."
-              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-1.5 text-xs text-paper placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
+              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
             />
           </div>
 
@@ -106,13 +106,13 @@ export function ExplorerPage() {
                     className={cn(
                       "w-full flex items-start gap-2.5 p-3 rounded text-left transition",
                       isSelected
-                        ? "bg-surface border-l-2 border-copper text-paper shadow-sm"
-                        : "hover:bg-surface/50 text-text-muted hover:text-paper"
+                        ? "bg-surface border-l-2 border-copper text-text shadow-sm"
+                        : "hover:bg-surface/50 text-text-muted hover:text-text"
                     )}
                   >
                     <div className="mt-0.5">{getIcon(art.type)}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-mono font-medium truncate text-paper">
+                      <div className="text-xs font-mono font-medium truncate text-text">
                         {art.title}
                       </div>
                       {art.summary && (

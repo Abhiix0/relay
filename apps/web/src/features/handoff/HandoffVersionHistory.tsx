@@ -39,7 +39,7 @@ export function HandoffVersionHistory({
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-copper" />
-          <h3 className="text-sm font-semibold font-mono text-paper">Version History</h3>
+          <h3 className="text-sm font-semibold font-mono text-text">Version History</h3>
         </div>
 
         <div className="space-y-2">
@@ -54,8 +54,8 @@ export function HandoffVersionHistory({
                 className={cn(
                   "w-full text-left p-3 rounded border transition group",
                   isCurrent
-                    ? "border-copper bg-copper/10 text-paper"
-                    : "border-border/30 bg-surface/50 text-text-muted hover:border-border hover:text-paper"
+                    ? "border-copper bg-copper/10 text-text"
+                    : "border-border/30 bg-surface/50 text-text-muted hover:border-border hover:text-text"
                 )}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -76,7 +76,7 @@ export function HandoffVersionHistory({
                   </div>
                   <ChevronRight className={cn(
                     "h-3 w-3 transition",
-                    isCurrent ? "text-copper" : "text-text-muted group-hover:text-paper"
+                    isCurrent ? "text-copper" : "text-text-muted group-hover:text-text"
                   )} />
                 </div>
                 

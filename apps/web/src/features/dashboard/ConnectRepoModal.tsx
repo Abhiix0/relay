@@ -36,7 +36,7 @@ function RepoPicker({ onConnected }: { onConnected: (id: string) => void }) {
         placeholder="Search your repositories"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        className="bg-surface-accent border-border text-paper text-sm font-mono"
+        className="bg-surface-accent border-border text-text text-sm font-mono"
       />
 
       {repos.data && !repos.data.canAccessPrivate && (
@@ -102,7 +102,7 @@ function RepoPicker({ onConnected }: { onConnected: (id: string) => void }) {
             placeholder="e.g. vercel/next.js"
             value={manual}
             onChange={(e) => setManual(e.target.value)}
-            className="bg-surface-accent border-border text-paper text-sm font-mono"
+            className="bg-surface-accent border-border text-text text-sm font-mono"
           />
           <Button type="submit" size="sm" disabled={!manualValid || createProject.isPending} className="bg-copper hover:bg-copper-dark text-paper text-xs">
             Connect
