@@ -10,6 +10,7 @@ import { requireOrigin } from "./middleware/requireOrigin";
 import { requestId } from "./middleware/requestId";
 import type { SyncRunner } from "./jobs/syncRunner";
 import type { GithubClient } from "./integrations/github";
+import type { Embedder } from "./lib/embedder";
 import { createGroqClient, type LlmClient } from "./integrations/llm";
 import { askRouter } from "./routes/ask";
 import { authRouter } from "./routes/auth";
@@ -46,6 +47,7 @@ export interface AppDeps {
   syncRunner?: SyncRunner;
   logger?: Logger;
   sse?: SseOptions;
+  embedder?: Embedder;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -91,11 +93,11 @@ export function createApp(deps: AppDeps): Express {
   router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(eventsRouter(deps.db, deps.sse));
   router.use(explorerRouter(deps.db));
-  router.use(searchRouter(deps.db));
+  router.use(searchRouter(deps.db, deps.embedder));
   router.use(decisionsRouter(deps.db));
   router.use(onboardingRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(handoffsRouter(deps.db, deps.llm ?? createGroqClient()));
-  router.use(askRouter(deps.db, deps.llm ?? createGroqClient()));
+  router.use(askRouter(deps.db, deps.llm ?? createGroqClient(), deps.embedder));
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 

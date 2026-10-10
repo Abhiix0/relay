@@ -1,5 +1,6 @@
 import type { ZodType } from "zod";
 import type { LlmClient } from "../integrations/llm";
+import type { Embedder } from "../lib/embedder";
 import type {
   GithubClient,
   GithubCommit,
@@ -152,5 +153,27 @@ export class FakeLlm implements LlmClient {
     const next = this.responses.shift();
     if (next instanceof Error) throw next;
     return o.schema.parse(typeof next === "function" ? next(o.user) : next);
+  }
+}
+
+/** Deterministic concept vectors: words in the same group land on the same axis, so "sign in" matches "authenticate". */
+export class FakeEmbedder implements Embedder {
+  static readonly CONCEPTS = [
+    ["auth", "login", "signin", "sign", "authenticate", "session"],
+    ["cache", "memo", "lru"],
+    ["deploy", "docker", "ship"],
+  ];
+  /** every embed() batch, in order */
+  calls: string[][] = [];
+  fail = false;
+  async embed(texts: string[]): Promise<number[][]> {
+    this.calls.push(texts);
+    if (this.fail) throw new Error("embedder down");
+    return texts.map((t) => {
+      const words = t.toLowerCase().match(/[a-z]+/g) ?? [];
+      const v = FakeEmbedder.CONCEPTS.map((g) => words.filter((w) => g.includes(w)).length);
+      const norm = Math.hypot(...v) || 1;
+      return v.map((x) => x / norm);
+    });
   }
 }

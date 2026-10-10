@@ -9,6 +9,7 @@ import {
 } from "../db/collections";
 import { loadConfig } from "../config";
 import type { LlmClient } from "../integrations/llm";
+import type { Embedder } from "../lib/embedder";
 import { MAX_TOOL_CALLS, plan, runTool } from "./agentTools";
 import { fit } from "./retrievalService";
 
@@ -51,14 +52,16 @@ export async function ask(
   project: ProjectDoc,
   userId: ObjectId,
   question: string,
+  embedder?: Embedder,
 ): Promise<AskAnswerDoc> {
   const started = Date.now();
   const { intent, calls } = plan(question);
   const toolsUsed: { tool: string; args: string }[] = [];
   const gathered: ChunkDoc[] = [];
+  const ctx = { embedder, notes: [] as string[] };
   for (const call of calls.slice(0, MAX_TOOL_CALLS)) {
     toolsUsed.push({ tool: call.tool, args: call.types ? `${call.arg} [${call.types.join(",")}]` : call.arg });
-    gathered.push(...(await runTool(db, project, call)));
+    gathered.push(...(await runTool(db, project, call, ctx)));
   }
   const evidence = fit(gathered);
 
@@ -114,6 +117,7 @@ export async function ask(
     toolsUsed,
     sources,
     intent,
+    ...(ctx.notes.length && { notes: [...new Set(ctx.notes)] }),
     response: answer,
     latency: doc.trace.latencyMs,
     createdAt: doc.createdAt,

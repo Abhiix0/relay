@@ -1,5 +1,6 @@
 import type { Db, Filter } from "mongodb";
 import { getCollections, type ArtifactDoc, type ChunkDoc, type ProjectDoc } from "../db/collections";
+import type { Embedder } from "../lib/embedder";
 import { retrieve } from "./retrievalService";
 
 /** Read-only retrieval over one project's current generation. The agent has no other capabilities. */
@@ -90,10 +91,15 @@ async function artifactChunks(
   return arts.flatMap((a) => first.get(a._id.toHexString()) ?? []);
 }
 
-export async function runTool(db: Db, p: ProjectDoc, call: ToolCall): Promise<ChunkDoc[]> {
+export interface ToolContext {
+  embedder?: Embedder | undefined;
+  notes: string[];
+}
+
+export async function runTool(db: Db, p: ProjectDoc, call: ToolCall, ctx: ToolContext): Promise<ChunkDoc[]> {
   switch (call.tool) {
     case "search_project":
-      return retrieve(db, p, call.arg, 8, call.types);
+      return retrieve(db, p, call.arg, { types: call.types, embedder: ctx.embedder, notes: ctx.notes });
     case "get_file_context":
       return getCollections(db)
         .chunks.find({ ...scope(p), type: "file", path: call.arg })

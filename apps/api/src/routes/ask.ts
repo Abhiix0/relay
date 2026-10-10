@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { Db } from "mongodb";
 import { z } from "zod";
 import type { LlmClient } from "../integrations/llm";
+import type { Embedder } from "../lib/embedder";
 import { toAskAnswer } from "../lib/serialize";
 import { requireUser } from "../middleware/auth";
 import { loadOwnedProject } from "../middleware/loadOwnedProject";
@@ -11,7 +12,7 @@ import { ask, listAnswers } from "../services/askService";
 
 const body = z.object({ question: z.string().trim().min(1).max(2000) });
 
-export function askRouter(db: Db, llm: LlmClient): Router {
+export function askRouter(db: Db, llm: LlmClient, embedder?: Embedder): Router {
   const router = Router();
   const auth = requireUser(db);
   const owned = loadOwnedProject(db);
@@ -22,7 +23,7 @@ export function askRouter(db: Db, llm: LlmClient): Router {
 
   router.post("/projects/:id/ask", auth, owned, requireJson, perUserLimit(20), async (req, res) => {
     const { question } = body.parse(req.body);
-    res.status(201).json(toAskAnswer(await ask(db, llm, req.project!, req.user!._id, question)));
+    res.status(201).json(toAskAnswer(await ask(db, llm, req.project!, req.user!._id, question, embedder)));
   });
 
   return router;

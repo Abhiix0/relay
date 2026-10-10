@@ -113,6 +113,8 @@ export interface ChunkDoc {
   language: string | null;
   startLine: number;
   text: string;
+  /** unit-length sentence embedding; absent when no embedder was available at sync time */
+  embedding?: number[];
   gen: number | null;
 }
 
@@ -211,6 +213,8 @@ export interface AgentRunDoc {
   sources: SourceValue[];
   intent: string;
   response: string;
+  /** degradations worth knowing about, e.g. the embedder being unavailable */
+  notes?: string[];
   /** ms */
   latency: number;
   createdAt: Date;

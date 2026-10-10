@@ -9,6 +9,7 @@ import {
 } from "../db/collections";
 import { GithubAccessError, isTransient, type GithubClient } from "../integrations/github";
 import { decrypt } from "../lib/crypto";
+import type { Embedder } from "../lib/embedder";
 import { chunk } from "../lib/chunker";
 import { artifactKey } from "../lib/ids";
 import { detectLanguage } from "../lib/language";
@@ -22,6 +23,7 @@ const MAX_KEY_FILES = 60;
 const MAX_GLOBAL = 2;
 const BLOB_CONCURRENCY = 8;
 const FILE_BATCH = 100;
+const EMBED_BATCH = 32;
 const MINIFIED = /\.(?:min\.js|min\.css|map|snap)$/i;
 const BINARY_EXT = new Set(
   "png jpg jpeg gif webp ico pdf zip gz tar woff woff2 ttf eot mp3 mp4 mov wasm".split(" "),
@@ -51,6 +53,8 @@ export interface SyncRunnerDeps {
   afterSync?: (ctx: SyncContext) => Promise<void>;
   /** first backoff step for transient GitHub errors; doubles per retry */
   retryDelayMs?: number;
+  /** when set, chunks get an embedding; failures only cost semantic search */
+  embedder?: Embedder;
 }
 
 const noopAfterSync = async (): Promise<void> => {};
@@ -139,6 +143,7 @@ export function createSyncRunner({
   logger = pino({ level: "silent" }),
   afterSync = noopAfterSync,
   retryDelayMs = 500,
+  embedder,
 }: SyncRunnerDeps): SyncRunner {
   const github = withRetry(rawGithub, retryDelayMs);
   const c = getCollections(db);
@@ -303,6 +308,39 @@ export function createSyncRunner({
           .toArray()
       ).map((f) => [f.path, f]),
     );
+    // unchanged chunk text keeps its previous embedding, so incremental syncs only embed what changed
+    const prevEmbeddings = new Map<string, { text: string; embedding: number[] }>();
+    if (embedder) {
+      const rows = await c.chunks
+        .find(
+          { projectId, gen: project.syncGeneration, type: "file", embedding: { $exists: true } },
+          { projection: { path: 1, startLine: 1, text: 1, embedding: 1 } },
+        )
+        .toArray();
+      for (const r of rows) if (r.embedding) prevEmbeddings.set(`${r.path}:${r.startLine}`, { text: r.text, embedding: r.embedding });
+    }
+    let embedderUp = embedder !== undefined;
+    const embedChunks = async (list: ChunkDoc[]): Promise<void> => {
+      if (!embedder || !embedderUp) return;
+      const todo = list.filter((ch) => {
+        const old = prevEmbeddings.get(`${ch.path}:${ch.startLine}`);
+        if (old?.text === ch.text) ch.embedding = old.embedding;
+        return !ch.embedding;
+      });
+      try {
+        for (let i = 0; i < todo.length; i += EMBED_BATCH) {
+          check();
+          const vectors = await embedder.embed(todo.slice(i, i + EMBED_BATCH).map((ch) => ch.text));
+          vectors.forEach((v, j) => {
+            (todo[i + j] as ChunkDoc).embedding = v;
+          });
+        }
+      } catch (err) {
+        if (err instanceof Aborted) throw err;
+        embedderUp = false; // stop trying for this run; search falls back to lexical for unembedded chunks
+        logger.warn({ projectId: pid, err: err instanceof Error ? err.message : "unknown" }, "embedding failed");
+      }
+    };
     let reused = 0;
     let fetched = 0;
     for (let i = 0; i < tree.length; i += FILE_BATCH) {
@@ -357,6 +395,7 @@ export function createSyncRunner({
           });
         }
       }
+      await embedChunks(chunks);
       check();
       await insertBatched((d) => c.repoFiles.insertMany(d), batch);
       await insertBatched((d) => c.chunks.insertMany(d), chunks);
@@ -397,6 +436,7 @@ export function createSyncRunner({
         });
       }
     }
+    await embedChunks(artifactChunks);
     check();
     await insertBatched((d) => c.artifacts.insertMany(d), artifacts);
     await insertBatched((d) => c.chunks.insertMany(d), artifactChunks);
