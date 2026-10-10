@@ -6,7 +6,6 @@ import {
   GitBranch,
   Layers,
   Search,
-  Settings,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -24,7 +23,6 @@ export function ProjectNav() {
     { label: "Handoff", to: `/app/projects/${id}/handoff`, end: false, icon: BookOpen },
     { label: "Decisions", to: `/app/projects/${id}/decisions`, end: false, icon: Layers },
     { label: "Search", to: `/app/projects/${id}/search`, end: false, icon: Search },
-    { label: "Settings", to: `/app/projects/${id}/settings`, end: false, icon: Settings },
   ];
 
   return (

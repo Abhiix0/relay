@@ -9,8 +9,6 @@ import { OnboardingPage } from "@/features/onboarding/OnboardingPage";
 import { ProfilePage } from "@/features/profile/ProfilePage";
 import { ProjectOverviewPage } from "@/features/projects/ProjectOverviewPage";
 import { SearchPage } from "@/features/search/SearchPage";
-import { ProjectSettingsPage } from "@/features/settings/ProjectSettingsPage";
-import { SettingsPage } from "@/features/settings/SettingsPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { SignInPage } from "@/pages/SignInPage";
 
@@ -35,10 +33,6 @@ const router = createBrowserRouter([
   {
     path: "/app/search",
     element: <SearchPage />,
-  },
-  {
-    path: "/app/settings",
-    element: <SettingsPage />,
   },
   {
     path: "/app/projects",
@@ -91,10 +85,6 @@ const router = createBrowserRouter([
     element: <SearchPage />,
   },
   {
-    path: "/app/projects/:id/settings",
-    element: <ProjectSettingsPage />,
-  },
-  {
     path: "/projects/:id",
     element: <ProjectOverviewPage />,
   },
@@ -123,19 +113,8 @@ const router = createBrowserRouter([
     element: <SearchPage />,
   },
   {
-    path: "/projects/:id/settings",
-    element: <ProjectSettingsPage />,
-  },
-  {
     path: "/profile",
     element: <ProfilePage />,
-  },
-  {
-    path: "/design-system",
-    lazy: async () => {
-      const { DesignSystemPage } = await import("@/pages/DesignSystemPage");
-      return { Component: DesignSystemPage };
-    },
   },
   {
     path: "/404",
