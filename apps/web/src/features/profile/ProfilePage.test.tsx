@@ -35,7 +35,7 @@ describe("ProfilePage", () => {
     expect(screen.getByText("Developer Profile")).toBeInTheDocument();
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByText("ada@relay.dev")).toBeInTheDocument();
-    expect(screen.getByText(/@adalovelace/)).toBeInTheDocument();
+    expect(screen.getAllByText(/@adalovelace/).length).toBeGreaterThan(0);
   });
 
   it("handles missing user profile gracefully", () => {

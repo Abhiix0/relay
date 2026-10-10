@@ -17,7 +17,7 @@ export function DashboardPage() {
   const { data: projects = [], isLoading, error, refetch } = useProjects();
 
   // Get recent projects (max 6 for dashboard)
-  const recentProjects = projects
+  const recentProjects = [...projects]
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -44,7 +44,11 @@ export function DashboardPage() {
       <AppShell showProjectNav={false}>
         <ErrorState
           title="Failed to load dashboard"
-          description="Could not retrieve your projects. Please try again."
+          description={
+            error instanceof Error
+              ? error.message
+              : "Could not retrieve your projects. Please ensure the API backend is running and reachable."
+          }
         >
           <Button
             variant="primary"

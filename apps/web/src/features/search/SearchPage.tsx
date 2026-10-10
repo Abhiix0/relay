@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalSearch, useProjects } from "@/lib/api/hooks";
@@ -24,7 +25,7 @@ export function SearchPage() {
   const [selectedLanguage, setSelectedLanguage] = useState(urlLanguage);
 
   const { data: projects = [] } = useProjects();
-  const { data: searchResults, isLoading } = useGlobalSearch(
+  const { data: searchResults, isLoading, error, refetch } = useGlobalSearch(
     query,
     selectedProject === "all" ? null : selectedProject,
     selectedLanguage === "all" ? null : selectedLanguage
@@ -182,6 +183,24 @@ export function SearchPage() {
               <Skeleton className="h-32 w-full" />
               <Skeleton className="h-32 w-full" />
             </div>
+          ) : error ? (
+            <ErrorState
+              title="Search service unavailable"
+              description={
+                error instanceof Error
+                  ? error.message
+                  : "Failed to execute search across repositories. Ensure the API backend is reachable."
+              }
+            >
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => refetch()}
+                className="bg-copper text-paper"
+              >
+                Retry Search
+              </Button>
+            </ErrorState>
           ) : !searchResults || searchResults.results.length === 0 ? (
             <EmptyState
               title="No results found"
