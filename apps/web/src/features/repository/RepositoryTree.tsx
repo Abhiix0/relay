@@ -15,18 +15,64 @@ export function RepositoryTree({
   selectedPath,
   onFileSelect,
 }: RepositoryTreeProps) {
+  const [query, setQuery] = useState("");
+
+  const filterTree = (items: RepositoryTreeItem[], q: string): RepositoryTreeItem[] => {
+    if (!q.trim()) return items;
+    const lower = q.toLowerCase();
+    return items
+      .map((item) => {
+        if (item.type === "file") {
+          return item.name.toLowerCase().includes(lower) || item.path.toLowerCase().includes(lower)
+            ? item
+            : null;
+        }
+        const filteredChildren = item.children ? filterTree(item.children, q) : [];
+        if (filteredChildren.length > 0 || item.name.toLowerCase().includes(lower)) {
+          return { ...item, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter(Boolean) as RepositoryTreeItem[];
+  };
+
+  const filteredTree = filterTree(tree, query);
+
   return (
-    <div className="rounded border border-border bg-surface-accent p-4 overflow-y-auto max-h-[calc(100vh-300px)]">
-      <div className="space-y-1" role="tree" aria-label="Repository file tree">
-        {tree.map((item) => (
-          <RepositoryTreeItem
-            key={item.id}
-            item={item}
-            selectedPath={selectedPath}
-            onFileSelect={onFileSelect}
-            level={0}
-          />
-        ))}
+    <div className="rounded border border-border bg-surface-accent p-4 flex flex-col gap-3 max-h-[calc(100vh-260px)] min-h-[400px]">
+      <div className="relative">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Filter files & folders..."
+          className="w-full rounded border border-border/60 bg-surface px-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-text-muted hover:text-text font-mono"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-1" role="tree" aria-label="Repository file tree">
+        {filteredTree.length > 0 ? (
+          filteredTree.map((item) => (
+            <RepositoryTreeItem
+              key={item.id}
+              item={item}
+              selectedPath={selectedPath}
+              onFileSelect={onFileSelect}
+              level={0}
+            />
+          ))
+        ) : (
+          <div className="p-4 text-center text-xs text-text-muted font-mono">
+            {tree.length === 0 ? "No files indexed in repository." : "No matching files found."}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -82,8 +128,8 @@ function RepositoryTreeItem({
         className={cn(
           "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left text-xs font-mono transition",
           "hover:bg-surface focus:outline-none focus:ring-1 focus:ring-copper",
-          isSelected && "bg-surface border-l-2 border-copper font-semibold",
-          !isSelected && "text-text-muted hover:text-paper"
+          isSelected && "bg-surface border-l-2 border-copper font-semibold text-copper",
+          !isSelected && "text-text-muted hover:text-text"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         aria-label={`${item.type === "folder" ? "Folder" : "File"}: ${item.name}`}
