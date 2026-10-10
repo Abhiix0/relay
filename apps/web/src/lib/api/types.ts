@@ -301,3 +301,25 @@ export const searchResultsSchema = z.object({
   totalCount: z.number(),
 });
 export type SearchResults = z.infer<typeof searchResultsSchema>;
+
+/* ── GitHub Repo Picker ───────────────────────────────────── */
+export const githubRepoOptionSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  name: z.string(),
+  owner: z.string(),
+  description: z.string().nullable(),
+  language: z.string().nullable(),
+  private: z.boolean(),
+  defaultBranch: z.string(),
+  pushedAt: z.string(),
+  connected: z.boolean(),
+  connectedProjectId: z.string().nullable(),
+});
+export type GithubRepoOption = z.infer<typeof githubRepoOptionSchema>;
+
+export const githubReposResponseSchema = z.object({
+  repos: z.array(githubRepoOptionSchema),
+  canAccessPrivate: z.boolean(),
+});
+export type GithubReposResponse = z.infer<typeof githubReposResponseSchema>;

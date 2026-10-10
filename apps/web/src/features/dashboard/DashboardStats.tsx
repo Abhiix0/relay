@@ -18,15 +18,15 @@ export function DashboardStats({ projects }: DashboardStatsProps) {
     0
   );
 
-  // Calculate CI failures (projects with failed sync status)
-  const ciFailures = projects.filter((p) => p.syncStatus === "failed").length;
+  // Calculate sync failures (projects with failed sync status)
+  const syncFailures = projects.filter((p) => p.syncStatus === "failed").length;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard label="Total Projects" value={totalProjects} accent="active" />
       <StatCard label="Open Issues" value={totalIssues.toLocaleString()} />
       <StatCard label="Active PRs" value={totalPRs.toLocaleString()} />
-      <StatCard label="CI Failures" value={ciFailures} />
+      <StatCard label="Sync Failures" value={syncFailures} />
     </div>
   );
 }
