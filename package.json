@@ -15,7 +15,8 @@
     "test:visual:baseline": "playwright test capture-baseline.spec.ts",
     "test:visual:capture": "playwright test compare.spec.ts",
     "test:visual:diff": "tsx e2e/landing/compare.ts",
-    "test:a11y": "playwright test e2e/landing/a11y.spec.ts"
+    "test:a11y": "playwright test e2e/landing/a11y.spec.ts",
+    "test:app-shell": "playwright test e2e/app-shell.spec.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

@@ -68,32 +68,34 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-3 text-center">
-          <div className="flex flex-col items-center">
-            <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
-              <GitCommit className="h-3 w-3" /> Commits
-            </span>
-            <span className="font-mono text-xs font-semibold text-text">
-              {project.stats.commits.toLocaleString()}
-            </span>
+        {project.stats && (
+          <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-3 text-center">
+            <div className="flex flex-col items-center">
+              <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
+                <GitCommit className="h-3 w-3" /> Commits
+              </span>
+              <span className="font-mono text-xs font-semibold text-text">
+                {(project.stats.commits ?? 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
+                <GitPullRequest className="h-3 w-3" /> PRs
+              </span>
+              <span className="font-mono text-xs font-semibold text-text">
+                {(project.stats.pullRequests ?? 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
+                <FileCode2 className="h-3 w-3" /> Files
+              </span>
+              <span className="font-mono text-xs font-semibold text-text">
+                {(project.stats.files ?? 0).toLocaleString()}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col items-center">
-            <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
-              <GitPullRequest className="h-3 w-3" /> PRs
-            </span>
-            <span className="font-mono text-xs font-semibold text-text">
-              {project.stats.pullRequests.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
-              <FileCode2 className="h-3 w-3" /> Files
-            </span>
-            <span className="font-mono text-xs font-semibold text-text">
-              {project.stats.files.toLocaleString()}
-            </span>
-          </div>
-        </div>
+        )}
       </CardContent>
 
       <CardFooter className="flex items-center justify-between border-t border-border/40 px-5 py-3 text-xs bg-surface/50">

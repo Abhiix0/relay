@@ -16,6 +16,13 @@ const mockProjectsFixture = Array.from({ length: 12 }, (_, i) => ({
   fileCount: 420 + i * 10,
   symbolCount: 12500 + i * 100,
   chunkCount: 3400 + i * 50,
+  stats: {
+    commits: 1250 + i * 20,
+    pullRequests: 84 + i * 2,
+    issues: 12 + i,
+    releases: 8,
+    files: 420 + i * 10,
+  },
 }));
 
 const mockUserFixture = {
