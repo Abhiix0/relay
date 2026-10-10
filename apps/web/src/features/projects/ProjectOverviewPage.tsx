@@ -26,29 +26,46 @@ export function ProjectOverviewPage() {
     <ProjectGuard>
       {project && (
         <div className="space-y-8">
+          <Link
+            to="/app/projects"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-copper hover:underline"
+          >
+            ← Back to Projects
+          </Link>
+
           {/* Project Header Banner */}
           <ProjectHero project={project} />
 
           {/* Project Key Metrics */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Total Commits"
-              value={project.stats.commits.toLocaleString()}
-              accent="git"
-            />
-            <StatCard
-              label="Pull Requests"
-              value={project.stats.pullRequests.toLocaleString()}
-            />
-            <StatCard
-              label="Active Issues"
-              value={project.stats.issues.toLocaleString()}
-            />
-            <StatCard
-              label="Releases"
-              value={project.stats.releases.toLocaleString()}
-            />
-          </div>
+          {project.stats && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {typeof project.stats.commits === "number" && (
+                <StatCard
+                  label="Total Commits"
+                  value={project.stats.commits.toLocaleString()}
+                  accent="git"
+                />
+              )}
+              {typeof project.stats.pullRequests === "number" && (
+                <StatCard
+                  label="Pull Requests"
+                  value={project.stats.pullRequests.toLocaleString()}
+                />
+              )}
+              {typeof project.stats.issues === "number" && (
+                <StatCard
+                  label="Active Issues"
+                  value={project.stats.issues.toLocaleString()}
+                />
+              )}
+              {typeof project.stats.releases === "number" && (
+                <StatCard
+                  label="Releases"
+                  value={project.stats.releases.toLocaleString()}
+                />
+              )}
+            </div>
+          )}
 
           {/* Quick Grounded AI Query Bar */}
           <Card className="border-border bg-gradient-to-r from-surface-accent via-surface-accent to-surface p-6">
@@ -56,7 +73,7 @@ export function ProjectOverviewPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-copper" />
-                  <h3 className="font-serif text-lg font-normal text-paper">
+                  <h3 className="font-serif text-lg font-normal text-text">
                     Ask Relay about {project.name}
                   </h3>
                 </div>

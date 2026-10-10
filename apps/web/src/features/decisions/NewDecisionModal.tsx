@@ -111,6 +111,14 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
             />
           </div>
 
+          {createDecision.isError && (
+            <div className="rounded border border-error/40 bg-error/10 p-2.5 text-xs text-error font-mono">
+              {createDecision.error instanceof Error
+                ? createDecision.error.message
+                : "Failed to record decision. Backend service may be unreachable."}
+            </div>
+          )}
+
           <DialogFooter className="pt-2">
             <Button
               type="button"

@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Navigate, Route, RouterProvider, Routes, useParams } from "react-router";
 import { AskPage } from "@/features/ask/AskPage";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { DecisionsPage } from "@/features/decisions/DecisionsPage";
@@ -8,13 +8,19 @@ import { LandingPage } from "@/features/landing/LandingPage";
 import { OnboardingPage } from "@/features/onboarding/OnboardingPage";
 import { ProfilePage } from "@/features/profile/ProfilePage";
 import { ProjectOverviewPage } from "@/features/projects/ProjectOverviewPage";
+import { ProjectsListPage } from "@/features/projects/ProjectsListPage";
+import { RepositoryExplorerPage } from "@/features/repository/RepositoryExplorerPage";
 import { SearchPage } from "@/features/search/SearchPage";
-import { ProjectSettingsPage } from "@/features/settings/ProjectSettingsPage";
-import { SettingsPage } from "@/features/settings/SettingsPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { SignInPage } from "@/pages/SignInPage";
 
-const router = createBrowserRouter([
+function ProjectRedirect({ suffix = "" }: { suffix?: string }) {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/app/projects/${id}${suffix}`} replace />;
+}
+
+export const routes = [
+  // Public marketing & auth routes
   {
     path: "/",
     element: <LandingPage />,
@@ -24,12 +30,14 @@ const router = createBrowserRouter([
     path: "/sign-in",
     element: <SignInPage />,
   },
-  {
-    path: "/dashboard",
-    element: <DashboardPage />,
-  },
+
+  // Canonical authenticated app routes (/app/...)
   {
     path: "/app",
+    element: <Navigate to="/app/dashboard" replace />,
+  },
+  {
+    path: "/app/dashboard",
     element: <DashboardPage />,
   },
   {
@@ -37,34 +45,20 @@ const router = createBrowserRouter([
     element: <SearchPage />,
   },
   {
-    path: "/app/settings",
-    element: <SettingsPage />,
+    path: "/app/profile",
+    element: <ProfilePage />,
   },
   {
     path: "/app/projects",
-    lazy: async () => {
-      const { ProjectsListPage } = await import("@/features/projects/ProjectsListPage");
-      return { Component: ProjectsListPage };
-    },
-  },
-  {
-    path: "/projects",
-    element: <DashboardPage />,
+    element: <ProjectsListPage />,
   },
   {
     path: "/app/projects/:id",
     element: <ProjectOverviewPage />,
   },
   {
-    path: "/projects/:id",
-    element: <ProjectOverviewPage />,
-  },
-  {
     path: "/app/projects/:id/files",
-    lazy: async () => {
-      const { RepositoryExplorerPage } = await import("@/features/repository/RepositoryExplorerPage");
-      return { Component: RepositoryExplorerPage };
-    },
+    element: <RepositoryExplorerPage />,
   },
   {
     path: "/app/projects/:id/ask",
@@ -90,53 +84,58 @@ const router = createBrowserRouter([
     path: "/app/projects/:id/search",
     element: <SearchPage />,
   },
+
+  // Legacy route redirects
   {
-    path: "/app/projects/:id/settings",
-    element: <ProjectSettingsPage />,
+    path: "/dashboard",
+    element: <Navigate to="/app/dashboard" replace />,
   },
   {
-    path: "/projects/:id",
-    element: <ProjectOverviewPage />,
-  },
-  {
-    path: "/projects/:id/ask",
-    element: <AskPage />,
-  },
-  {
-    path: "/projects/:id/explorer",
-    element: <ExplorerPage />,
-  },
-  {
-    path: "/projects/:id/onboarding",
-    element: <OnboardingPage />,
-  },
-  {
-    path: "/projects/:id/handoff",
-    element: <HandoffPage />,
-  },
-  {
-    path: "/projects/:id/decisions",
-    element: <DecisionsPage />,
-  },
-  {
-    path: "/projects/:id/search",
-    element: <SearchPage />,
-  },
-  {
-    path: "/projects/:id/settings",
-    element: <ProjectSettingsPage />,
+    path: "/projects",
+    element: <Navigate to="/app/projects" replace />,
   },
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: <Navigate to="/app/profile" replace />,
   },
   {
-    path: "/design-system",
-    lazy: async () => {
-      const { DesignSystemPage } = await import("@/pages/DesignSystemPage");
-      return { Component: DesignSystemPage };
-    },
+    path: "/search",
+    element: <Navigate to="/app/search" replace />,
   },
+  {
+    path: "/projects/:id",
+    element: <ProjectRedirect />,
+  },
+  {
+    path: "/projects/:id/files",
+    element: <ProjectRedirect suffix="/files" />,
+  },
+  {
+    path: "/projects/:id/ask",
+    element: <ProjectRedirect suffix="/ask" />,
+  },
+  {
+    path: "/projects/:id/explorer",
+    element: <ProjectRedirect suffix="/explorer" />,
+  },
+  {
+    path: "/projects/:id/onboarding",
+    element: <ProjectRedirect suffix="/onboarding" />,
+  },
+  {
+    path: "/projects/:id/handoff",
+    element: <ProjectRedirect suffix="/handoff" />,
+  },
+  {
+    path: "/projects/:id/decisions",
+    element: <ProjectRedirect suffix="/decisions" />,
+  },
+  {
+    path: "/projects/:id/search",
+    element: <ProjectRedirect suffix="/search" />,
+  },
+
+  // 404 & fallback routes
   {
     path: "/404",
     element: <NotFoundPage />,
@@ -145,7 +144,19 @@ const router = createBrowserRouter([
     path: "*",
     element: <NotFoundPage />,
   },
-]);
+];
+
+export function AppRoutes() {
+  return (
+    <Routes>
+      {routes.map((route, i) => (
+        <Route key={route.path || i} path={route.path} element={route.element} />
+      ))}
+    </Routes>
+  );
+}
+
+const router = createBrowserRouter(routes);
 
 export function AppRouter() {
   return <RouterProvider router={router} />;

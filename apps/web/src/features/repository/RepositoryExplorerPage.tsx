@@ -45,7 +45,7 @@ export function RepositoryExplorerPage() {
           <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
             Repository Explorer
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             {project?.fullName || "Browse Files"}
           </h1>
           <p className="text-xs text-text-muted mt-1">

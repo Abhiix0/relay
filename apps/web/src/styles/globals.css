@@ -31,6 +31,13 @@
  * landing typography, link underlines, button borders, and focus rings.
  */
 @layer base {
+  .relay-app {
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
   .relay-app * {
     @apply border-border;
   }

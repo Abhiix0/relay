@@ -43,11 +43,11 @@ export function OnboardingPage() {
   return (
     <AppShell>
       <div className="space-y-6 max-w-4xl mx-auto">
-        <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper-text">
+        <div className="border-b border-border/60 pb-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold">
             Contributor Ramp-Up & Project Context
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             {onboardingData?.projectOverview.name ? 
               `Onboarding: ${onboardingData.projectOverview.name}` : 
               `Onboarding: ${project?.name || "Codebase"}`
@@ -71,7 +71,7 @@ export function OnboardingPage() {
             action={
               <button
                 onClick={() => window.location.reload()}
-                className="text-xs text-copper-text hover:underline"
+                className="text-xs text-copper hover:underline font-mono"
               >
                 Refresh
               </button>
@@ -86,21 +86,21 @@ export function OnboardingPage() {
             <OnboardingOverview data={onboardingData} />
 
             {/* Important Files */}
-            <ImportantFiles data={onboardingData} projectId={id || "turborepo"} />
+            <ImportantFiles data={onboardingData} projectId={id || ""} />
 
             {/* Getting Started Steps */}
-            <GettingStarted data={onboardingData} projectId={id || "turborepo"} />
+            <GettingStarted data={onboardingData} projectId={id || ""} />
 
             {/* Contributor Checklist */}
             {plan && plan.items.length > 0 && (
               <div className="space-y-4">
                 <div className="border-t border-border pt-6">
                   <div className="flex items-center justify-between text-xs font-mono mb-4">
-                    <div className="flex items-center gap-2 text-paper">
+                    <div className="flex items-center gap-2 text-text font-semibold">
                       <Compass className="h-4 w-4 text-copper" />
                       <span>Contributor Checklist</span>
                     </div>
-                    <span className="text-copper-text font-semibold">
+                    <span className="text-copper font-semibold">
                       {completedCount} of {totalCount} completed ({progressPercent}%)
                     </span>
                   </div>
@@ -118,7 +118,7 @@ export function OnboardingPage() {
                     <OnboardingItemRow
                       key={item.id}
                       item={item}
-                      projectId={id || "turborepo"}
+                      projectId={id || ""}
                       onToggle={handleToggle}
                       isPending={toggleItem.isPending}
                     />

@@ -34,7 +34,7 @@ export function SuggestedActionsCard({ projectId }: SuggestedActionsCardProps) {
   return (
     <Card className="border-border bg-surface-accent">
       <CardHeader className="p-5 pb-3 border-b border-border/40">
-        <CardTitle className="text-base font-serif text-paper">
+        <CardTitle className="text-base font-serif text-text">
           Suggested Actions
         </CardTitle>
       </CardHeader>
@@ -52,7 +52,7 @@ export function SuggestedActionsCard({ projectId }: SuggestedActionsCardProps) {
               </div>
               <div className="flex-1 space-y-0.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-paper group-hover:text-copper transition">
+                  <span className="text-xs font-semibold text-text group-hover:text-copper transition">
                     {action.title}
                   </span>
                   <ArrowRight className="h-3 w-3 text-text-muted group-hover:text-copper transition" />

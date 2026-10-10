@@ -10,7 +10,7 @@ export function OfflineBanner() {
 
   return (
     <div 
-      className="bg-warning/10 border-b border-warning/20 px-4 py-2"
+      className="bg-warning/10 border-b border-warning/20 px-4 py-2 shrink-0"
       role="alert"
       aria-live="polite"
     >

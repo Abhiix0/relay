@@ -15,18 +15,14 @@ import "@fontsource/jetbrains-mono/600.css";
 // Import styles
 import "@/styles/globals.css";
 
-import { enableMocking } from "./mocks/browser";
-
 const root = document.getElementById("root");
 
 if (!root) {
   throw new Error("Relay root element is missing");
 }
 
-enableMocking().finally(() => {
-  createRoot(root).render(
-    <StrictMode>
-      <App />
-    </StrictMode>
-  );
-});
+createRoot(root).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
