@@ -26,6 +26,8 @@ const ROUTES: [method: Method, path: string][] = [
   ["get", "/api/v1/search?q=x&projectId=:id"],
   ["get", "/api/v1/projects/:id/ask"],
   ["post", "/api/v1/projects/:id/ask"],
+  ["get", "/api/v1/projects/:id/decisions"],
+  ["post", "/api/v1/projects/:id/decisions"],
 ];
 
 describe("tenant isolation", () => {

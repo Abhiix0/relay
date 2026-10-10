@@ -35,7 +35,7 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
       {
         title: title.trim(),
         summary: summary.trim(),
-        rationale: rationale.trim() || "Approved consensus by engineering leads.",
+        rationale: rationale.trim(),
         sources: [],
       },
       {

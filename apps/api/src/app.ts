@@ -10,6 +10,7 @@ import type { GithubClient } from "./integrations/github";
 import { createGroqClient, type LlmClient } from "./integrations/llm";
 import { askRouter } from "./routes/ask";
 import { authRouter } from "./routes/auth";
+import { decisionsRouter } from "./routes/decisions";
 import { explorerRouter } from "./routes/explorer";
 import { githubReposRouter } from "./routes/githubRepos";
 import { projectsRouter } from "./routes/projects";
@@ -78,6 +79,7 @@ export function createApp(deps: AppDeps): Express {
   router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(explorerRouter(deps.db));
   router.use(searchRouter(deps.db));
+  router.use(decisionsRouter(deps.db));
   router.use(askRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(notFoundHandler);
   app.use("/api/v1", router);

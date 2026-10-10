@@ -43,7 +43,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
         <div className="space-y-1">
           <div className="text-[10px] font-mono uppercase text-text-muted">Rationale & Trade-offs</div>
           <p className="text-xs text-text-muted leading-relaxed whitespace-pre-line bg-surface/40 p-3 rounded border border-border/30">
-            {decision.rationale}
+            {decision.rationale || "No rationale recorded"}
           </p>
         </div>
 

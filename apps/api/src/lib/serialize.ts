@@ -2,6 +2,7 @@ import type {
   ActivityEventDoc,
   ArtifactDoc,
   AskAnswerDoc,
+  DecisionDoc,
   ProjectDoc,
   RepoFileDoc,
   SyncJobDoc,
@@ -87,7 +88,17 @@ export const toFileContent = (f: RepoFileDoc) => ({
   isLarge: f.isLarge,
 });
 
-export const toAskAnswer = (a: AskAnswerDoc) => ({
+export const toDecision = (d: DecisionDoc) => ({
+  id: d._id.toHexString(),
+  projectId: d.projectId.toHexString(),
+  title: d.title,
+  summary: d.summary,
+  rationale: d.rationale,
+  sources: d.sources,
+  createdAt: iso(d.createdAt),
+});
+
+export const toAskAnswer =(a: AskAnswerDoc) => ({
   id: a._id.toHexString(),
   projectId: a.projectId.toHexString(),
   question: a.question,
