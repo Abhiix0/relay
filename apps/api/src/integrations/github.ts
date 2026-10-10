@@ -18,6 +18,8 @@ export interface GithubRepo {
   private: boolean;
 }
 
+export type GithubUserRepo = GithubRepo & { pushedAt: string | null };
+
 export class GithubAccessError extends Error {
   constructor(
     readonly status: number,
@@ -76,6 +78,9 @@ export interface GithubClient {
   getReadme(token: string, full: string): Promise<GithubReadme | null>;
   countCommits(token: string, full: string): Promise<number>;
   countReleases(token: string, full: string): Promise<number>;
+  /** repos the user can access, most recently pushed first (max 300) */
+  listUserRepos(token: string): Promise<GithubUserRepo[]>;
+  /** open items only */
   searchCount(token: string, full: string, kind: "issue" | "pr"): Promise<number>;
 }
 
@@ -290,8 +295,44 @@ export function createGithubClient(): GithubClient {
     countCommits: (token, full) => countViaLink(`${API}/repos/${full}/commits?per_page=1`, token),
     countReleases: (token, full) =>
       countViaLink(`${API}/repos/${full}/releases?per_page=1`, token),
+    async listUserRepos(token) {
+      const out: GithubUserRepo[] = [];
+      for (let page = 1; page <= 3; page++) {
+        const raw = await getJson<
+          {
+            id: number;
+            full_name: string;
+            name: string;
+            owner: { login: string };
+            description: string | null;
+            language: string | null;
+            default_branch: string;
+            private: boolean;
+            pushed_at: string | null;
+          }[]
+        >(
+          `${API}/user/repos?per_page=100&sort=pushed&affiliation=owner,collaborator,organization_member&page=${page}`,
+          token,
+        );
+        for (const r of raw) {
+          out.push({
+            id: r.id,
+            full_name: r.full_name,
+            name: r.name,
+            owner: r.owner.login,
+            description: r.description,
+            language: r.language,
+            default_branch: r.default_branch,
+            private: r.private,
+            pushedAt: r.pushed_at,
+          });
+        }
+        if (raw.length < 100) break;
+      }
+      return out;
+    },
     async searchCount(token, full, kind) {
-      const q = encodeURIComponent(`repo:${full} type:${kind}`);
+      const q = encodeURIComponent(`repo:${full} is:${kind === "pr" ? "pr" : "issue"} is:open`);
       const r = await getJson<{ total_count: number }>(
         `${API}/search/issues?q=${q}&per_page=1`,
         token,

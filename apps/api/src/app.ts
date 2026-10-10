@@ -8,6 +8,7 @@ import { requestId } from "./middleware/requestId";
 import type { SyncRunner } from "./jobs/syncRunner";
 import type { GithubClient } from "./integrations/github";
 import { authRouter } from "./routes/auth";
+import { githubReposRouter } from "./routes/githubRepos";
 import { projectsRouter } from "./routes/projects";
 import { syncRouter } from "./routes/sync";
 
@@ -69,6 +70,7 @@ export function createApp(deps: AppDeps): Express {
     res.json({ ok: true });
   });
   router.use(authRouter(deps.db, deps.github));
+  router.use(githubReposRouter(deps.db, deps.github));
   router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
   router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(notFoundHandler);

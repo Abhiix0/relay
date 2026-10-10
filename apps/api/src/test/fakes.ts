@@ -6,6 +6,7 @@ import type {
   GithubThread,
   GithubTreeEntry,
   GithubUser,
+  GithubUserRepo,
 } from "../integrations/github";
 
 export const FAKE_TOKEN = "gho_fake_secret_token";
@@ -123,6 +124,13 @@ export class FakeGithub implements GithubClient {
   }
   async countReleases(): Promise<number> {
     return this.counts.releases;
+  }
+  userRepos: GithubUserRepo[] = [];
+  listUserReposCalls = 0;
+  async listUserRepos(): Promise<GithubUserRepo[]> {
+    this.listUserReposCalls++;
+    this.maybeFail("listUserRepos");
+    return this.userRepos;
   }
   async searchCount(_t: string, _f: string, kind: "issue" | "pr"): Promise<number> {
     return this.counts[kind];
