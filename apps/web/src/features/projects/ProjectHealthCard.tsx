@@ -32,7 +32,7 @@ export function ProjectHealthCard({ project }: ProjectHealthCardProps) {
       <CardHeader className="p-5 pb-3 border-b border-border/40">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-copper" />
-          <CardTitle className="text-base font-serif text-paper">
+          <CardTitle className="text-base font-serif text-text">
             Project Health
           </CardTitle>
         </div>
@@ -41,7 +41,7 @@ export function ProjectHealthCard({ project }: ProjectHealthCardProps) {
         {/* Overall Health */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-paper">Overall Health</span>
+            <span className="text-xs font-medium text-text">Overall Health</span>
             <span className="text-xs font-mono font-semibold text-copper">
               {health.overall}%
             </span>
@@ -52,7 +52,7 @@ export function ProjectHealthCard({ project }: ProjectHealthCardProps) {
         {/* Documentation */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-paper">
+            <span className="text-xs font-medium text-text">
               Documentation
             </span>
             <span className="text-xs font-mono font-semibold text-copper">
@@ -65,7 +65,7 @@ export function ProjectHealthCard({ project }: ProjectHealthCardProps) {
         {/* Activity Level */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-paper">Activity Level</span>
+            <span className="text-xs font-medium text-text">Activity Level</span>
             <span
               className={`text-xs font-mono font-semibold ${activityInfo.color}`}
             >

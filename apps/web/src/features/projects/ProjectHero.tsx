@@ -69,7 +69,7 @@ export function ProjectHero({ project }: ProjectHeroProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text tracking-tight">
               {project.fullName}
             </h1>
             <a
@@ -109,7 +109,7 @@ export function ProjectHero({ project }: ProjectHeroProps) {
             size="sm"
             onClick={() => triggerSync.mutate()}
             disabled={triggerSync.isPending || isSyncing}
-            className="gap-2 border-border text-xs text-paper bg-surface hover:bg-surface-accent font-mono"
+            className="gap-2 border-border text-xs text-text bg-surface hover:bg-surface-accent font-mono"
           >
             {triggerSync.isPending || isSyncing ? (
               <>

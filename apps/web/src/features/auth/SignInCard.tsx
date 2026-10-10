@@ -65,7 +65,7 @@ export function SignInCard() {
     try {
       setIsEmailLoading(true);
       await signInWithEmail(result.data);
-      navigate("/dashboard");
+      navigate("/app/dashboard");
     } catch (err) {
       setGeneralError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
@@ -83,11 +83,11 @@ export function SignInCard() {
   };
 
   return (
-    <Card className="w-full max-w-[420px] shadow-sm">
+    <Card className="w-full max-w-[420px] border-border bg-surface-accent shadow-sm">
       <CardHeader className="items-center text-center pb-4 pt-8">
         <RelayMark className="mb-3" />
-        <CardTitle className="text-3xl">Welcome back</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-3xl font-serif text-text">Welcome back</CardTitle>
+        <CardDescription className="text-text-muted text-xs font-sans mt-1">
           Sign in to your Relay workspace to continue.
         </CardDescription>
       </CardHeader>
@@ -96,7 +96,7 @@ export function SignInCard() {
         {generalError && (
           <div
             role="alert"
-            className="border border-error/30 bg-error/10 px-4 py-2.5 text-xs text-error font-mono"
+            className="border border-error/30 bg-error/10 px-4 py-2.5 text-xs text-error font-mono rounded"
           >
             {generalError}
           </div>
@@ -105,12 +105,12 @@ export function SignInCard() {
         <Button
           type="button"
           variant="secondary"
-          className="w-full bg-charcoal text-paper hover:bg-charcoal-soft border-charcoal hover:border-charcoal-soft"
+          className="w-full bg-charcoal text-paper hover:bg-charcoal-soft border-charcoal hover:border-charcoal-soft font-mono text-xs font-medium"
           onClick={handleGithubSignIn}
           loading={isGithubLoading}
           disabled={isEmailLoading || isGithubLoading}
         >
-          <Github className="h-4 w-4" />
+          <Github className="h-4 w-4 mr-1.5" />
           Continue with GitHub
         </Button>
 
@@ -130,6 +130,7 @@ export function SignInCard() {
               onChange={(e) => handleChange("email", e.target.value)}
               disabled={isEmailLoading || isGithubLoading}
               autoComplete="email"
+              className="bg-surface border-border text-text placeholder:text-text-muted"
             />
           </Field>
 
@@ -141,6 +142,7 @@ export function SignInCard() {
               onChange={(e) => handleChange("password", e.target.value)}
               disabled={isEmailLoading || isGithubLoading}
               autoComplete="current-password"
+              className="bg-surface border-border text-text placeholder:text-text-muted"
             />
           </Field>
 
@@ -162,7 +164,7 @@ export function SignInCard() {
             onClick={(e) => {
               e.preventDefault();
             }}
-            className="text-copper-text hover:underline font-medium"
+            className="text-copper hover:underline font-medium"
           >
             Create one
           </a>

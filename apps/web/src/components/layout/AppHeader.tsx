@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { ChevronDown, ExternalLink, GitBranch, LogOut, Search, Settings, User as UserIcon } from "lucide-react";
+import { ChevronDown, GitBranch, LogOut, Menu, Search, User as UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +20,10 @@ import { CommandPalette } from "./CommandPalette";
 
 interface AppHeaderProps {
   currentProjectId?: string;
+  onMobileMenuToggle?: () => void;
 }
 
-export function AppHeader({ currentProjectId }: AppHeaderProps) {
+export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -47,10 +48,22 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur px-6 py-3">
+      <header className="sticky top-0 z-40 border-b border-border/40 bg-surface/95 backdrop-blur px-4 sm:px-6 py-3 shrink-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
+          <div className="flex items-center gap-4 sm:gap-6">
+            {onMobileMenuToggle && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onMobileMenuToggle}
+                className="md:hidden h-8 w-8 text-text-muted"
+                aria-label="Toggle navigation menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+
+            <Link to="/app/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
               <RelayMark compact />
             </Link>
 
@@ -78,7 +91,7 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                 {projects.map((p) => (
                   <DropdownMenuItem
                     key={p.id}
-                    onClick={() => navigate(`/projects/${p.id}`)}
+                    onClick={() => navigate(`/app/projects/${p.id}`)}
                     className="flex items-center justify-between text-xs cursor-pointer py-2"
                   >
                     <span className="font-mono truncate">{p.fullName}</span>
@@ -87,7 +100,7 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                 ))}
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/app/projects")}
                   className="text-xs text-copper cursor-pointer"
                 >
                   Manage all repositories →
@@ -153,32 +166,11 @@ export function AppHeader({ currentProjectId }: AppHeaderProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate("/app/profile")}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >
                   <UserIcon className="h-3.5 w-3.5 text-text-muted" />
                   <span>Profile & Tokens</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/app/settings")}
-                  className="flex items-center gap-2 text-xs cursor-pointer"
-                >
-                  <Settings className="h-3.5 w-3.5 text-text-muted" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate(currentProjectId ? `/projects/${currentProjectId}/settings` : "/dashboard")}
-                  className="flex items-center gap-2 text-xs cursor-pointer"
-                >
-                  <Settings className="h-3.5 w-3.5 text-text-muted" />
-                  <span>Project Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => navigate("/design-system")}
-                  className="flex items-center gap-2 text-xs cursor-pointer"
-                >
-                  <ExternalLink className="h-3.5 w-3.5 text-text-muted" />
-                  <span>Design System</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem

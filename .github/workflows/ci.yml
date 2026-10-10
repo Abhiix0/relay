@@ -116,6 +116,14 @@ jobs:
           pnpm preview &
           npx wait-on http://localhost:4173 --timeout 30000
 
+      # Verify authenticated viewport layout & internal scrolling (regression test)
+      - name: AppShell scrolling regression test
+        run: pnpm test:app-shell
+
+      # Run landing accessibility audit test
+      - name: Accessibility audit
+        run: pnpm test:a11y
+
       # Capture current screenshots into baseline/current/
       - name: Capture current screenshots
         run: pnpm test:visual:capture

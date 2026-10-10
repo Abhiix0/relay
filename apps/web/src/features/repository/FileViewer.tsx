@@ -74,7 +74,7 @@ export function FileViewer({ projectId, filePath }: FileViewerProps) {
       <CardHeader className="p-4 border-b border-border/40 space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0 space-y-2">
-            <h2 className="text-base font-mono font-semibold text-paper truncate">
+            <h2 className="text-base font-mono font-semibold text-text truncate">
               {fileContent.name}
             </h2>
             <FileBreadcrumbs path={fileContent.path} />
@@ -94,7 +94,7 @@ export function FileViewer({ projectId, filePath }: FileViewerProps) {
             size="sm"
             onClick={handleCopy}
             disabled={isBinary || isLarge}
-            className="gap-2 border-border text-xs shrink-0"
+            className="gap-2 border-border text-xs shrink-0 text-text"
           >
             <Copy className="h-3 w-3" />
             Copy
@@ -120,7 +120,7 @@ export function FileViewer({ projectId, filePath }: FileViewerProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <pre className="p-4 text-xs font-mono leading-relaxed text-paper bg-charcoal/20">
+            <pre className="p-4 text-xs font-mono leading-relaxed text-text bg-surface/50">
               <code className="block">
                 {fileContent.content.split("\n").map((line, idx) => (
                   <div key={idx} className="flex">

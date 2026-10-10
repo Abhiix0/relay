@@ -28,51 +28,61 @@ export function CommandPalette({ open, onOpenChange, currentProjectId }: Command
   }, [open, onOpenChange]);
 
   const activeProject = projects.find((p) => p.id === currentProjectId) || projects[0];
-  const targetId = activeProject?.id || "turborepo";
+  const targetId = activeProject?.id;
 
   const navigationItems = [
     {
-      title: "Project Overview",
-      description: `View ${activeProject?.name || "current project"} summary & stats`,
+      title: "Dashboard",
+      description: "View connected repositories and codebase overview",
       icon: GitBranch,
-      path: `/projects/${targetId}`,
+      path: "/app/dashboard",
     },
     {
-      title: "Ask Relay AI",
-      description: "Ask questions grounded in codebase evidence",
-      icon: Sparkles,
-      path: `/projects/${targetId}/ask`,
-    },
-    {
-      title: "Codebase Explorer",
-      description: "Browse repository files, AST, and artifacts",
-      icon: FileCode2,
-      path: `/projects/${targetId}/explorer`,
-    },
-    {
-      title: "Onboarding Roadmap",
-      description: "Interactive onboarding guide and tasks",
-      icon: Compass,
-      path: `/projects/${targetId}/onboarding`,
-    },
-    {
-      title: "Architecture Handoff",
-      description: "Engineering handoff briefings and invariants",
-      icon: BookOpen,
-      path: `/projects/${targetId}/handoff`,
-    },
-    {
-      title: "Architecture Decisions (ADRs)",
-      description: "Technical decision records and rationale",
-      icon: Layers,
-      path: `/projects/${targetId}/decisions`,
-    },
-    {
-      title: "Evidence Search",
-      description: "Search symbols, files, and commits",
+      title: "Global Search",
+      description: "Search indexed symbols, code, issues, and PRs",
       icon: Search,
-      path: `/projects/${targetId}/search`,
+      path: "/app/search",
     },
+    ...(targetId
+      ? [
+          {
+            title: "Project Overview",
+            description: `View ${activeProject?.name} summary & stats`,
+            icon: GitBranch,
+            path: `/projects/${targetId}`,
+          },
+          {
+            title: "Ask Relay AI",
+            description: "Ask questions grounded in codebase evidence",
+            icon: Sparkles,
+            path: `/projects/${targetId}/ask`,
+          },
+          {
+            title: "Codebase Explorer",
+            description: "Browse repository files and artifacts",
+            icon: FileCode2,
+            path: `/projects/${targetId}/explorer`,
+          },
+          {
+            title: "Onboarding Roadmap",
+            description: "Interactive onboarding guide and tasks",
+            icon: Compass,
+            path: `/projects/${targetId}/onboarding`,
+          },
+          {
+            title: "Architecture Handoff",
+            description: "Engineering handoff briefings",
+            icon: BookOpen,
+            path: `/projects/${targetId}/handoff`,
+          },
+          {
+            title: "Architecture Decisions (ADRs)",
+            description: "Technical decision records and rationale",
+            icon: Layers,
+            path: `/projects/${targetId}/decisions`,
+          },
+        ]
+      : []),
   ];
 
   const filteredItems = navigationItems.filter(

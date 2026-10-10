@@ -53,7 +53,7 @@ export function AnswerItem({ answer, isNew = false }: AnswerItemProps) {
           <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
             Question
           </div>
-          <h2 className="text-sm sm:text-base font-semibold text-paper mt-0.5">
+          <h2 className="text-sm sm:text-base font-semibold text-text mt-0.5">
             {answer.question}
           </h2>
         </div>
@@ -68,7 +68,7 @@ export function AnswerItem({ answer, isNew = false }: AnswerItemProps) {
           <>
             <div className="flex items-start gap-3">
               <Sparkles className="h-4 w-4 text-copper shrink-0 mt-1" />
-              <div className="flex-1 space-y-3 text-xs sm:text-sm text-paper leading-relaxed font-sans">
+              <div className="flex-1 space-y-3 text-xs sm:text-sm text-text leading-relaxed font-sans">
                 {isNew && !streamComplete ? (
                   <StreamingText
                     text={answer.answer}

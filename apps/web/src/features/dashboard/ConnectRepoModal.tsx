@@ -26,12 +26,12 @@ export function ConnectRepoModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!repoName.trim()) return;
+    if (!repoName.trim() || createProject.isPending) return;
 
     createProject.mutate(
       {
         fullName: repoName.trim(),
-        description: description.trim() || "Connected codebase via GitHub app",
+        description: description.trim() || undefined,
         language,
       },
       {
@@ -39,7 +39,7 @@ export function ConnectRepoModal() {
           setOpen(false);
           setRepoName("");
           setDescription("");
-          // Navigate to the new project
+          createProject.reset();
           navigate(`/app/projects/${newProj.id}`);
         },
       }
@@ -128,6 +128,14 @@ export function ConnectRepoModal() {
               <option value="Go">Go</option>
             </select>
           </div>
+
+          {createProject.isError && (
+            <div className="rounded border border-error/40 bg-error/10 p-2.5 text-xs text-error font-mono">
+              {createProject.error instanceof Error
+                ? createProject.error.message
+                : "Unable to connect repository. The backend service may be unreachable."}
+            </div>
+          )}
 
           <DialogFooter className="pt-2">
             <Button

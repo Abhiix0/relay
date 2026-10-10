@@ -60,12 +60,14 @@ Status: Grounded in AST and Git Blame`;
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            <Link to={`/projects/${projectId}/ask?q=${encodeURIComponent(`Explain ${artifact.title}`)}`}>
-              <Button size="sm" variant="secondary" className="h-7 text-[11px] gap-1.5 border-border font-mono">
-                <Sparkles className="h-3 w-3 text-copper" />
-                <span>Ask about file</span>
-              </Button>
-            </Link>
+            {projectId && (
+              <Link to={`/app/projects/${projectId}/ask?q=${encodeURIComponent(`Explain ${artifact.title}`)}`}>
+                <Button size="sm" variant="secondary" className="h-7 text-[11px] gap-1.5 border-border font-mono">
+                  <Sparkles className="h-3 w-3 text-copper" />
+                  <span>Ask about file</span>
+                </Button>
+              </Link>
+            )}
             {artifact.url && (
               <a
                 href={artifact.url}

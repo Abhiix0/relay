@@ -17,7 +17,7 @@ export function AskPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: project } = useProject(id);
-  const { data: history = [], isLoading } = useAskHistory(id);
+  const { data: history = [], isLoading, error: historyError, refetch: refetchHistory } = useAskHistory(id);
   const askMutation = useAskQuestion(id);
   const { isDisabled, getOfflineMessage } = useNetworkAware();
 
@@ -72,11 +72,11 @@ export function AskPage() {
     <ProjectGuard>
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Header */}
-        <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+        <div className="border-b border-border/60 pb-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold">
             Evidence-Grounded AI Agent
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             Ask {project?.name || "Codebase"}
           </h1>
           <p className="text-xs text-text-muted mt-1">
@@ -106,6 +106,22 @@ export function AskPage() {
               <Skeleton className="h-40 w-full" />
               <Skeleton className="h-40 w-full" />
             </div>
+          ) : historyError ? (
+            <div className="rounded border border-error/40 bg-error/10 p-4 text-xs font-mono text-error space-y-2">
+              <div className="font-semibold">Unable to load conversation history</div>
+              <div>{historyError instanceof Error ? historyError.message : "API backend is unreachable."}</div>
+              <button
+                type="button"
+                onClick={() => refetchHistory()}
+                className="text-copper underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : history.length === 0 ? (
+            <div className="rounded border border-border/60 bg-surface-accent/50 p-8 text-center text-xs text-text-muted font-sans">
+              No previous queries recorded for this repository. Ask a question below to analyze codebase AST syntax trees and implementation logic.
+            </div>
           ) : (
             history.map((ans) => (
               <AnswerItem 
@@ -114,6 +130,14 @@ export function AskPage() {
                 isNew={newAnswerIds.has(ans.id)}
               />
             ))
+          )}
+
+          {askMutation.isError && (
+            <div className="rounded border border-error/40 bg-error/10 p-3 text-xs text-error font-mono">
+              {askMutation.error instanceof Error
+                ? askMutation.error.message
+                : "AI reasoning agent is unreachable. Ensure the backend API service is deployed and running."}
+            </div>
           )}
 
           {askMutation.isPending && (
@@ -136,7 +160,7 @@ export function AskPage() {
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask anything about architecture, data flow, or implementation details... (Enter to send, Shift+Enter for newline)"
-            className="w-full resize-none border-0 bg-transparent text-sm text-paper placeholder:text-text-muted focus:ring-0 min-h-[60px]"
+            className="w-full resize-none border-0 bg-transparent text-sm text-text placeholder:text-text-muted focus:ring-0 min-h-[60px]"
             rows={2}
           />
 

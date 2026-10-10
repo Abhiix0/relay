@@ -16,7 +16,7 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-copper" />
-            <h2 className="text-sm font-semibold font-mono text-paper">Project Overview</h2>
+            <h2 className="text-sm font-semibold font-mono text-text">Project Overview</h2>
           </div>
 
           <div className="space-y-3">
@@ -24,7 +24,7 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
               <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted mb-1">
                 Description
               </div>
-              <p className="text-xs text-paper leading-relaxed">
+              <p className="text-xs text-text leading-relaxed">
                 {projectOverview.description}
               </p>
             </div>
@@ -36,7 +36,7 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <GitBranch className="h-3 w-3 text-copper" />
-                  <span className="text-xs font-mono text-paper">{projectOverview.repository}</span>
+                  <span className="text-xs font-mono text-text">{projectOverview.repository}</span>
                 </div>
               </div>
 
@@ -46,7 +46,7 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Code2 className="h-3 w-3 text-copper" />
-                  <span className="text-xs font-mono text-paper">
+                  <span className="text-xs font-mono text-text">
                     {projectOverview.primaryLanguage || "Multiple"}
                   </span>
                 </div>
@@ -62,7 +62,7 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
                   {projectOverview.technologies.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface border border-border text-paper"
+                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface border border-border text-text"
                     >
                       {tech}
                     </span>
@@ -79,10 +79,10 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2">
             <FileCode2 className="h-4 w-4 text-copper" />
-            <h2 className="text-sm font-semibold font-mono text-paper">Architecture</h2>
+            <h2 className="text-sm font-semibold font-mono text-text">Architecture</h2>
           </div>
 
-          <p className="text-xs text-paper leading-relaxed">{architecture.summary}</p>
+          <p className="text-xs text-text leading-relaxed">{architecture.summary}</p>
 
           <div className="space-y-2 pt-2 border-t border-border/30">
             <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
@@ -94,8 +94,8 @@ export function OnboardingOverview({ data }: OnboardingOverviewProps) {
                 className="bg-surface/50 rounded border border-border/30 p-3 space-y-1"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-xs font-semibold font-mono text-paper">{module.name}</h3>
-                  <code className="text-[10px] font-mono text-text-muted bg-charcoal px-1.5 py-0.5 rounded">
+                  <h3 className="text-xs font-semibold font-mono text-text">{module.name}</h3>
+                  <code className="text-[10px] font-mono text-copper bg-surface px-1.5 py-0.5 rounded border border-border/40">
                     {module.path}
                   </code>
                 </div>

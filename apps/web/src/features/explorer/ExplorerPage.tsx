@@ -15,7 +15,7 @@ export function ExplorerPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: artifacts = [], isLoading } = useProjectArtifacts(id, selectedType, search);
+  const { data: artifacts = [], isLoading, error, refetch } = useProjectArtifacts(id, selectedType, search);
 
   const types = ["all", "file", "pr", "commit", "decision"];
   const activeArtifact = artifacts.find((a) => a.id === selectedId) || artifacts[0];
@@ -85,6 +85,13 @@ export function ExplorerPage() {
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
               </div>
+            ) : error ? (
+              <div className="p-4 text-center text-xs text-error font-mono space-y-2">
+                <div>{error instanceof Error ? error.message : "Failed to load codebase artifacts."}</div>
+                <button type="button" onClick={() => refetch()} className="text-copper underline">
+                  Retry
+                </button>
+              </div>
             ) : artifacts.length === 0 ? (
               <div className="p-8 text-center text-xs text-text-muted">
                 No matching artifacts found.
@@ -123,7 +130,7 @@ export function ExplorerPage() {
           {/* Artifact Detail Preview (7 cols) */}
           <div className="lg:col-span-7">
             {activeArtifact ? (
-              <ArtifactPreview artifact={activeArtifact} projectId={id || "turborepo"} />
+              <ArtifactPreview artifact={activeArtifact} projectId={id || ""} />
             ) : (
               <EmptyState
                 title="Select an artifact"
