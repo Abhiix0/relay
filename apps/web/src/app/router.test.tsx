@@ -67,6 +67,10 @@ vi.mock('@/lib/api/hooks', () => ({
     data: [],
     isLoading: false,
   }),
+  useProjectArtifacts: () => ({
+    data: [],
+    isLoading: false,
+  }),
   useAskEvidence: () => ({ data: null, isLoading: false }),
   useAskStats: () => ({ data: null, isLoading: false }),
   useGlobalSearch: () => ({ data: { results: [], total: 0 }, isLoading: false, error: null }),
