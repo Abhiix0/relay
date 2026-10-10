@@ -35,21 +35,29 @@ export function createGroqClient(): LlmClient {
       const groq = new Groq({ apiKey: GROQ_API_KEY, timeout: timeoutMs, maxRetries: 0 });
       for (let attempt = 0; attempt < 2; attempt++) {
         let content: string | null | undefined;
+        let finish: string | null | undefined;
         try {
           const r = await groq.chat.completions.create({
             model: LLM_MODEL,
             temperature: 0.2,
-            max_tokens: maxTokens,
+            // reasoning models spend completion tokens on thinking before the JSON
+            max_completion_tokens: maxTokens * 3,
+            ...(LLM_MODEL.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" as const } : {}),
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: system },
-              { role: "user", content: user },
+              {
+                role: "user",
+                content: attempt ? `${user}\n\nReturn only valid JSON that matches the requested shape.` : user,
+              },
             ],
           });
           content = r.choices[0]?.message?.content;
+          finish = r.choices[0]?.finish_reason;
         } catch (err) {
           throw mapError(err);
         }
+        if (finish === "length") continue;
         try {
           const parsed = schema.safeParse(JSON.parse(content ?? ""));
           if (parsed.success) return parsed.data;

@@ -38,7 +38,7 @@ async function setup(indexed = true) {
   const pid = new ObjectId(created.body.id as string);
   await getCollections(db).projects.updateOne(
     { _id: pid },
-    { $set: { syncGeneration: 1, syncStatus: indexed ? "succeeded" : "running" } },
+    { $set: { syncGeneration: 1, syncStatus: indexed ? "succeeded" : "running", lastSyncedAt: new Date() } },
   );
   const chunk: ChunkDoc = {
     _id: new ObjectId(), projectId: pid, artifactId: null, type: "file", path: "README.md",

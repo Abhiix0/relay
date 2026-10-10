@@ -73,7 +73,7 @@ export async function ask(
       .map((l) => /^E(\d+)$/.exec(l.trim()))
       .map((m) => (m ? evidence[Number(m[1]) - 1] : undefined))
       .filter((c): c is ChunkDoc => !!c);
-    if (cited.length > 0) {
+    if (cited.length > 0 && out.confidence !== "insufficient") {
       answer = out.answer;
       confidence = out.confidence;
       sources = cited.map(toSource);

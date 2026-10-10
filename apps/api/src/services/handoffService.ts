@@ -144,18 +144,25 @@ async function insertNext(
   if ((await getCollections(db).handoffs.countDocuments({ projectId: project._id })) >= MAX_HANDOFF_VERSIONS) {
     throw conflict(`Handoff version limit reached (${MAX_HANDOFF_VERSIONS} per project)`);
   }
-  const now = new Date();
-  const doc: HandoffDoc = {
-    _id: new ObjectId(),
-    projectId: project._id,
-    version: ((await latest(db, project))?.version ?? 0) + 1,
-    ...data,
-    authorId,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await getCollections(db).handoffs.insertOne(doc);
-  return doc;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const now = new Date();
+    const doc: HandoffDoc = {
+      _id: new ObjectId(),
+      projectId: project._id,
+      version: ((await latest(db, project))?.version ?? 0) + 1,
+      ...data,
+      authorId,
+      createdAt: now,
+      updatedAt: now,
+    };
+    try {
+      await getCollections(db).handoffs.insertOne(doc);
+      return doc;
+    } catch (err) {
+      if ((err as { code?: number }).code !== 11000) throw err; // concurrent writer took this version
+    }
+  }
+  throw conflict("Handoff version conflict, try again");
 }
 
 export const createManual = (
@@ -190,7 +197,7 @@ export async function generate(
   authorId: ObjectId,
   regenerate: boolean,
 ): Promise<HandoffDoc> {
-  if (project.syncStatus !== "succeeded") throw conflict("Project has not finished indexing");
+  if (project.syncStatus === "running" || !project.lastSyncedAt) throw conflict("Project has not finished indexing");
   const cur = await latest(db, project);
   if (cur && !regenerate) return cur;
 

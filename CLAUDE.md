@@ -1,16 +1,16 @@
 # Relay: instructions for Claude Code
 
-Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onboarding plans, and handoff documents. The React frontend is the contract; `apps/api` satisfies it. Mode: audit-fix. Fix only what the prompt lists, no new features, no new dependencies.
+Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onboarding plans, and handoff documents. `docs/PRD.md` is the product source of truth (it wins over this file). The web zod schemas are the response contract; `apps/api` satisfies them. Scope: PRD P0 plus cheap P1 (webhook sync, SSE, onboarding, handoff). Out: team sharing, metrics dashboards, Redis/BullMQ, external vector DB.
 
 ## Stack
 - Monorepo: pnpm 10.18 workspaces, Node 22. `apps/web` (React 19, Vite 7, TanStack Query, zod 4, strict TS). `apps/api` (Express 5, TS strict, MongoDB native driver, zod 4, pino, Groq SDK).
-- No Redis, no queue, no vector store, no webhooks, no SSE. Do not add them.
+- Sync runs in-process (no Redis, no queue, no external vector DB). Webhooks and SSE are in scope per the PRD. No new dependency unless a task names it.
 
 ## Contract sources of truth (read these, don't re-explore the repo)
 - `apps/web/src/lib/api/types.ts`: zod schemas for every response. API tests must `schema.parse` responses with them (import via alias `@web-types/types`).
 - `apps/web/src/lib/api/hooks.ts`: the complete list of endpoints the UI calls. `client.ts`: base `/api/v1`, error body read as `{message}`, 204 → undefined.
 - `apps/web/src/mocks/handlers.ts`: reference behavior for status codes and shapes.
-- Do not edit types.ts, query-keys.ts or mocks. If the contract seems wrong, stop and ask.
+- Web contract changes are additive only: extend types.ts, mocks and hooks together; never break an existing schema.
 
 ## Backend architecture
 - Layers: `routes/` (zod parse, auth, call service, send) → `services/` (logic) → `db/collections.ts`. Routes never touch collections. Integrations (`integrations/github.ts`, `integrations/llm.ts`) are interfaces injected via `createApp({db, github, llm})`; tests use fakes. Never hit real GitHub or the LLM in tests.
@@ -39,7 +39,7 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 - Never index secret files (.env*, *.pem, *.key, id_rsa*, *secret*) or vendor/build dirs (`lib/secrets.ts`).
 
 ## Frontend integration rules
-- Edit only web files named in the current prompt. No style, layout, or route changes. Update affected tests. If another web file is needed, stop and name the file and the change.
+- Web changes are additive: reuse existing components and design tokens; no restyling or route changes. Update affected tests.
 - Keep `pnpm test:visual` baselines untouched. Do not regenerate golden images.
 
 ## Commands
@@ -56,7 +56,7 @@ PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB
 - Owner-only projects. No teams, roles, archive, or settings persistence.
 
 ## Rules
-- Fix only what the prompt lists. No speculative endpoints, fields, abstractions, or dependencies.
+- Build what the PRD and the current task require. No speculative endpoints, fields, abstractions, or dependencies.
 - Do not reformat unrelated files.
 - Never edit, skip, loosen or delete existing tests or visual baselines to get green. Fix the code. New tests assert the contract; do not weaken assertions or mock away the thing under test.
 - Keep the architecture consistent: new routes follow the route → service → collections pattern, use `loadOwnedProject`, return through `serialize.ts`, and get a contract test that parses the web zod schema plus an isolation test (other user → 404).
