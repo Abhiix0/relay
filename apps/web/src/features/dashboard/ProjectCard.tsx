@@ -37,13 +37,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Card
       onClick={() => navigate(`/app/projects/${project.id}`)}
-      className="cursor-pointer border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-lg flex flex-col justify-between group"
+      className="cursor-pointer border-border bg-surface-accent transition hover:border-copper/60 hover:shadow-md flex flex-col justify-between group"
     >
       <CardHeader className="space-y-2 p-5 pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             <GitBranch className="h-4 w-4 text-copper" />
-            <h3 className="font-mono text-sm font-semibold text-paper group-hover:text-copper-text transition">
+            <h3 className="font-mono text-sm font-semibold text-text group-hover:text-copper transition">
               {project.fullName}
             </h3>
           </div>
@@ -74,7 +74,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
               <GitCommit className="h-3 w-3" /> Commits
             </span>
-            <span className="font-mono text-xs font-semibold text-paper">
+            <span className="font-mono text-xs font-semibold text-text">
               {project.stats.commits.toLocaleString()}
             </span>
           </div>
@@ -82,7 +82,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
               <GitPullRequest className="h-3 w-3" /> PRs
             </span>
-            <span className="font-mono text-xs font-semibold text-paper">
+            <span className="font-mono text-xs font-semibold text-text">
               {project.stats.pullRequests.toLocaleString()}
             </span>
           </div>
@@ -90,19 +90,19 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <span className="flex items-center gap-1 text-[10px] font-mono text-text-muted">
               <FileCode2 className="h-3 w-3" /> Files
             </span>
-            <span className="font-mono text-xs font-semibold text-paper">
+            <span className="font-mono text-xs font-semibold text-text">
               {project.stats.files.toLocaleString()}
             </span>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between border-t border-border/40 px-5 py-3 text-xs bg-charcoal/40">
+      <CardFooter className="flex items-center justify-between border-t border-border/40 px-5 py-3 text-xs bg-surface/50">
         <div className="flex items-center gap-3">
           <Link
             to={`/app/projects/${project.id}/ask`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-copper-text hover:underline text-[11px] font-mono"
+            className="flex items-center gap-1 text-copper hover:underline text-[11px] font-mono"
           >
             <Sparkles className="h-3 w-3" />
             <span>Ask AI</span>
@@ -110,7 +110,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Link
             to={`/app/projects/${project.id}/explorer`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-text-muted hover:text-paper text-[11px] font-mono"
+            className="flex items-center gap-1 text-text-muted hover:text-text text-[11px] font-mono"
           >
             <FileCode2 className="h-3 w-3" />
             <span>Explorer</span>

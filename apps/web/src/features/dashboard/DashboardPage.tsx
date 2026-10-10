@@ -63,31 +63,31 @@ export function DashboardPage() {
     <AppShell showProjectNav={false}>
       <div className="space-y-8">
         {/* Greeting Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border/60 pb-6">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-copper mb-1">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold mb-1">
               Dashboard
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-paper">
+            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-text">
               {getGreeting()}, {user?.name?.split(" ")[0] || "Developer"}
             </h1>
             <p className="text-xs text-text-muted mt-1 max-w-xl">
-              Your connected repositories and recent activity at a glance.
+              Your connected repositories and codebase activity at a glance.
             </p>
           </div>
           <ConnectRepoModal />
         </div>
 
-        {/* Dashboard Stats */}
+        {/* Dashboard Stats — Only show when repositories exist */}
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-24 w-full" />
             ))}
           </div>
-        ) : (
+        ) : projects.length > 0 ? (
           <DashboardStats projects={projects} />
-        )}
+        ) : null}
 
         {/* Search Bar */}
         {projects.length > 0 && (
@@ -97,7 +97,7 @@ export function DashboardPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search your repositories..."
-              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-2 text-xs text-paper placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
+              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-2 text-xs text-text placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
             />
           </div>
         )}
@@ -124,7 +124,7 @@ export function DashboardPage() {
         ) : filteredProjects.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-serif text-paper">Recent Projects</h2>
+              <h2 className="text-lg font-serif text-text">Recent Projects</h2>
               {projects.length > 6 && (
                 <Link to="/app/projects">
                   <Button
