@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { RepositoryExplorerPage } from "./RepositoryExplorerPage";
 import * as apiHooks from "@/lib/api/hooks";
-import { mockProjects, mockRepositoryTree } from "@/mocks/data";
+import { mockProjects, mockRepositoryTree } from "@/test/fixtures/apiFixtures";
 
 vi.mock("@/lib/api/hooks", async () => {
   const actual = await vi.importActual("@/lib/api/hooks");

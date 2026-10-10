@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ProjectOverviewPage } from "./ProjectOverviewPage";
 import * as apiHooks from "@/lib/api/hooks";
 import { ApiError } from "@/lib/api/client";
-import { mockProjects } from "@/mocks/data";
+import { mockProjects } from "@/test/fixtures/apiFixtures";
 
 vi.mock("@/lib/api/hooks", async () => {
   const actual = await vi.importActual("@/lib/api/hooks");

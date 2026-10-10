@@ -9,6 +9,7 @@ vi.mock("@/lib/api/hooks", async () => {
   return {
     ...actual,
     useCurrentUser: vi.fn(),
+    useProjects: vi.fn().mockReturnValue({ data: [], isLoading: false }),
   };
 });
 

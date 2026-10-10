@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { HandoffPage } from "./HandoffPage";
 import * as apiHooks from "@/lib/api/hooks";
-import { mockHandoffs, mockProjects } from "@/mocks/data";
+import { mockHandoffs, mockProjects } from "@/test/fixtures/apiFixtures";
 
 vi.mock("@/lib/api/hooks", async () => {
   const actual = await vi.importActual("@/lib/api/hooks");
@@ -83,6 +83,6 @@ describe("HandoffPage Component", () => {
 
     renderHandoff();
 
-    expect(screen.getByText(/No handoff generated yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/No handoff documentation generated/i)).toBeInTheDocument();
   });
 });

@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { useCurrentUser, useProject, useProjects } from "./hooks";
-import { mockProjects, mockUser } from "@/mocks/data";
+import { mockProjects, mockUser } from "@/test/fixtures/apiFixtures";
 
 const createTestQueryClient = () =>
   new QueryClient({
