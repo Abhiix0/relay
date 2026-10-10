@@ -14,6 +14,7 @@ import { createGroqClient, type LlmClient } from "./integrations/llm";
 import { askRouter } from "./routes/ask";
 import { authRouter } from "./routes/auth";
 import { decisionsRouter } from "./routes/decisions";
+import { eventsRouter, type SseOptions } from "./routes/events";
 import { explorerRouter } from "./routes/explorer";
 import { githubReposRouter } from "./routes/githubRepos";
 import { handoffsRouter } from "./routes/handoffs";
@@ -21,6 +22,7 @@ import { onboardingRouter } from "./routes/onboarding";
 import { projectsRouter } from "./routes/projects";
 import { searchRouter } from "./routes/search";
 import { syncRouter } from "./routes/sync";
+import { webhooksRouter } from "./routes/webhooks";
 
 /** Request path without the query string, so OAuth codes and states never reach the logs. */
 export function stripQuery(url: string): string {
@@ -43,6 +45,7 @@ export interface AppDeps {
   llm?: LlmClient;
   syncRunner?: SyncRunner;
   logger?: Logger;
+  sse?: SseOptions;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -72,6 +75,8 @@ export function createApp(deps: AppDeps): Express {
     }),
   );
   app.use(helmet());
+  // before express.json: signature verification needs the raw body
+  app.use("/api/v1/webhooks", webhooksRouter(deps.db, deps.syncRunner));
   app.use(express.json({ limit: "1mb" }));
 
   const router = Router();
@@ -84,10 +89,11 @@ export function createApp(deps: AppDeps): Express {
   router.use(githubReposRouter(deps.db, deps.github));
   router.use(projectsRouter(deps.db, deps.github, deps.syncRunner));
   router.use(syncRouter(deps.db, deps.syncRunner));
+  router.use(eventsRouter(deps.db, deps.sse));
   router.use(explorerRouter(deps.db));
   router.use(searchRouter(deps.db));
   router.use(decisionsRouter(deps.db));
-  router.use(onboardingRouter(deps.db));
+  router.use(onboardingRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(handoffsRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(askRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(notFoundHandler);

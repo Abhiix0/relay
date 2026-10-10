@@ -60,8 +60,12 @@ describe("handoffs", () => {
     expect(r1.status).toBe(200);
     const h1 = handoffSchema.parse(r1.body);
     expect(h1.version).toBe(1);
-    expect(h1.sections.map((x) => x.heading)).toEqual(HEADINGS);
+    expect(h1.sections.map((x) => x.heading)).toEqual([...HEADINGS, "8. Evidence and source links"]);
     expect(h1.sections[0]?.sources[0]?.path).toBe("README.md");
+    const evidence = h1.sections[7];
+    expect(evidence?.sources.map((x) => x.path)).toEqual(["README.md"]);
+    expect(evidence?.body).toContain("README.md");
+    expect(evidence?.insufficientEvidence).toBeUndefined();
 
     const r2 = await s.call("post", "/generate", {});
     expect(r2.body).toEqual(r1.body);

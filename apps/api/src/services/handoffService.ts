@@ -24,6 +24,8 @@ const HEADINGS = [
   "7. Recommended next actions",
 ];
 
+const EVIDENCE_HEADING = "8. Evidence and source links";
+
 const llmHandoff = z.object({
   title: z.string().trim().min(1).max(200),
   summary: z.string().trim().min(1).max(2000),
@@ -227,6 +229,18 @@ export async function generate(
           sources: [],
           insufficientEvidence: true,
         };
+  });
+
+  // computed, not generated: every source cited above, once
+  const cited = [...new Map(sections.flatMap((s) => s.sources).map((s) => [s.id, s])).values()];
+  sections.push({
+    id: `sec_${new ObjectId().toHexString()}`,
+    heading: EVIDENCE_HEADING,
+    body: cited.length
+      ? cited.map((s) => `- ${s.type}: ${s.path ?? s.snippet.slice(0, 80)}${s.url ? ` (${s.url})` : ""}`).join("\n")
+      : "No sources were cited in this handoff.",
+    sources: cited,
+    ...(cited.length === 0 && { insufficientEvidence: true }),
   });
 
   let doc: HandoffDoc;

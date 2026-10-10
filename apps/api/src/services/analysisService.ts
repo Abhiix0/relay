@@ -1,8 +1,9 @@
 import { ObjectId, type Db } from "mongodb";
 import type { Logger } from "pino";
 import { z } from "zod";
-import { getCollections, type ProjectAnalysisDoc } from "../db/collections";
+import { getCollections, type OnboardingPlanDoc, type ProjectAnalysisDoc, type ProjectDoc } from "../db/collections";
 import type { LlmClient } from "../integrations/llm";
+import { conflict } from "../lib/errors";
 import { isObjectIdHex } from "../lib/ids";
 
 type KeyFile = ProjectAnalysisDoc["keyFiles"][number];
@@ -190,6 +191,7 @@ async function createPlan(
   artIds: Map<string | null, string>,
   signal: AbortSignal,
   logger?: Logger,
+  regenerate = false,
 ): Promise<void> {
   const c = getCollections(db);
   const project = (await c.projects.findOne({ _id: projectId }))!;
@@ -204,7 +206,7 @@ async function createPlan(
   if (existing) {
     // legacy plans hold ObjectId artifact ids; drop them so the plan regenerates with stable keys
     const ids = existing.items.flatMap((i) => i.artifactIds);
-    if (!ids.length || ids.some((id) => valid.has(id))) return;
+    if (!regenerate && (!ids.length || ids.some((id) => valid.has(id)))) return;
     await c.onboardingPlans.deleteOne({ _id: existing._id });
   }
 
@@ -234,18 +236,39 @@ async function createPlan(
     }));
   }
   if (!items.length || signal.aborted) return;
+  // items whose title survives a regeneration keep their id and completion state
+  const before = new Map((existing?.items ?? []).map((i) => [i.title.trim().toLowerCase(), i]));
   const now = new Date();
   await c.onboardingPlans.updateOne(
     { projectId, userId },
     {
-      $setOnInsert: {
-        _id: new ObjectId(),
-        title: "Onboarding plan",
-        items: items.map((i) => ({ id: new ObjectId().toHexString(), completed: false, ...i })),
-        createdAt: now,
+      $set: {
+        items: items.map((i) => {
+          const old = before.get(i.title.trim().toLowerCase());
+          return { id: old?.id ?? new ObjectId().toHexString(), completed: old?.completed ?? false, ...i };
+        }),
         updatedAt: now,
       },
+      $setOnInsert: { _id: new ObjectId(), title: "Onboarding plan", createdAt: now },
     },
     { upsert: true },
   );
+}
+
+/** Rebuilds the caller's plan from the stored analysis; throws 409 until the first sync has produced one. */
+export async function regenerateOnboarding(
+  db: Db,
+  llm: LlmClient,
+  project: ProjectDoc,
+  userId: ObjectId,
+  logger?: Logger,
+): Promise<OnboardingPlanDoc> {
+  const c = getCollections(db);
+  const analysis = await c.projectAnalysis.findOne({ projectId: project._id });
+  if (!analysis) throw conflict("Project has not finished indexing");
+  const artIds = new Map<string | null, string>(analysis.keyFiles.map((k) => [k.path, k.id]));
+  await createPlan(db, llm, project._id, userId, analysis.keyFiles, artIds, new AbortController().signal, logger, true);
+  const plan = await c.onboardingPlans.findOne({ projectId: project._id, userId });
+  if (!plan) throw conflict("No onboarding content is available for this project yet");
+  return plan;
 }

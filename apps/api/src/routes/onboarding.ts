@@ -4,12 +4,15 @@ import { z } from "zod";
 import { toOnboardingData, toOnboardingPlan } from "../lib/serialize";
 import { requireUser } from "../middleware/auth";
 import { loadOwnedProject } from "../middleware/loadOwnedProject";
+import type { LlmClient } from "../integrations/llm";
+import { perUserLimit } from "../middleware/rateLimit";
 import { requireJson } from "../middleware/requireJson";
+import { regenerateOnboarding } from "../services/analysisService";
 import { getOnboardingData, getPlan, setItemCompleted } from "../services/onboardingService";
 
 const body = z.object({ completed: z.boolean() });
 
-export function onboardingRouter(db: Db): Router {
+export function onboardingRouter(db: Db, llm: LlmClient): Router {
   const router = Router();
   const auth = requireUser(db);
   const owned = loadOwnedProject(db);
@@ -27,6 +30,10 @@ export function onboardingRouter(db: Db): Router {
         ? toOnboardingPlan(plan)
         : { id: "pending", projectId: req.project!._id.toHexString(), title: "Onboarding plan", items: [], createdAt: now, updatedAt: now },
     );
+  });
+
+  router.post("/projects/:id/onboarding/generate", auth, owned, requireJson, perUserLimit(10), async (req, res) => {
+    res.json(toOnboardingPlan(await regenerateOnboarding(db, llm, req.project!, req.user!._id)));
   });
 
   router.patch("/projects/:id/onboarding/items/:itemId", auth, owned, requireJson, async (req, res) => {

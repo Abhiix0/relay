@@ -241,6 +241,7 @@ export function getCollections(db: Db) {
     askAnswers: db.collection<AskAnswerDoc>("ask_answers"),
     activityEvents: db.collection<ActivityEventDoc>("activity_events"),
     members: db.collection<MemberDoc>("members"),
+    webhookDeliveries: db.collection<{ _id: string; createdAt: Date }>("webhook_deliveries"),
     agentRuns: db.collection<AgentRunDoc>("agent_runs"),
   };
 }

@@ -32,6 +32,18 @@ export function ProjectHero({ project }: ProjectHeroProps) {
     return () => clearInterval(interval);
   }, [isSyncing, refetchSyncStatus]);
 
+  // Live updates (also catches webhook-triggered syncs). Any failure closes the stream and the polling above carries on.
+  useEffect(() => {
+    if (typeof EventSource === "undefined") return;
+    const source = new EventSource(`/api/v1/projects/${project.id}/events`);
+    source.addEventListener("sync", () => {
+      refetchSyncStatus();
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(project.id) });
+    });
+    source.onerror = () => source.close();
+    return () => source.close();
+  }, [project.id, refetchSyncStatus, queryClient]);
+
   // Refresh everything a finished sync may have changed.
   useEffect(() => {
     const running = syncJob?.status === "running";
