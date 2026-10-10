@@ -78,6 +78,8 @@ export interface ArtifactDoc {
   projectId: ObjectId;
   type: string;
   externalId: string;
+  /** stable API id: sha256(projectId:externalId), survives re-syncs */
+  key: string;
   title: string;
   path: string | null;
   url: string | null;

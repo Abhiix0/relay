@@ -10,6 +10,7 @@ import {
 import { GithubAccessError, type GithubClient } from "../integrations/github";
 import { decrypt } from "../lib/crypto";
 import { chunk } from "../lib/chunker";
+import { artifactKey } from "../lib/ids";
 import { detectLanguage } from "../lib/language";
 import { isExcludedPath, isLockfile } from "../lib/secrets";
 import { purgeSessions } from "../services/githubErrors";
@@ -179,8 +180,8 @@ export function createSyncRunner({
 
     const now = new Date();
     const artifacts: ArtifactDoc[] = [];
-    const add = (a: Omit<ArtifactDoc, "_id" | "projectId" | "gen">) =>
-      artifacts.push({ _id: new ObjectId(), projectId, gen: newGen, ...a });
+    const add = (a: Omit<ArtifactDoc, "_id" | "projectId" | "gen" | "key">) =>
+      artifacts.push({ _id: new ObjectId(), projectId, gen: newGen, key: artifactKey(projectId, a.externalId), ...a });
     const readme = await github.getReadme(token, full);
     if (readme) {
       add({

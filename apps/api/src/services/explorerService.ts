@@ -1,4 +1,4 @@
-import { ObjectId, type Db } from "mongodb";
+import type { Db } from "mongodb";
 import {
   getCollections,
   type ActivityEventDoc,
@@ -37,7 +37,7 @@ export async function getArtifact(
 ): Promise<ArtifactDoc | null> {
   if (!isObjectIdHex(artifactId)) return null;
   return getCollections(db).artifacts.findOne({
-    _id: new ObjectId(artifactId),
+    key: artifactId.toLowerCase(),
     projectId: project._id,
     gen: artifactGen(project),
   });

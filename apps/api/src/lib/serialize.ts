@@ -59,7 +59,7 @@ export const toSyncJob = (j: SyncJobDoc) => ({
 });
 
 export const toArtifact = (a: ArtifactDoc) => ({
-  id: a._id.toHexString(),
+  id: a.key,
   projectId: a.projectId.toHexString(),
   type: a.type,
   title: a.title,

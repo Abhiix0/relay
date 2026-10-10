@@ -1,5 +1,6 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type DecisionDoc, type ProjectDoc, type SourceValue } from "../db/collections";
+import { artifactKey } from "../lib/ids";
 
 export interface DecisionInput {
   title: string;
@@ -37,6 +38,7 @@ export async function createDecision(
     projectId,
     type: "decision",
     externalId: `decision:${doc._id.toHexString()}`,
+    key: artifactKey(projectId, `decision:${doc._id.toHexString()}`),
     title: doc.title,
     path: null,
     url: null,

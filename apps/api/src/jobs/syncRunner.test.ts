@@ -111,7 +111,7 @@ describe("sync runner", () => {
     const { project, c, sync } = await setup();
     await sync();
     await c.artifacts.insertOne({
-      _id: new ObjectId(), projectId: project._id, type: "decision", externalId: "decision:1",
+      _id: new ObjectId(), projectId: project._id, type: "decision", externalId: "decision:1", key: "k".repeat(24),
       title: "d", path: null, url: null, summary: null, body: "b", createdAt: date, updatedAt: date, gen: null,
     });
     await sync();

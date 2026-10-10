@@ -104,7 +104,7 @@ export async function run(
 
   // key files: <= 12, readme > config > entry > important
   const artIds = new Map(
-    (await c.artifacts.find({ projectId, gen, type: "file" }, { projection: { path: 1 } }).toArray()).map((a) => [a.path, a._id.toHexString()]),
+    (await c.artifacts.find({ projectId, gen, type: "file" }, { projection: { path: 1, key: 1 } }).toArray()).map((a) => [a.path, a.key]),
   );
   const keyFiles: KeyFile[] = files
     .flatMap((f) => {
@@ -192,15 +192,21 @@ async function createPlan(
   logger?: Logger,
 ): Promise<void> {
   const c = getCollections(db);
-  if (await c.onboardingPlans.findOne({ projectId, userId }, { projection: { _id: 1 } })) return;
   const project = (await c.projects.findOne({ _id: projectId }))!;
   const valid = new Set(
     (
       await c.artifacts
-        .find({ projectId, gen: { $in: [project.syncGeneration, null] } }, { projection: { _id: 1 } })
+        .find({ projectId, gen: { $in: [project.syncGeneration, null] } }, { projection: { key: 1 } })
         .toArray()
-    ).map((a) => a._id.toHexString()),
+    ).map((a) => a.key),
   );
+  const existing = await c.onboardingPlans.findOne({ projectId, userId });
+  if (existing) {
+    // legacy plans hold ObjectId artifact ids; drop them so the plan regenerates with stable keys
+    const ids = existing.items.flatMap((i) => i.artifactIds);
+    if (!ids.length || ids.some((id) => valid.has(id))) return;
+    await c.onboardingPlans.deleteOne({ _id: existing._id });
+  }
 
   let items: { title: string; description: string; artifactIds: string[] }[] = [];
   if (llm && keyFiles.length) {

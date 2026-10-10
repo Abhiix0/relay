@@ -10,6 +10,7 @@ import {
 } from "@web-types/types";
 import { getCollections, type ArtifactDoc, type RepoFileDoc } from "../db/collections";
 import { createSyncRunner } from "../jobs/syncRunner";
+import { run as runAnalysis } from "../services/analysisService";
 import { FakeGithub } from "../test/fakes";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
 
@@ -38,6 +39,7 @@ const art = (pid: ObjectId, over: Partial<ArtifactDoc>): ArtifactDoc => ({
   projectId: pid,
   type: "file",
   externalId: new ObjectId().toHexString(),
+  key: new ObjectId().toHexString(),
   title: "t",
   path: null,
   url: null,
@@ -102,10 +104,10 @@ describe("artifacts", () => {
     const a = art(pid, { body: "x".repeat(25000), url: "https://github.com/acme/widget/issues/1" });
     const old = art(pid, { gen: 1 });
     await c.artifacts.insertMany([a, old]);
-    const res = await get(`/artifacts/${a._id.toHexString()}`);
+    const res = await get(`/artifacts/${a.key}`);
     expect(res.status).toBe(200);
     expect(artifactDetailSchema.parse(res.body).body).toHaveLength(20000);
-    for (const id of ["nothex", new ObjectId().toHexString(), old._id.toHexString()]) {
+    for (const id of ["nothex", new ObjectId().toHexString(), old.key, a._id.toHexString()]) {
       const r = await get(`/artifacts/${id}`);
       expect(r.status).toBe(404);
       expect(r.body.message).toBe("Artifact not found");
@@ -212,5 +214,31 @@ describe("sync creates file artifacts", () => {
     const detail = await get(`/artifacts/${idx.id}`);
     expect(detail.body.body).toBe("export {}");
     expect(await c.chunks.countDocuments({ projectId: pid, artifactId: { $ne: null }, type: "file" })).toBe(0);
+  });
+
+  it("keeps artifact keys and plan artifact ids stable across re-syncs", async () => {
+    const { app, github, cookie, id, pid, c, get } = await setup();
+    await c.projects.updateOne({ _id: pid }, { $set: { syncGeneration: 0 } });
+    github.addFile("README.md", "# hi");
+    github.addFile("src/index.ts", "export {}");
+    const sync = async () => {
+      await request(app).post(`/api/v1/projects/${id}/sync`).set("Cookie", cookie).send({});
+      const runner = createSyncRunner({ db, github });
+      await runner.start(pid);
+      await runAnalysis(db, undefined, pid, new AbortController().signal);
+    };
+    await sync();
+    const before = (await get("/artifacts?type=file")).body.map((a: { id: string }) => artifactSchema.parse(a).id).sort();
+    const plan = await c.onboardingPlans.findOne({ projectId: pid });
+    const planIds = plan!.items.flatMap((i) => i.artifactIds);
+    expect(planIds.length).toBeGreaterThan(0);
+    const legacy = await c.artifacts.findOne({ projectId: pid, type: "file" });
+
+    await sync();
+    const after = (await get("/artifacts?type=file")).body.map((a: { id: string }) => a.id).sort();
+    expect(after).toEqual(before);
+    expect(await c.onboardingPlans.countDocuments({ projectId: pid })).toBe(1);
+    for (const k of planIds) expect(artifactDetailSchema.parse((await get(`/artifacts/${k}`)).body).id).toBe(k);
+    expect((await get(`/artifacts/${legacy!._id.toHexString()}`)).status).toBe(404);
   });
 });
