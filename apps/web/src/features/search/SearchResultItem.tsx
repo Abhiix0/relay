@@ -58,8 +58,8 @@ export function SearchResultItem({ result, query, onResultClick }: SearchResultI
         )}
 
         {/* Code Snippet */}
-        <div className="rounded bg-charcoal/40 p-3 overflow-x-auto">
-          <pre className="text-xs font-mono text-paper leading-relaxed">
+        <div className="rounded bg-surface/60 p-3 overflow-x-auto border border-border/40">
+          <pre className="text-xs font-mono text-text leading-relaxed">
             <code>{highlightMatch(result.snippet, query)}</code>
           </pre>
         </div>

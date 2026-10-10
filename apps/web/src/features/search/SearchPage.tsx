@@ -63,11 +63,11 @@ export function SearchPage() {
     <AppShell showProjectNav={false}>
       <div className="space-y-6 max-w-5xl mx-auto">
         {/* Page Header */}
-        <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+        <div className="border-b border-border/60 pb-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold">
             Global Repository Search
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             Search Across Projects
           </h1>
           <p className="text-xs text-text-muted mt-1">
@@ -83,7 +83,7 @@ export function SearchPage() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Search for functions, classes, documentation..."
-              className="w-full rounded border border-border bg-surface-accent pl-10 pr-24 py-3 text-sm text-paper placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono shadow-sm"
+              className="w-full rounded border border-border bg-surface-accent pl-10 pr-24 py-3 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono shadow-sm"
             />
             <Button
               type="submit"
@@ -108,7 +108,15 @@ export function SearchPage() {
                   <FilterChip
                     key={proj.id}
                     active={selectedProject === proj.id}
-                    onClick={() => setSelectedProject(proj.id)}
+                    onClick={() => {
+                      setSelectedProject(proj.id);
+                      if (query) {
+                        const params: Record<string, string> = { q: query };
+                        if (proj.id !== "all") params.projectId = proj.id;
+                        if (selectedLanguage !== "all") params.language = selectedLanguage;
+                        setSearchParams(params);
+                      }
+                    }}
                   >
                     {proj.name}
                   </FilterChip>
@@ -126,7 +134,15 @@ export function SearchPage() {
                   <FilterChip
                     key={lang}
                     active={selectedLanguage === lang}
-                    onClick={() => setSelectedLanguage(lang)}
+                    onClick={() => {
+                      setSelectedLanguage(lang);
+                      if (query) {
+                        const params: Record<string, string> = { q: query };
+                        if (selectedProject !== "all") params.projectId = selectedProject;
+                        if (lang !== "all") params.language = lang;
+                        setSearchParams(params);
+                      }
+                    }}
                   >
                     {lang}
                   </FilterChip>
@@ -146,7 +162,7 @@ export function SearchPage() {
                 <>
                   Found <span className="text-copper font-semibold">{searchResults.totalCount}</span>{" "}
                   {searchResults.totalCount === 1 ? "result" : "results"}
-                  {query && <> for "<span className="text-paper">{query}</span>"</>}
+                  {query && <> for "<span className="text-text font-semibold">{query}</span>"</>}
                 </>
               ) : null}
             </span>
