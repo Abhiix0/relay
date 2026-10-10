@@ -106,7 +106,7 @@ export function NotFoundPage() {
 
         {/* Button */}
         <Button variant="primary" asChild>
-          <Link to="/dashboard">
+          <Link to="/app/dashboard">
             <Home className="h-4 w-4 mr-2" />
             Go to Dashboard
           </Link>

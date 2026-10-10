@@ -60,7 +60,7 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
               </Button>
             )}
 
-            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
+            <Link to="/app/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
               <RelayMark compact />
             </Link>
 
@@ -88,7 +88,7 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
                 {projects.map((p) => (
                   <DropdownMenuItem
                     key={p.id}
-                    onClick={() => navigate(`/projects/${p.id}`)}
+                    onClick={() => navigate(`/app/projects/${p.id}`)}
                     className="flex items-center justify-between text-xs cursor-pointer py-2"
                   >
                     <span className="font-mono truncate">{p.fullName}</span>
@@ -97,7 +97,7 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
                 ))}
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/app/projects")}
                   className="text-xs text-copper cursor-pointer"
                 >
                   Manage all repositories →
@@ -163,7 +163,7 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate("/app/profile")}
                   className="flex items-center gap-2 text-xs cursor-pointer"
                 >
                   <UserIcon className="h-3.5 w-3.5 text-text-muted" />

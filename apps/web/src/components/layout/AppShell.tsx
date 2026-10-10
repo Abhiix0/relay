@@ -30,9 +30,9 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
   const currentProject = projects.find((p) => p.id === id);
 
   const mainNavItems = [
-    { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+    { label: "Dashboard", to: "/app/dashboard", icon: LayoutDashboard },
     { label: "Search", to: "/app/search", icon: Search },
-    { label: "Profile", to: "/profile", icon: UserIcon },
+    { label: "Profile", to: "/app/profile", icon: UserIcon },
   ];
 
   const projectNavItems = id
@@ -53,7 +53,7 @@ export function AppShell({ children, showProjectNav = true }: AppShellProps) {
       <aside className="hidden md:flex flex-col w-64 bg-charcoal text-paper border-r border-border/20 h-full shrink-0 z-30 overflow-hidden">
         {/* Brand */}
         <div className="p-5 border-b border-border/20 flex items-center justify-between shrink-0">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
+          <Link to="/app/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
             <RelayMark compact />
           </Link>
           <span className="text-[10px] font-mono uppercase tracking-wider text-copper bg-copper/10 px-2 py-0.5 rounded border border-copper/30">

@@ -60,7 +60,7 @@ export function SignInCard() {
     try {
       setIsEmailLoading(true);
       await signInWithEmail(result.data);
-      navigate("/dashboard");
+      navigate("/app/dashboard");
     } catch (err) {
       setGeneralError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
@@ -73,7 +73,7 @@ export function SignInCard() {
     try {
       setIsGithubLoading(true);
       await signInWithGithub();
-      navigate("/dashboard");
+      navigate("/app/dashboard");
     } catch (err) {
       setGeneralError(err instanceof Error ? err.message : "GitHub authentication failed");
     } finally {

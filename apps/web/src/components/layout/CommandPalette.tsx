@@ -35,7 +35,7 @@ export function CommandPalette({ open, onOpenChange, currentProjectId }: Command
       title: "Dashboard",
       description: "View connected repositories and codebase overview",
       icon: GitBranch,
-      path: "/dashboard",
+      path: "/app/dashboard",
     },
     {
       title: "Global Search",

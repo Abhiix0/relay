@@ -27,7 +27,7 @@ export function ProjectOverviewPage() {
       {project && (
         <div className="space-y-8">
           <Link
-            to="/dashboard"
+            to="/app/projects"
             className="inline-flex items-center gap-1.5 text-xs font-mono text-copper hover:underline"
           >
             ← Back to Projects
