@@ -4,13 +4,15 @@ import { z } from "zod";
 import { toDecision } from "../lib/serialize";
 import { requireUser } from "../middleware/auth";
 import { loadOwnedProject } from "../middleware/loadOwnedProject";
+import { perUserLimit } from "../middleware/rateLimit";
 import { requireJson } from "../middleware/requireJson";
 import { createDecision, listDecisions } from "../services/decisionService";
 
+import { httpUrl } from "../lib/httpUrl";
 const source = z.object({
   type: z.enum(["file", "issue", "pr", "commit", "readme", "decision"]),
   path: z.string().trim().max(1000).nullish().transform((v) => v ?? null),
-  url: z.string().trim().url().nullish().transform((v) => v ?? null),
+  url: z.string().trim().url().refine(httpUrl, "Must be an http(s) URL").nullish().transform((v) => v ?? null),
   snippet: z.string().trim().max(1000).default(""),
 });
 
@@ -30,7 +32,7 @@ export function decisionsRouter(db: Db): Router {
     res.json((await listDecisions(db, req.project!)).map(toDecision));
   });
 
-  router.post("/projects/:id/decisions", auth, owned, requireJson, async (req, res) => {
+  router.post("/projects/:id/decisions", auth, owned, requireJson, perUserLimit(20), async (req, res) => {
     const input = body.parse(req.body);
     res.status(201).json(toDecision(await createDecision(db, req.project!, req.user!._id, input)));
   });

@@ -12,6 +12,7 @@ import { decrypt } from "../lib/crypto";
 import { chunk } from "../lib/chunker";
 import { artifactKey } from "../lib/ids";
 import { detectLanguage } from "../lib/language";
+import { redactSecrets } from "../lib/redact";
 import { isExcludedPath, isLockfile } from "../lib/secrets";
 import { purgeSessions } from "../services/githubErrors";
 
@@ -202,7 +203,7 @@ export function createSyncRunner({
         path: readme.path,
         url: readme.url,
         summary: null,
-        body: readme.content,
+        body: redactSecrets(readme.content),
         createdAt: now,
         updatedAt: now,
       });
@@ -213,11 +214,11 @@ export function createSyncRunner({
       add({
         type: "commit",
         externalId: `commit:${cm.sha}`,
-        title: cm.message.split("\n")[0] ?? cm.sha,
+        title: redactSecrets(cm.message.split("\n")[0] ?? cm.sha),
         path: null,
         url: cm.url,
         summary: `by ${cm.authorName}`,
-        body: cm.message,
+        body: redactSecrets(cm.message),
         createdAt: cm.date,
         updatedAt: cm.date,
       });
@@ -233,11 +234,11 @@ export function createSyncRunner({
         add({
           type,
           externalId: `${type}:${t.number}`,
-          title: t.title,
+          title: redactSecrets(t.title),
           path: null,
           url: t.url,
           summary: t.state,
-          body: t.body,
+          body: redactSecrets(t.body),
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
         });
@@ -308,7 +309,7 @@ export function createSyncRunner({
           fetched++;
           const text = await github.getBlob(token, full, f.sha);
           if (text === null) f.isBinary = true;
-          else f.content = text;
+          else f.content = redactSecrets(text);
         },
       );
       const chunks: ChunkDoc[] = [];

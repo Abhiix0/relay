@@ -1,6 +1,9 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type DecisionDoc, type ProjectDoc, type SourceValue } from "../db/collections";
+import { conflict } from "../lib/errors";
 import { artifactKey } from "../lib/ids";
+
+export const MAX_DECISIONS = 200;
 
 export interface DecisionInput {
   title: string;
@@ -21,6 +24,9 @@ export async function createDecision(
   input: DecisionInput,
 ): Promise<DecisionDoc> {
   const c = getCollections(db);
+  if ((await c.decisions.countDocuments({ projectId: project._id })) >= MAX_DECISIONS) {
+    throw conflict(`Decision limit reached (${MAX_DECISIONS} per project)`);
+  }
   const now = new Date();
   const doc: DecisionDoc = {
     _id: new ObjectId(),

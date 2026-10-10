@@ -14,6 +14,20 @@ export function perUserLimit(limit: number) {
   });
 }
 
+/** Per-IP limit that answers with JSON 429 (API routes). */
+export function perIpJsonLimit(limit: number) {
+  return rateLimit({
+    windowMs: 60_000,
+    limit,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => ipKeyGenerator(req.ip ?? ""),
+    handler: (_req, res) => {
+      res.status(429).json({ message: "Too many requests", code: "rate_limited" });
+    },
+  });
+}
+
 /** Per-IP limit for the OAuth endpoints; over the limit, bounce to the sign-in error page. */
 export function perIpLimit(limit: number, redirectTo: () => string) {
   return rateLimit({

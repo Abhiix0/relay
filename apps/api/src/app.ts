@@ -4,6 +4,9 @@ import pino, { type Logger } from "pino";
 import { pinoHttp } from "pino-http";
 import type { Db } from "mongodb";
 import { errorHandler, notFoundHandler } from "./middleware/error";
+import { loadConfig } from "./config";
+import { perIpJsonLimit } from "./middleware/rateLimit";
+import { requireOrigin } from "./middleware/requireOrigin";
 import { requestId } from "./middleware/requestId";
 import type { SyncRunner } from "./jobs/syncRunner";
 import type { GithubClient } from "./integrations/github";
@@ -44,7 +47,7 @@ export interface AppDeps {
 
 export function createApp(deps: AppDeps): Express {
   const app = express();
-  app.set("trust proxy", 1);
+  app.set("trust proxy", loadConfig().TRUST_PROXY);
   app.disable("x-powered-by");
 
   const logger =
@@ -72,6 +75,8 @@ export function createApp(deps: AppDeps): Express {
   app.use(express.json({ limit: "1mb" }));
 
   const router = Router();
+  router.use(perIpJsonLimit(300));
+  router.use(requireOrigin);
   router.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });

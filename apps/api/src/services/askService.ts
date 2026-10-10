@@ -12,6 +12,7 @@ import type { LlmClient } from "../integrations/llm";
 import { retrieve } from "./retrievalService";
 
 const HISTORY_CAP = 50;
+const HISTORY_KEEP = 200;
 const NO_EVIDENCE = "I couldn't find evidence for this in the indexed repository.";
 
 const llmAnswer = z.object({
@@ -97,6 +98,12 @@ export async function ask(
   };
   const c = getCollections(db);
   await c.askAnswers.insertOne(doc);
+  const stale = await c.askAnswers
+    .find({ projectId: project._id, userId }, { projection: { _id: 1 } })
+    .sort({ createdAt: -1, _id: -1 })
+    .skip(HISTORY_KEEP)
+    .toArray();
+  if (stale.length) await c.askAnswers.deleteMany({ _id: { $in: stale.map((s) => s._id) } });
   await c.activityEvents.insertOne({
     _id: new ObjectId(),
     projectId: project._id,

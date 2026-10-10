@@ -15,7 +15,7 @@ const LOCKFILES = new Set([
 /** Paths that must never be stored at all (secrets, vendor and build dirs). */
 export function isExcludedPath(path: string): boolean {
   const parts = path.split("/").filter(Boolean);
-  if (parts.slice(0, -1).some((p) => EXCLUDED_DIRS.has(p))) return true;
+  if (parts.slice(0, -1).some((p) => EXCLUDED_DIRS.has(p.toLowerCase()))) return true;
   const name = (parts[parts.length - 1] ?? "").toLowerCase();
   return (
     name === ".env" ||
@@ -24,6 +24,13 @@ export function isExcludedPath(path: string): boolean {
     name.endsWith(".key") ||
     name.endsWith(".p12") ||
     name.startsWith("id_rsa") ||
+    name.startsWith("id_ed25519") ||
+    name.startsWith("id_ecdsa") ||
+    name.startsWith("id_dsa") ||
+    name.startsWith("credentials") ||
+    (name.startsWith("service-account") && name.endsWith(".json")) ||
+    [".npmrc", ".netrc", ".pypirc", ".htpasswd"].includes(name) ||
+    [".pfx", ".jks", ".keystore", ".tfvars", ".tfstate"].some((e) => name.endsWith(e)) ||
     name.includes("secret")
   );
 }

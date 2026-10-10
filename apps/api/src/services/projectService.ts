@@ -1,7 +1,8 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc, type UserDoc } from "../db/collections";
 import type { GithubClient, GithubRepo } from "../integrations/github";
-import { conflict, notFound } from "../lib/errors";
+import { AppError, conflict, notFound } from "../lib/errors";
+import { loadConfig } from "../config";
 import { decryptUserToken, mapGithubError } from "./githubErrors";
 import type { SyncRunner } from "../jobs/syncRunner";
 import { newJob } from "./syncService";
@@ -24,6 +25,10 @@ export async function createProject(
   runner?: SyncRunner,
 ): Promise<ProjectDoc> {
   const c = getCollections(db);
+  const max = loadConfig().MAX_PROJECTS_PER_USER;
+  if ((await c.projects.countDocuments({ ownerId: user._id })) >= max) {
+    throw new AppError(409, "project_limit", `Project limit reached (${max}). Delete a project to connect another.`);
+  }
   let repo: GithubRepo | null;
   const token = await decryptUserToken(db, user);
   try {

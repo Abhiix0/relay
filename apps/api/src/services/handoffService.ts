@@ -12,6 +12,7 @@ import type { LlmClient } from "../integrations/llm";
 import { conflict, notFound } from "../lib/errors";
 import { toSource } from "./askService";
 
+export const MAX_HANDOFF_VERSIONS = 50;
 const TOTAL_CHARS = 10_000;
 const HEADINGS = [
   "1. Project summary",
@@ -140,6 +141,9 @@ async function insertNext(
   authorId: ObjectId,
   data: Pick<HandoffDoc, "title" | "summary" | "sections">,
 ): Promise<HandoffDoc> {
+  if ((await getCollections(db).handoffs.countDocuments({ projectId: project._id })) >= MAX_HANDOFF_VERSIONS) {
+    throw conflict(`Handoff version limit reached (${MAX_HANDOFF_VERSIONS} per project)`);
+  }
   const now = new Date();
   const doc: HandoffDoc = {
     _id: new ObjectId(),

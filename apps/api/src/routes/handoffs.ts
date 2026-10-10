@@ -17,13 +17,14 @@ import {
   patchCurrent,
 } from "../services/handoffService";
 
+import { httpUrl } from "../lib/httpUrl";
 const title = z.string().trim().min(1).max(200);
 const summary = z.string().trim().min(1).max(2000);
 const source = z.object({
   id: z.string().trim().min(1),
   type: z.enum(["file", "issue", "pr", "commit", "readme", "decision"]),
   path: z.string().nullable(),
-  url: z.string().url().nullable(),
+  url: z.string().url().refine(httpUrl, "Must be an http(s) URL").nullable(),
   snippet: z.string(),
 });
 const section = z.object({
@@ -67,17 +68,17 @@ export function handoffsRouter(db: Db, llm: LlmClient): Router {
     res.json(toHandoff(await generate(db, llm, req.project!, req.user!._id, regenerate ?? false)));
   });
 
-  router.patch(`${base}/current`, auth, owned, requireJson, async (req, res) => {
+  router.patch(`${base}/current`, auth, owned, requireJson, perUserLimit(20), async (req, res) => {
     const { sections: s, ...rest } = patchBody.parse(req.body);
     res.json(toHandoff(await patchCurrent(db, req.project!, { ...rest, ...(s && { sections: withIds(s) }) })));
   });
 
-  router.post(`${base}/versions`, auth, owned, requireJson, async (req, res) => {
+  router.post(`${base}/versions`, auth, owned, requireJson, perUserLimit(20), async (req, res) => {
     versionBody.parse(req.body);
     res.status(201).json(toHandoff(await cloneCurrent(db, req.project!, req.user!._id)));
   });
 
-  router.post(base, auth, owned, requireJson, async (req, res) => {
+  router.post(base, auth, owned, requireJson, perUserLimit(20), async (req, res) => {
     const b = createBody.parse(req.body);
     res.status(201).json(toHandoff(await createManual(db, req.project!, req.user!._id, { ...b, sections: withIds(b.sections) })));
   });
