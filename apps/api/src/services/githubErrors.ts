@@ -27,6 +27,7 @@ export async function mapGithubError(db: Db, userId: ObjectId, err: unknown): Pr
 /** An undecryptable token is treated exactly like a revoked one. */
 export async function decryptUserToken(db: Db, user: UserDoc): Promise<string> {
   try {
+    if (!user.encToken) throw new Error("token revoked");
     return decrypt(user.encToken);
   } catch {
     throw await revoked(db, user._id);

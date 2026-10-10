@@ -3,7 +3,7 @@ import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc } from "../db/collections";
 import { deleteProject } from "../services/projectService";
 import { newJob } from "../services/syncService";
-import { GithubAccessError } from "../integrations/github";
+import { GithubAccessError, GithubTransientError } from "../integrations/github";
 import { FakeGithub } from "../test/fakes";
 import request from "supertest";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
@@ -358,5 +358,25 @@ describe("sync github token failures", () => {
       error: "GitHub rate limit reached. Try again later.",
     });
     expect(await c.sessions.countDocuments({ userId: project.ownerId })).toBeGreaterThan(0);
+  });
+  it("retries transient GitHub errors with backoff, then succeeds", async () => {
+    const { github, project, c } = await setup();
+    github.failOn = "listCommits";
+    github.failWith = new GithubTransientError(503);
+    github.failCount = 2;
+    const runner = createSyncRunner({ db, github, retryDelayMs: 1 });
+    await c.syncJobs.insertOne(newJob(project._id));
+    await runner.start(project._id);
+    expect((await c.projects.findOne({ _id: project._id }))?.syncStatus).toBe("succeeded");
+  });
+
+  it("gives up after 3 retries on persistent 5xx and keeps the failed state", async () => {
+    const { github, project, c } = await setup();
+    github.failOn = "listCommits";
+    github.failWith = new GithubTransientError(502);
+    const runner = createSyncRunner({ db, github, retryDelayMs: 1 });
+    await c.syncJobs.insertOne(newJob(project._id));
+    await runner.start(project._id);
+    expect((await c.projects.findOne({ _id: project._id }))?.syncStatus).toBe("failed");
   });
 });

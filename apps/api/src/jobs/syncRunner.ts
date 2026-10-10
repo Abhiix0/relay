@@ -7,7 +7,7 @@ import {
   type ProjectDoc,
   type RepoFileDoc,
 } from "../db/collections";
-import { GithubAccessError, type GithubClient } from "../integrations/github";
+import { GithubAccessError, isTransient, type GithubClient } from "../integrations/github";
 import { decrypt } from "../lib/crypto";
 import { chunk } from "../lib/chunker";
 import { artifactKey } from "../lib/ids";
@@ -49,6 +49,8 @@ export interface SyncRunnerDeps {
   logger?: Logger;
   /** analysis / onboarding arrive in a later phase */
   afterSync?: (ctx: SyncContext) => Promise<void>;
+  /** first backoff step for transient GitHub errors; doubles per retry */
+  retryDelayMs?: number;
 }
 
 const noopAfterSync = async (): Promise<void> => {};
@@ -111,12 +113,34 @@ async function insertBatched<T extends object>(
   for (let i = 0; i < docs.length; i += 500) await insert(docs.slice(i, i + 500));
 }
 
+/** Retries every call up to 3 times with exponential backoff on 5xx / network errors. */
+function withRetry(github: GithubClient, delayMs: number): GithubClient {
+  return new Proxy(github, {
+    get(target, key, receiver) {
+      const fn: unknown = Reflect.get(target, key, receiver);
+      if (typeof fn !== "function") return fn;
+      return async (...args: unknown[]) => {
+        for (let attempt = 0; ; attempt++) {
+          try {
+            return await (fn as (...a: unknown[]) => unknown).apply(target, args);
+          } catch (err) {
+            if (attempt >= 3 || !isTransient(err)) throw err;
+            await new Promise((r) => setTimeout(r, delayMs * 2 ** attempt));
+          }
+        }
+      };
+    },
+  });
+}
+
 export function createSyncRunner({
   db,
-  github,
+  github: rawGithub,
   logger = pino({ level: "silent" }),
   afterSync = noopAfterSync,
+  retryDelayMs = 500,
 }: SyncRunnerDeps): SyncRunner {
+  const github = withRetry(rawGithub, retryDelayMs);
   const c = getCollections(db);
   const controllers = new Map<string, AbortController>();
   const running = new Map<string, Promise<void>>();
@@ -165,6 +189,7 @@ export function createSyncRunner({
     if (!user) throw new GithubAccessError(401, "revoked");
     let token: string;
     try {
+      if (!user.encToken) throw new Error("token revoked");
       token = decrypt(user.encToken);
     } catch {
       throw new GithubAccessError(401, "revoked");

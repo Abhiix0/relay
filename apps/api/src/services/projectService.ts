@@ -13,8 +13,10 @@ export interface CreateProjectInput {
   language?: string | undefined;
 }
 
-export async function listProjects(db: Db, ownerId: ObjectId): Promise<ProjectDoc[]> {
-  return getCollections(db).projects.find({ ownerId }).sort({ updatedAt: -1 }).toArray();
+export async function listProjects(db: Db, ownerId: ObjectId, archived = false): Promise<ProjectDoc[]> {
+  // `archivedAt: null` also matches projects that never had the field
+  const filter = archived ? { ownerId, archivedAt: { $type: "date" as const } } : { ownerId, archivedAt: null };
+  return getCollections(db).projects.find(filter).sort({ updatedAt: -1 }).toArray();
 }
 
 export async function createProject(
@@ -66,6 +68,7 @@ export async function createProject(
     if ((err as { code?: number }).code === 11000) throw conflict("Repository already connected");
     throw err;
   }
+  await c.members.insertOne({ _id: new ObjectId(), projectId: project._id, userId: user._id, role: "owner", createdAt: now });
   await c.syncJobs.insertOne(newJob(project._id));
   if (runner) void runner.start(project._id);
   return project;
@@ -86,6 +89,50 @@ export async function deleteProject(db: Db, project: ProjectDoc, runner?: SyncRu
     c.handoffs.deleteMany({ projectId }),
     c.askAnswers.deleteMany({ projectId }),
     c.activityEvents.deleteMany({ projectId }),
+    c.members.deleteMany({ projectId }),
+    c.agentRuns.deleteMany({ projectId }),
   ]);
   await c.projects.deleteOne({ _id: projectId, ownerId: project.ownerId });
+}
+
+/** Aborts the run and settles any active job so the UI stops polling. */
+async function stopSync(db: Db, project: ProjectDoc, runner: SyncRunner | undefined, reason: string): Promise<void> {
+  await runner?.abort(project._id);
+  const c = getCollections(db);
+  await c.syncJobs.updateMany(
+    { projectId: project._id, status: { $in: ["queued", "running"] } },
+    { $set: { status: "failed", error: reason, completedAt: new Date() } },
+  );
+  await c.projects.updateOne(
+    { _id: project._id, syncStatus: "running" },
+    { $set: { syncStatus: "failed", healthLabel: project.lastSyncedAt ? "Last sync failed" : "Sync failed" } },
+  );
+}
+
+async function setFlag(db: Db, project: ProjectDoc, flag: "archivedAt" | "revokedAt", on: boolean): Promise<ProjectDoc> {
+  const now = new Date();
+  const updated = await getCollections(db).projects.findOneAndUpdate(
+    { _id: project._id },
+    { $set: { [flag]: on ? now : null, updatedAt: now } },
+    { returnDocument: "after" },
+  );
+  return updated ?? project;
+}
+
+export async function archiveProject(db: Db, project: ProjectDoc, runner?: SyncRunner): Promise<ProjectDoc> {
+  await stopSync(db, project, runner, "Project archived");
+  return setFlag(db, project, "archivedAt", true);
+}
+
+export const unarchiveProject = (db: Db, project: ProjectDoc) => setFlag(db, project, "archivedAt", false);
+
+/** Stops sync for good (until the project is reconnected) and drops the owner's token when no live connection is left. */
+export async function revokeProject(db: Db, project: ProjectDoc, runner?: SyncRunner): Promise<ProjectDoc> {
+  await stopSync(db, project, runner, "Connection revoked");
+  const updated = await setFlag(db, project, "revokedAt", true);
+  const c = getCollections(db);
+  if ((await c.projects.countDocuments({ ownerId: project.ownerId, revokedAt: null })) === 0) {
+    await c.users.updateOne({ _id: project.ownerId }, { $set: { encToken: null } });
+  }
+  return updated;
 }

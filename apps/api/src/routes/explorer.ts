@@ -16,6 +16,7 @@ import {
 const listQuery = z.object({
   type: z.enum(["all", "file", "issue", "pr", "commit", "readme", "decision"]).optional(),
   q: z.string().trim().max(200).optional(),
+  since: z.coerce.date().optional(),
 });
 
 export function explorerRouter(db: Db): Router {
@@ -24,8 +25,8 @@ export function explorerRouter(db: Db): Router {
   const owned = loadOwnedProject(db);
 
   router.get("/projects/:id/artifacts", auth, owned, async (req, res) => {
-    const { type, q } = listQuery.parse(req.query);
-    res.json((await listArtifacts(db, req.project!, type, q)).map(toArtifact));
+    const { type, q, since } = listQuery.parse(req.query);
+    res.json((await listArtifacts(db, req.project!, type, q, since)).map(toArtifact));
   });
 
   router.get("/projects/:id/artifacts/:artifactId", auth, owned, async (req, res) => {

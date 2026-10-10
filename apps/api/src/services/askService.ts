@@ -9,7 +9,8 @@ import {
 } from "../db/collections";
 import { loadConfig } from "../config";
 import type { LlmClient } from "../integrations/llm";
-import { retrieve } from "./retrievalService";
+import { MAX_TOOL_CALLS, plan, runTool } from "./agentTools";
+import { fit } from "./retrievalService";
 
 const HISTORY_CAP = 50;
 const HISTORY_KEEP = 200;
@@ -52,7 +53,14 @@ export async function ask(
   question: string,
 ): Promise<AskAnswerDoc> {
   const started = Date.now();
-  const evidence = await retrieve(db, project, question);
+  const { intent, calls } = plan(question);
+  const toolsUsed: { tool: string; args: string }[] = [];
+  const gathered: ChunkDoc[] = [];
+  for (const call of calls.slice(0, MAX_TOOL_CALLS)) {
+    toolsUsed.push({ tool: call.tool, args: call.types ? `${call.arg} [${call.types.join(",")}]` : call.arg });
+    gathered.push(...(await runTool(db, project, call)));
+  }
+  const evidence = fit(gathered);
 
   let answer = NO_EVIDENCE;
   let confidence: string = "insufficient";
@@ -98,6 +106,18 @@ export async function ask(
   };
   const c = getCollections(db);
   await c.askAnswers.insertOne(doc);
+  await c.agentRuns.insertOne({
+    _id: new ObjectId(),
+    projectId: project._id,
+    userId,
+    question,
+    toolsUsed,
+    sources,
+    intent,
+    response: answer,
+    latency: doc.trace.latencyMs,
+    createdAt: doc.createdAt,
+  });
   const stale = await c.askAnswers
     .find({ projectId: project._id, userId }, { projection: { _id: 1 } })
     .sort({ createdAt: -1, _id: -1 })

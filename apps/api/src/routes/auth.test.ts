@@ -55,7 +55,7 @@ describe("auth", () => {
       .set("Cookie", "relay_oauth_state=abc");
     const user = await getCollections(db).users.findOne({ githubId: 4242 });
     expect(JSON.stringify(user)).not.toContain(FAKE_TOKEN);
-    expect(user!.encToken.data).toBeTruthy();
+    expect(user!.encToken!.data).toBeTruthy();
     const me = await request(app())
       .get("/api/v1/auth/me")
       .set("Cookie", pick(res, "relay_sid")!.split(";")[0]!);

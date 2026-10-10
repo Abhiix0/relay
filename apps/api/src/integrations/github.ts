@@ -30,6 +30,18 @@ export class GithubAccessError extends Error {
   }
 }
 
+/** 5xx from GitHub; safe to retry. */
+export class GithubTransientError extends Error {
+  constructor(readonly status: number) {
+    super(`GitHub request failed: ${status}`);
+    this.name = "GithubTransientError";
+  }
+}
+
+/** Network failures (fetch TypeError, timeouts) and GitHub 5xx. */
+export const isTransient = (err: unknown): boolean =>
+  err instanceof GithubTransientError || err instanceof TypeError || (err as Error | null)?.name === "TimeoutError";
+
 export interface GithubTreeEntry {
   path: string;
   sha: string;
@@ -106,6 +118,7 @@ async function check(res: Response): Promise<Response> {
       res.headers.get("x-ratelimit-remaining") === "0" || res.headers.has("retry-after");
     throw new GithubAccessError(403, limited ? "rate_limited" : "forbidden");
   }
+  if (res.status >= 500) throw new GithubTransientError(res.status);
   if (!res.ok) throw new Error(`GitHub request failed: ${res.status}`);
   return res;
 }

@@ -13,7 +13,8 @@ export interface UserDoc {
   email: string;
   name: string;
   avatarUrl: string | null;
-  encToken: EncToken;
+  /** null once the owner revoked their last connection */
+  encToken: EncToken | null;
   scope: string;
   createdAt: Date;
   updatedAt: Date;
@@ -45,8 +46,18 @@ export interface ProjectDoc {
   health?: { overall: number; documentation: number; activity: number };
   healthLabel: string;
   syncGeneration: number;
+  archivedAt?: Date | null;
+  revokedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface MemberDoc {
+  _id: ObjectId;
+  projectId: ObjectId;
+  userId: ObjectId;
+  role: "owner";
+  createdAt: Date;
 }
 
 export interface SyncJobDoc {
@@ -191,6 +202,20 @@ export interface AskAnswerDoc {
   createdAt: Date;
 }
 
+export interface AgentRunDoc {
+  _id: ObjectId;
+  projectId: ObjectId;
+  userId: ObjectId;
+  question: string;
+  toolsUsed: { tool: string; args: string }[];
+  sources: SourceValue[];
+  intent: string;
+  response: string;
+  /** ms */
+  latency: number;
+  createdAt: Date;
+}
+
 export interface ActivityEventDoc {
   _id: ObjectId;
   projectId: ObjectId;
@@ -215,6 +240,8 @@ export function getCollections(db: Db) {
     handoffs: db.collection<HandoffDoc>("handoffs"),
     askAnswers: db.collection<AskAnswerDoc>("ask_answers"),
     activityEvents: db.collection<ActivityEventDoc>("activity_events"),
+    members: db.collection<MemberDoc>("members"),
+    agentRuns: db.collection<AgentRunDoc>("agent_runs"),
   };
 }
 

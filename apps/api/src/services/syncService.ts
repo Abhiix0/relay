@@ -1,5 +1,6 @@
 import { ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc, type SyncJobDoc } from "../db/collections";
+import { conflict } from "../lib/errors";
 
 export type StartSync = (projectId: ObjectId) => void;
 const noop: StartSync = () => {};
@@ -27,6 +28,8 @@ export async function requestSync(db: Db, project: ProjectDoc,
   start: StartSync = noop,
 ): Promise<SyncJobDoc> {
   const { syncJobs, projects } = getCollections(db);
+  if (project.archivedAt) throw conflict("Project is archived");
+  if (project.revokedAt) throw conflict("Connection revoked. Delete and reconnect the project to sync.");
   const activeQuery = { projectId: project._id, status: { $in: ACTIVE } };
   const active = await syncJobs.findOne(activeQuery);
   if (active) return active;

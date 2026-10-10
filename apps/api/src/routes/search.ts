@@ -9,13 +9,15 @@ const query = z.object({
   q: z.string().trim().max(200).optional(),
   projectId: z.string().trim().optional(),
   language: z.string().trim().toLowerCase().optional(),
+  type: z.enum(["all", "file", "readme", "issue", "pr", "commit", "decision"]).optional(),
+  since: z.coerce.date().optional(),
 });
 
 export function searchRouter(db: Db): Router {
   const router = Router();
 
   router.get("/search", requireUser(db), perUserLimit(30), async (req, res) => {
-    const { q = "", projectId, language: lang } = query.parse(req.query);
+    const { q = "", projectId, language: lang, type, since } = query.parse(req.query);
     const language = !lang || lang === "all" ? null : lang;
     const pid = !projectId || projectId === "all" ? null : projectId;
     if (!q) {
@@ -23,26 +25,13 @@ export function searchRouter(db: Db): Router {
       return;
     }
 
-    const { hits, totalCount } = await searchFiles(db, req.user!._id, pid, q, language);
+    const { hits, totalCount } = await searchFiles(db, req.user!._id, pid, q, language, type, since);
     res.json({
       query: q,
       projectId: pid,
       language,
       totalCount,
-      results: hits.map((h) => {
-        const fileName = h.path.split("/").pop() as string;
-        return {
-          id: `${h.projectId}:${h.path}`,
-          projectId: h.projectId,
-          type: /^readme(\.|$)/i.test(fileName) ? "readme" : "file",
-          filePath: h.path,
-          fileName,
-          lineNumber: h.lineNumber,
-          snippet: h.snippet,
-          matchedText: h.matchedText,
-          language: h.language,
-        };
-      }),
+      results: hits,
     });
   });
 

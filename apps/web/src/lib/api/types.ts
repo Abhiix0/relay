@@ -293,6 +293,7 @@ export const searchResultItemSchema = z.object({
   snippet: z.string(),
   matchedText: z.string().optional(),
   language: z.string().nullable(),
+  url: z.string().nullable().optional(),
 });
 export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
 

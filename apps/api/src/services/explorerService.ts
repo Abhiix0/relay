@@ -16,6 +16,7 @@ export async function listArtifacts(
   project: ProjectDoc,
   type: string | undefined,
   q: string | undefined,
+  since?: Date,
 ): Promise<ArtifactDoc[]> {
   const rx = q ? { $regex: q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } : null;
   return getCollections(db)
@@ -23,6 +24,7 @@ export async function listArtifacts(
       projectId: project._id,
       gen: artifactGen(project),
       ...(type && type !== "all" && { type }),
+      ...(since && { updatedAt: { $gte: since } }),
       ...(rx && { $or: [{ title: rx }, { summary: rx }, { path: rx }] }),
     })
     .sort({ updatedAt: -1, _id: -1 })

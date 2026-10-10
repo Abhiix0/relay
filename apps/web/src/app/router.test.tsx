@@ -78,6 +78,7 @@ vi.mock('@/lib/api/hooks', () => ({
   useHandoffSummary: () => ({ data: null, isLoading: false }),
   useDecisions: () => ({ data: [], isLoading: false }),
   useOnboardingChecklist: () => ({ data: null, isLoading: false }),
+  useOnboardingData: () => ({ data: null, isLoading: false, error: null }),
   useLogout: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 

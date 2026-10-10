@@ -19,7 +19,8 @@ function renderCard(result: object) {
 describe("ProjectArchitectureCard", () => {
   it("lists main modules from onboarding data", () => {
     renderCard({ data: mockOnboardingData, isLoading: false, error: null });
-    const first = mockOnboardingData.architecture.mainModules[0]!;
+    const first = mockOnboardingData.architecture.mainModules[0];
+    if (!first) throw new Error("fixture has no modules");
     expect(screen.getByText(first.name)).toBeInTheDocument();
     expect(screen.getByText(first.description)).toBeInTheDocument();
   });

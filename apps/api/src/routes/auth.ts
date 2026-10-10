@@ -71,7 +71,7 @@ export function authRouter(db: Db, github: GithubClient): Router {
     }
   });
 
-  router.get("/auth/me", requireUser(db), (req, res) => {
+  router.get(["/auth/me", "/me"], requireUser(db), (req, res) => {
     res.json(toUser(req.user!));
   });
 

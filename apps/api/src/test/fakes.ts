@@ -80,6 +80,8 @@ export class FakeGithub implements GithubClient {
   /** make the named call throw */
   failOn: string | null = null;
   failWith: Error = new Error("boom");
+  /** how many times the failing call throws before it succeeds */
+  failCount = Infinity;
   /** getTree waits on this before answering */
   gate: Promise<void> | null = null;
 
@@ -87,7 +89,7 @@ export class FakeGithub implements GithubClient {
     this.files.set(path, { content, size: size ?? Buffer.byteLength(content ?? "x") });
   }
   private maybeFail(name: string): void {
-    if (this.failOn === name) throw this.failWith;
+    if (this.failOn === name && this.failCount-- > 0) throw this.failWith;
   }
   truncated = false;
   /** path -> version; bumping changes the sha so the runner sees a modified file */

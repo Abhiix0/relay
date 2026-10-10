@@ -5,31 +5,8 @@ const CHUNK_CHARS = 1200;
 const TOTAL_CHARS = 9000;
 const MANIFESTS = ["package.json", "Cargo.toml", "pyproject.toml", "go.mod"];
 
-/** Top text-search chunks for the current generation, topped up with README/manifest when thin. */
-export async function retrieve(db: Db, project: ProjectDoc, query: string, k = 8): Promise<ChunkDoc[]> {
-  const { chunks } = getCollections(db);
-  const scope = { projectId: project._id, gen: { $in: [project.syncGeneration, null] } };
-
-  const hits = await chunks
-    .find({ ...scope, $text: { $search: query } }, { projection: { score: { $meta: "textScore" } } })
-    .sort({ score: { $meta: "textScore" } })
-    .limit(k * 2)
-    .toArray();
-
-  if (hits.length < 3) {
-    const baseline = await chunks
-      .find({
-        ...scope,
-        type: "file",
-        path: { $regex: /^(readme(\.[a-z]+)?|package\.json|Cargo\.toml|pyproject\.toml|go\.mod)$/i },
-      })
-      .sort({ path: 1, startLine: 1 })
-      .toArray();
-    const readme = baseline.filter((c) => !MANIFESTS.includes(c.path ?? "")).slice(0, 2);
-    const manifest = MANIFESTS.map((m) => baseline.find((c) => c.path === m)).find(Boolean);
-    hits.push(...readme, ...(manifest ? [manifest] : []));
-  }
-
+/** Dedupes by location and caps count and total size. */
+export function fit(hits: ChunkDoc[], k = 8): ChunkDoc[] {
   const seen = new Set<string>();
   const out: ChunkDoc[] = [];
   let total = 0;
@@ -43,4 +20,41 @@ export async function retrieve(db: Db, project: ProjectDoc, query: string, k = 8
     out.push({ ...c, text });
   }
   return out;
+}
+
+/** Top text-search chunks for the current generation (optionally one artifact type set), topped up with README/manifest when thin. */
+export async function retrieve(
+  db: Db,
+  project: ProjectDoc,
+  query: string,
+  k = 8,
+  types?: string[],
+): Promise<ChunkDoc[]> {
+  const { chunks } = getCollections(db);
+  const scope = { projectId: project._id, gen: { $in: [project.syncGeneration, null] } };
+
+  const hits = await chunks
+    .find(
+      { ...scope, ...(types && { type: { $in: types } }), $text: { $search: query } },
+      { projection: { score: { $meta: "textScore" } } },
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .limit(k * 2)
+    .toArray();
+
+  if (hits.length < 3 && !types) {
+    const baseline = await chunks
+      .find({
+        ...scope,
+        type: "file",
+        path: { $regex: /^(readme(\.[a-z]+)?|package\.json|Cargo\.toml|pyproject\.toml|go\.mod)$/i },
+      })
+      .sort({ path: 1, startLine: 1 })
+      .toArray();
+    const readme = baseline.filter((c) => !MANIFESTS.includes(c.path ?? "")).slice(0, 2);
+    const manifest = MANIFESTS.map((m) => baseline.find((c) => c.path === m)).find(Boolean);
+    hits.push(...readme, ...(manifest ? [manifest] : []));
+  }
+
+  return fit(hits, k);
 }

@@ -7,5 +7,5 @@ export default defineConfig({
       "@web-types": fileURLToPath(new URL("../web/src/lib/api", import.meta.url)),
     },
   },
-  test: { environment: "node", env: { NODE_ENV: "test" }, hookTimeout: 600_000 },
+  test: { environment: "node", env: { NODE_ENV: "test" }, hookTimeout: 600_000, testTimeout: 30_000 },
 });

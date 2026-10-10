@@ -108,4 +108,34 @@ describe("GET /search", () => {
     expect((await search(`q=needle&projectId=${id}`, b.cookie)).status).toBe(404);
     expect((await request(app).get("/api/v1/search?q=needle")).status).toBe(401);
   });
+
+  it("type and since filter artifacts; results carry type and source url; default stays files-only", async () => {
+    const { c, pid, search } = await setup();
+    const art = (key: string, type: string, title: string, updatedAt: Date) => ({
+      _id: new ObjectId(), projectId: pid, type, externalId: key, key, title, path: null,
+      url: `https://github.com/acme/widget/${key}`, summary: null, body: "", createdAt: updatedAt, updatedAt, gen: 2,
+    });
+    const issue = art("issue:1", "issue", "Cache bug", new Date("2026-05-01"));
+    const oldPr = art("pr:2", "pr", "Cache refactor", new Date("2020-01-01"));
+    await c.artifacts.insertMany([issue, oldPr]);
+    await c.chunks.insertMany([
+      chunk(pid, "src/cache.rs", "cache here"),
+      chunk(pid, "", "cache is broken", { path: null, type: "issue", title: issue.title, artifactId: issue._id, url: issue.url! }),
+      chunk(pid, "", "cache rewrite", { path: null, type: "pr", title: oldPr.title, artifactId: oldPr._id, url: oldPr.url! }),
+    ]);
+    const files = searchResultsSchema.parse((await search("q=cache")).body);
+    expect(files.results.map((r) => r.type)).toEqual(["file"]);
+
+    const all = searchResultsSchema.parse((await search("q=cache&type=all")).body);
+    expect(all.results.map((r) => r.type).sort()).toEqual(["file", "issue", "pr"]);
+    const hit = all.results.find((r) => r.type === "issue")!;
+    expect(hit).toMatchObject({ url: issue.url, id: `${pid.toHexString()}:issue:1`, lineNumber: null });
+
+    const issues = searchResultsSchema.parse((await search("q=cache&type=issue")).body);
+    expect(issues.results.map((r) => r.filePath)).toEqual(["Cache bug"]);
+
+    const recent = searchResultsSchema.parse((await search("q=cache&type=all&since=2025-01-01")).body);
+    expect(recent.results.map((r) => r.type)).toEqual(["issue"]);
+    expect((await search("q=cache&since=nope")).status).toBe(422);
+  });
 });

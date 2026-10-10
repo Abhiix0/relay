@@ -93,6 +93,17 @@ describe("artifacts", () => {
     expect((await get("/artifacts?q=" + "x".repeat(201))).status).toBe(422);
   });
 
+  it("filters by since and rejects a bad date", async () => {
+    const { c, pid, get } = await setup();
+    await c.artifacts.insertMany([
+      art(pid, { type: "issue", title: "new", updatedAt: new Date("2026-06-01") }),
+      art(pid, { type: "issue", title: "old", updatedAt: new Date("2020-01-01") }),
+    ]);
+    const res = await get("/artifacts?since=2025-01-01");
+    expect(artifactSchema.array().parse(res.body).map((a) => a.title)).toEqual(["new"]);
+    expect((await get("/artifacts?since=nope")).status).toBe(422);
+  });
+
   it("caps the list at 200", async () => {
     const { c, pid, get } = await setup();
     await c.artifacts.insertMany(Array.from({ length: 205 }, () => art(pid, {})));

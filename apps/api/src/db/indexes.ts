@@ -32,5 +32,7 @@ export async function ensureIndexes(db: Db): Promise<void> {
     c.handoffs.createIndex({ projectId: 1, version: 1 }, { unique: true }),
     c.askAnswers.createIndex({ projectId: 1, userId: 1, createdAt: -1 }),
     c.activityEvents.createIndex({ projectId: 1, createdAt: -1 }),
+    c.members.createIndex({ projectId: 1, userId: 1 }, { unique: true }),
+    c.agentRuns.createIndex({ projectId: 1, createdAt: -1 }),
   ]);
 }
