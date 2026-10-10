@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { z } from "zod";
 
 const isTest = process.env.NODE_ENV === "test";
@@ -37,9 +39,31 @@ export function resetConfig(): void {
   cached = undefined;
 }
 
+function tryLoadEnv(): void {
+  if (typeof process.loadEnvFile !== "function") return;
+  const candidates = [
+    path.resolve(process.cwd(), ".env"),
+    path.resolve(process.cwd(), "apps/api/.env"),
+    path.resolve(import.meta.dirname ?? "", "../.env"),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      try {
+        process.loadEnvFile(candidate);
+        break;
+      } catch {
+        // Continue to next candidate
+      }
+    }
+  }
+}
+
 /** Memoized for the process env; an explicit env is parsed fresh and not cached. */
 export function loadConfig(env?: NodeJS.ProcessEnv): Config {
   if (!env && cached) return cached;
+  if (!env && !process.env.MONGODB_URI) {
+    tryLoadEnv();
+  }
   const parsed = schema.safeParse(env ?? process.env);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("\n");
