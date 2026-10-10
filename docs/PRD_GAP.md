@@ -1,5 +1,7 @@
 # PRD gap check
 
+Stage 0 snapshot, taken before the audit fixes and the P0/P1 work. Everything marked PARTIAL or MISSING here was built in Stages 1-5; see `docs/MVP_ACCEPTANCE.md` for the final evidence.
+
 Baseline: `pnpm --filter api check && test` green (141 tests) before Stage 1 edits.
 
 | PRD ID | Status | Where / what is missing |

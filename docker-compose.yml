@@ -9,7 +9,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    env_file: apps/api/.env
+    env_file:
+      - path: apps/api/.env
+        required: false
     environment:
       - MONGODB_URI=mongodb://mongo:27017/relay
       - NODE_ENV=production

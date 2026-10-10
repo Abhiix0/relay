@@ -1,162 +1,105 @@
-# RELAY — Frontend Application
+# Relay
 
-**Developer Codebase Intelligence & Architectural Transfer**
+**Project handoff and engineering context.** Relay connects to a GitHub repository, indexes it, and gives evidence-grounded answers, onboarding plans and handoff documents. Every project-specific claim cites a retrieved source, and the agent is read-only.
 
-RELAY is a modern developer web application designed to connect to codebases and provide deep architectural context through evidence-grounded AI reasoning, interactive onboarding guides, engineering handoffs, repository browsing, and cross-project search.
+- `apps/web`: React 19, Vite 7, TanStack Query, zod 4, Tailwind. The zod schemas in `apps/web/src/lib/api/types.ts` are the API contract.
+- `apps/api`: Express 5, MongoDB (native driver), zod 4, pino, Groq SDK, local sentence embeddings.
+- Product spec: [`docs/PRD.md`](docs/PRD.md). Acceptance evidence: [`docs/MVP_ACCEPTANCE.md`](docs/MVP_ACCEPTANCE.md).
 
----
+## Run it locally
 
-## Architecture & Current Scope
+Prerequisites: Node 22, pnpm 10.18, Docker (for MongoDB).
 
-This repository contains the **frontend single-page application (SPA)** built with React 19, TypeScript, Vite, Tailwind CSS, and TanStack Query.
-
-### What is Implemented in this Frontend:
-- **Application Shell**: Viewport-bounded workspace with stationary chrome and central internal scrolling.
-- **Project Dashboard**: Repository listing, recent activity, and connection modal with immutable state management.
-- **Repository & Artifact Explorer**: Source file navigation, directory trees, and ADR/artifact inspection.
-- **Interactive Onboarding**: Ramp-up guides, file highlights, and contributor checklist UI.
-- **Architecture Handoffs**: Structured engineering transfer briefs, section editing, and version history interface.
-- **Architecture Decisions (ADRs)**: Technical decision records and searchable trade-off logs.
-- **Evidence-Grounded AI Query Interface (Ask Relay)**: Query stream with cited line-number anchors.
-- **Global Search**: Search UI with project and language filter chips.
-- **Developer Profile**: Identity overview and integration status indicators.
-- **Honest System States**: Explicit loading skeletons, empty states, typed network/API error handling, and offline banners.
-
-### Backend Requirements (External Service):
-This repository snapshot **does not include the backend API server or daemon service**. The following capabilities require a separately deployed and configured RELAY backend:
-- Persistent user authentication and OAuth authorization.
-- Real GitHub repository webhooks and live background synchronization.
-- Real AST node parsing and semantic code indexing.
-- Live AI LLM completion and evidence synthesis.
-
-When a backend service is not running or unreachable, the frontend gracefully displays honest error and service-unavailable states rather than fabricating demo data or artificial progress.
-
----
-
-## Configuration
-
-### API Base URL
-
-The API client communicates via REST requests to `/api/v1`. By default, it uses same-origin requests (`/api/v1`), suitable for reverse-proxy setups (such as nginx or ingress controllers).
-
-To connect the frontend to a remote or dedicated backend API service:
-
-1. Copy `.env.example` in `apps/web/.env.example` to `apps/web/.env`:
-   ```bash
-   cp apps/web/.env.example apps/web/.env
-   ```
-2. Set `VITE_API_BASE_URL`:
-   ```env
-   VITE_API_BASE_URL=https://api.relay.yourdomain.com
-   ```
-   *(or `http://localhost:8080` for local backend development)*
-
-> **Security Note:** Never put secrets, private tokens, or authentication credentials in client-side environment variables. All secrets belong on the backend server.
-
----
-
-## Tech Stack
-
-- **Framework:** React 19 + TypeScript (Strict Mode)
-- **Bundler:** Vite 7
-- **Styling:** Tailwind CSS v3 with semantic design tokens
-- **UI Primitives:** Radix UI accessible headless components
-- **Server State & Caching:** TanStack React Query v5
-- **Routing:** React Router v7
-- **Testing:** Vitest, Testing Library, Playwright (Visual & E2E)
-- **Package Manager:** pnpm 10 (workspace monorepo)
-
----
-
-## Getting Started
-
-### Prerequisites
-- Node.js 22.x or later
-- pnpm 10.18.0 or later
-
-### Installation
 ```bash
 pnpm install --frozen-lockfile
+docker compose up -d mongo
+cp apps/api/.env.example apps/api/.env        # then fill in the values below
+pnpm --filter api dev                          # API on :4000
+pnpm dev                                       # web on :5200, proxies /api to :4000
 ```
 
-### Development
+Open `http://localhost:5200`. `apps/web/.env.development` defaults `VITE_USE_MOCKS=true` (MSW, no backend). For real sign-in put `VITE_USE_MOCKS=false` in `apps/web/.env.development.local`.
+
+GitHub OAuth app: Settings, Developer settings, OAuth Apps. Homepage `http://localhost:5200`, callback `http://localhost:5200/api/v1/auth/github/callback`.
+
+### Environment (`apps/api/.env`)
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `MONGODB_URI` | yes | e.g. `mongodb://localhost:27017/relay` (compose overrides it) |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | yes | From the OAuth app |
+| `GITHUB_SCOPE` | no | Default `read:user user:email public_repo` |
+| `GITHUB_CALLBACK_URL` | no | Overrides `<PUBLIC_APP_URL>/api/v1/auth/github/callback` |
+| `TOKEN_ENCRYPTION_KEY` | yes | 32 bytes, base64: `openssl rand -base64 32` |
+| `PUBLIC_APP_URL` | no | Browser origin, default `http://localhost:5200`. State-changing requests whose `Origin` differs get 403 |
+| `GROQ_API_KEY` | for AI | Without it, Ask, handoff and plan generation answer 503 |
+| `LLM_MODEL` | no | Default `openai/gpt-oss-120b` |
+| `GITHUB_WEBHOOK_SECRET` | no | Enables `POST /api/v1/webhooks/github`; unset means 503 |
+| `MAX_PROJECTS_PER_USER` | no | Default 10 |
+| `TRUST_PROXY` | no | Reverse-proxy hops to trust for client IPs, default 1 |
+| `PORT`, `NODE_ENV` | no | 4000, development |
+
+The first semantic search or sync downloads the `Xenova/all-MiniLM-L6-v2` model (about 25 MB) and caches it. If that fails, search silently falls back to keyword mode.
+
+### Webhooks
+
+Point a repository webhook at `https://<host>/api/v1/webhooks/github` (content type `application/json`, events: push, issues, pull requests) with the same secret as `GITHUB_WEBHOOK_SECRET`. A verified event queues a sync for every non-archived project on that repository. Unchanged files are not refetched or re-embedded.
+
+## Verify
+
 ```bash
-pnpm dev
+pnpm check && pnpm lint && pnpm test && pnpm build
+docker compose build
 ```
-Starts the local development server at `http://localhost:3000`.
 
-### Building & Verification
+API tests use an in-memory MongoDB and fakes for GitHub, the LLM and the embedder; nothing touches a real service. If the combined suite is slow on your machine, run `pnpm -r --workspace-concurrency=1 test`.
+
+## Deploy with Docker
+
 ```bash
-pnpm check      # TypeScript type checking
-pnpm lint       # ESLint rules
-pnpm test       # Vitest unit & integration tests
-pnpm build      # Production bundle
+cp apps/api/.env.example apps/api/.env   # fill in
+docker compose up -d --build              # web on :3000, nginx proxies /api to the API
 ```
 
-### Preview Production Build
-```bash
-pnpm preview
-```
-Serves the production build locally at `http://localhost:4173`.
+nginx disables buffering for `/api/v1/projects/:id/events` (server-sent events). The API image is glibc-based because the embedding runtime has no musl binaries.
 
----
-
-## GitHub sign-in setup
-
-1. Create a GitHub OAuth App (Settings → Developer settings → OAuth Apps).
-   - Local: homepage `http://localhost:5200`, callback `http://localhost:5200/api/v1/auth/github/callback`
-   - Production: homepage `https://<your-domain>`, callback `https://<your-domain>/api/v1/auth/github/callback`
-2. Copy `apps/api/.env.example` to `apps/api/.env` and fill in:
-
-| Variable | Notes |
-| --- | --- |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | From the OAuth App |
-| `GITHUB_SCOPE` | Default `read:user user:email public_repo` |
-| `GITHUB_CALLBACK_URL` | Optional; overrides the derived callback URL |
-| `TOKEN_ENCRYPTION_KEY` | 32 bytes base64: `openssl rand -base64 32` |
-| `PUBLIC_APP_URL` | Browser origin, e.g. `http://localhost:5200` |
-| `MONGODB_URI` | e.g. `mongodb://localhost:27017/relay` (compose overrides it) |
-
-`PUBLIC_APP_URL` must equal the origin the browser uses, so the `relay_sid` cookie stays same-origin (`/api` is proxied by Vite in dev and nginx in Docker).
-
-`VITE_USE_MOCKS`: `.env.development` defaults to `true` (MSW mocks). Set it to `false` in `apps/web/.env.development.local` for real login. Never set it in production.
-
-## Project Structure
+## Architecture
 
 ```
-relay/
-├── apps/
-│   └── web/                   # Frontend React application
-│       ├── src/
-│       │   ├── app/           # Router, Providers, entry
-│       │   ├── components/    # Shell, Layout, and UI primitives
-│       │   ├── features/      # Feature-specific pages & components
-│       │   │   ├── ask/       # AI conversation interface
-│       │   │   ├── auth/      # Sign-in forms & cards
-│       │   │   ├── dashboard/ # Dashboard & repository connection
-│       │   │   ├── decisions/ # ADR logging & creation
-│       │   │   ├── explorer/  # Codebase artifact explorer
-│       │   │   ├── handoff/   # Handoff generation & versions
-│       │   │   ├── landing/   # Frozen marketing landing page
-│       │   │   ├── onboarding/# Onboarding guides & checklists
-│       │   │   ├── profile/   # Developer profile & integrations
-│       │   │   ├── projects/  # Project overview & list
-│       │   │   ├── repository/# Repository file tree & viewer
-│       │   │   └── search/    # Global cross-project search
-│       │   ├── lib/           # API client, typed hooks, utilities
-│       │   ├── styles/        # Global CSS & semantic design tokens
-│       │   └── test/          # Test setup & test fixtures
-│       ├── public/            # Static assets
-│       └── package.json
-├── e2e/                       # Playwright tests (AppShell layout & landing visual)
-├── docker-compose.yml         # Container configuration (static web container)
-├── Dockerfile                 # Multi-stage production container build
-├── nginx.conf                 # Static web server configuration
-└── package.json               # Root monorepo workspace configuration
+browser ── nginx / vite proxy ──> Express API (apps/api)
+                                    routes   zod parse, auth, loadOwnedProject
+                                    services logic, serialize.ts at the edge
+                                    db       MongoDB collections + indexes
+                                    jobs     in-process sync runner (1 per project, 2 global)
+                                    integrations  GitHub, Groq (interfaces; fakes in tests)
+                                    lib      embedder, redaction, secret-file rules
+
+sync:   GitHub -> tree/blobs (reused by sha) + commits/issues/PRs -> redact -> chunk -> embed
+        -> write generation N+1 -> flip project.syncGeneration -> delete N   (failures keep N)
+ask:    planner (intent) -> read-only tools over this project -> hybrid rank
+        ($text + cosine) -> LLM JSON -> cited ids must be a subset of retrieved chunks
 ```
 
----
+Rules that matter: `projects.ownerId` is the only tenancy boundary and every `/projects/:id/*` route calls `loadOwnedProject` (not yours or missing is 404). Every read filters the current generation. GitHub tokens are AES-256-GCM encrypted and never serialized or logged. Secret files (`.env*`, keys, `*secret*`, ...) are never stored, and credential-looking strings are redacted before anything is stored or chunked.
 
-## License
+## Demo flow (five minutes)
+
+1. Sign in with GitHub and connect a repository you do not know. Watch the indexing progress.
+2. Open the project dashboard: the stored snapshot, health and activity.
+3. Ask: "How does authentication work?" The answer cites files and PRs.
+4. Ask: "Why is Redis here?" The answer comes from decisions and history, not a generic definition.
+5. Open Onboarding for the generated learning order; tick items off.
+6. Generate a handoff and open "8. Evidence and source links".
+7. Push a commit (or open an issue) on the repository: the webhook queues a sync and the dashboard updates live.
+
+## Project layout
+
+```
+apps/web   React SPA (features/, lib/api contract, MSW mocks)
+apps/api   Express API (routes/, services/, jobs/, integrations/, db/, lib/)
+e2e        Playwright specs (layout, landing visual, a11y)
+baseline   Visual baselines (do not regenerate)
+docs       PRD, backend plan, gap check, acceptance mapping
+```
 
 MIT License.

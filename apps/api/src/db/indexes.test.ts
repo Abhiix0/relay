@@ -1,7 +1,9 @@
 import { ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { startTestDb, stopTestDb } from "../test/helpers";
+import { artifactKey } from "../lib/ids";
 import { getCollections } from "./collections";
+import { ensureIndexes } from "./indexes";
 
 let db: Db;
 beforeAll(async () => {
@@ -28,6 +30,24 @@ describe("indexes", () => {
     await expect(syncJobs.insertOne(job(projectId, "running"))).rejects.toThrow(/E11000/);
     await syncJobs.updateOne({ _id: first._id }, { $set: { status: "succeeded" } });
     await expect(syncJobs.insertOne(job(projectId, "running"))).resolves.toBeDefined();
+  });
+
+  it("backfills keys on legacy artifacts so the unique key index can be built", async () => {
+    const { artifacts } = getCollections(db);
+    const projectId = new ObjectId();
+    await artifacts.dropIndex("projectId_1_gen_1_key_1");
+    const legacy = (externalId: string) =>
+      ({
+        _id: new ObjectId(), projectId, type: "issue", externalId, title: "t", path: null, url: null,
+        summary: null, body: "", createdAt: new Date(), updatedAt: new Date(), gen: 1,
+      }) as unknown as Parameters<typeof artifacts.insertOne>[0];
+    await artifacts.insertMany([legacy("issue:1"), legacy("issue:2")]);
+    await ensureIndexes(db);
+    const keys = (await artifacts.find({ projectId }).toArray()).map((a) => a.key).sort();
+    expect(keys).toEqual([artifactKey(projectId, "issue:1"), artifactKey(projectId, "issue:2")].sort());
+    await expect(
+      artifacts.insertOne({ ...legacy("issue:1"), key: artifactKey(projectId, "issue:1") }),
+    ).rejects.toThrow(/E11000/);
   });
 
   it("requires projectId for $text queries on chunks", async () => {

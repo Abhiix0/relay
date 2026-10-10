@@ -1,4 +1,5 @@
 import express from "express";
+import type { Db } from "mongodb";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -11,9 +12,11 @@ import { startTestDb, stopTestDb } from "./test/helpers";
 
 describe("app foundation", () => {
   let app: ReturnType<typeof createApp>;
+  let db: Db;
 
   beforeAll(async () => {
-    app = createApp({ db: await startTestDb(), github: new FakeGithub() });
+    db = await startTestDb();
+    app = createApp({ db, github: new FakeGithub() });
   });
   afterAll(stopTestDb);
 
@@ -21,6 +24,14 @@ describe("app foundation", () => {
     const res = await request(app).get("/api/v1/healthz");
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ ok: true });
+  });
+
+  it("healthz is 503 when Mongo does not answer", async () => {
+    const broken = Object.create(db) as Db;
+    broken.command = () => Promise.reject(new Error("down"));
+    const res = await request(createApp({ db: broken, github: new FakeGithub() })).get("/api/v1/healthz");
+    expect(res.status).toBe(503);
+    expect(res.body).toEqual({ ok: false });
   });
 
   it("unknown route returns 404 envelope", async () => {

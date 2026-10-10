@@ -1,7 +1,22 @@
 import type { Db } from "mongodb";
+import { artifactKey } from "../lib/ids";
 import { getCollections } from "./collections";
 
+/** Artifacts stored before stable keys existed get theirs, so the unique key index can be built over old data. */
+async function backfillArtifactKeys(db: Db): Promise<void> {
+  const { artifacts } = getCollections(db);
+  const legacy = await artifacts.find({ key: { $exists: false } },{ projection: { projectId: 1, externalId: 1 } }).toArray();
+  for (let i = 0; i < legacy.length; i += 500) {
+    await artifacts.bulkWrite(
+      legacy.slice(i, i + 500).map((a) => ({
+        updateOne: { filter: { _id: a._id }, update: { $set: { key: artifactKey(a.projectId, a.externalId) } } },
+      })),
+    );
+  }
+}
+
 export async function ensureIndexes(db: Db): Promise<void> {
+  await backfillArtifactKeys(db);
   const c = getCollections(db);
   await Promise.all([
     c.users.createIndex({ githubId: 1 }, { unique: true }),

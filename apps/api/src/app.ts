@@ -84,8 +84,13 @@ export function createApp(deps: AppDeps): Express {
   const router = Router();
   router.use(perIpJsonLimit(300));
   router.use(requireOrigin);
-  router.get("/healthz", (_req, res) => {
-    res.json({ ok: true });
+  router.get("/healthz", async (_req, res) => {
+    try {
+      await deps.db.command({ ping: 1 });
+      res.json({ ok: true });
+    } catch {
+      res.status(503).json({ ok: false });
+    }
   });
   router.use(authRouter(deps.db, deps.github));
   router.use(githubReposRouter(deps.db, deps.github));

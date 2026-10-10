@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim as build
+FROM node:22-bookworm-slim AS build
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@10.18.0 --activate
@@ -9,14 +9,14 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (web only; the API has its own image)
+RUN pnpm install --frozen-lockfile --filter web...
 
 # Copy source
 COPY . .
 
 # Build the application
-RUN pnpm build
+RUN pnpm --filter web build
 
 # Production stage
 FROM nginx:alpine
