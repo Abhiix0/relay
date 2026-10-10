@@ -72,11 +72,11 @@ export function AskPage() {
     <ProjectGuard>
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Header */}
-        <div className="border-b border-border pb-4">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-copper">
+        <div className="border-b border-border/60 pb-4">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-copper font-semibold">
             Evidence-Grounded AI Agent
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
+          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-text">
             Ask {project?.name || "Codebase"}
           </h1>
           <p className="text-xs text-text-muted mt-1">
@@ -136,7 +136,7 @@ export function AskPage() {
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask anything about architecture, data flow, or implementation details... (Enter to send, Shift+Enter for newline)"
-            className="w-full resize-none border-0 bg-transparent text-sm text-paper placeholder:text-text-muted focus:ring-0 min-h-[60px]"
+            className="w-full resize-none border-0 bg-transparent text-sm text-text placeholder:text-text-muted focus:ring-0 min-h-[60px]"
             rows={2}
           />
 
