@@ -1,6 +1,7 @@
 import pino from "pino";
 import { createApp } from "./app";
 import { createGithubClient } from "./integrations/github";
+import { createGroqClient } from "./integrations/llm";
 import { loadConfig } from "./config";
 import { close, connect } from "./db/client";
 import { ensureIndexes } from "./db/indexes";
@@ -18,7 +19,7 @@ try {
   const github = createGithubClient();
   const syncRunner = createSyncRunner({ db: handle.db, github, logger });
   await syncRunner.recoverOrphans();
-  const app = createApp({ db: handle.db, github, syncRunner, logger });
+  const app = createApp({ db: handle.db, github, llm: createGroqClient(), syncRunner, logger });
 
   const server = app.listen(config.PORT, () => {
     logger.info(`api listening on :${config.PORT}`);

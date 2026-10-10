@@ -1,6 +1,7 @@
 import type {
   ActivityEventDoc,
   ArtifactDoc,
+  AskAnswerDoc,
   ProjectDoc,
   RepoFileDoc,
   SyncJobDoc,
@@ -84,4 +85,15 @@ export const toFileContent = (f: RepoFileDoc) => ({
   size: f.size,
   isBinary: f.isBinary,
   isLarge: f.isLarge,
+});
+
+export const toAskAnswer = (a: AskAnswerDoc) => ({
+  id: a._id.toHexString(),
+  projectId: a.projectId.toHexString(),
+  question: a.question,
+  answer: a.answer,
+  sources: a.sources,
+  confidence: a.confidence,
+  insufficientEvidence: a.insufficientEvidence,
+  createdAt: iso(a.createdAt),
 });

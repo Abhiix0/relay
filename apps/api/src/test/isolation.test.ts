@@ -24,6 +24,8 @@ const ROUTES: [method: Method, path: string][] = [
   ["get", "/api/v1/projects/:id/repository/tree"],
   ["get", "/api/v1/projects/:id/repository/files/a.txt"],
   ["get", "/api/v1/search?q=x&projectId=:id"],
+  ["get", "/api/v1/projects/:id/ask"],
+  ["post", "/api/v1/projects/:id/ask"],
 ];
 
 describe("tenant isolation", () => {

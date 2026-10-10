@@ -18,7 +18,7 @@ const schema = z
     PUBLIC_APP_URL: z.string().url().default("http://localhost:5200"),
     GITHUB_CALLBACK_URL: z.string().url().optional(),
     GROQ_API_KEY: z.string().optional(),
-    LLM_MODEL: z.string().default("llama-3.3-70b-versatile"),
+    LLM_MODEL: z.string().default("openai/gpt-oss-120b"),
   })
   .transform((c) => ({
     ...c,

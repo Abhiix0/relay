@@ -7,6 +7,8 @@ import { errorHandler, notFoundHandler } from "./middleware/error";
 import { requestId } from "./middleware/requestId";
 import type { SyncRunner } from "./jobs/syncRunner";
 import type { GithubClient } from "./integrations/github";
+import { createGroqClient, type LlmClient } from "./integrations/llm";
+import { askRouter } from "./routes/ask";
 import { authRouter } from "./routes/auth";
 import { explorerRouter } from "./routes/explorer";
 import { githubReposRouter } from "./routes/githubRepos";
@@ -29,11 +31,10 @@ declare global {
   }
 }
 
-// llm integration interface arrives in a later phase.
 export interface AppDeps {
   db: Db;
   github: GithubClient;
-  llm?: unknown;
+  llm?: LlmClient;
   syncRunner?: SyncRunner;
   logger?: Logger;
 }
@@ -77,6 +78,7 @@ export function createApp(deps: AppDeps): Express {
   router.use(syncRouter(deps.db, deps.syncRunner));
   router.use(explorerRouter(deps.db));
   router.use(searchRouter(deps.db));
+  router.use(askRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(notFoundHandler);
   app.use("/api/v1", router);
 

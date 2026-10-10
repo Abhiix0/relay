@@ -1,3 +1,5 @@
+import type { ZodType } from "zod";
+import type { LlmClient } from "../integrations/llm";
 import type {
   GithubClient,
   GithubCommit,
@@ -134,5 +136,17 @@ export class FakeGithub implements GithubClient {
   }
   async searchCount(_t: string, _f: string, kind: "issue" | "pr"): Promise<number> {
     return this.counts[kind];
+  }
+}
+
+export class FakeLlm implements LlmClient {
+  calls: { system: string; user: string }[] = [];
+  /** scripted outputs, consumed in order; a function receives the user prompt; an Error is thrown */
+  responses: (unknown | Error | ((user: string) => unknown))[] = [];
+  async generateJson<T>(o: Parameters<LlmClient["generateJson"]>[0] & { schema: ZodType<T> }): Promise<T> {
+    this.calls.push({ system: o.system, user: o.user });
+    const next = this.responses.shift();
+    if (next instanceof Error) throw next;
+    return o.schema.parse(typeof next === "function" ? next(o.user) : next);
   }
 }

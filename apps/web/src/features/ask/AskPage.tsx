@@ -61,11 +61,12 @@ export function AskPage() {
     }
   };
 
+  const name = project?.name ?? "this project";
   const suggestions = [
-    "How does caching compute deterministic hashes?",
-    "Where is the daemon RPC client initialized?",
-    "How are workspace package dependencies resolved in the DAG?",
-    "What happens when a circular dependency is detected?",
+    `What does ${name} do?`,
+    `How is ${name} structured?`,
+    `How do I run ${name} locally?`,
+    "Where are the main entry points?",
   ];
 
   return (
@@ -80,7 +81,7 @@ export function AskPage() {
             Ask {project?.name || "Codebase"}
           </h1>
           <p className="text-xs text-text-muted mt-1">
-            Answers are synthesized directly from AST syntax trees, commits, and PR reviews. No blind guessing.
+            Answers are synthesized from indexed files, commits, issues and pull requests.
           </p>
         </div>
 
