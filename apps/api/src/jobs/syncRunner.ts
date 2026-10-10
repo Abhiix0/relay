@@ -21,6 +21,7 @@ const MAX_KEY_FILES = 60;
 const MAX_GLOBAL = 2;
 const BLOB_CONCURRENCY = 8;
 const FILE_BATCH = 100;
+const MINIFIED = /\.(?:min\.js|min\.css|map|snap)$/i;
 const BINARY_EXT = new Set(
   "png jpg jpeg gif webp ico pdf zip gz tar woff woff2 ttf eot mp3 mp4 mov wasm".split(" "),
 );
@@ -265,6 +266,19 @@ export function createSyncRunner({
         .map((k) => k.path),
     );
     const keyFiles: RepoFileDoc[] = [];
+    // unchanged sha => reuse last generation's content instead of refetching the blob
+    const prev = new Map(
+      (
+        await c.repoFiles
+          .find(
+            { projectId, gen: project.syncGeneration },
+            { projection: { path: 1, sha: 1, content: 1, isBinary: 1 } },
+          )
+          .toArray()
+      ).map((f) => [f.path, f]),
+    );
+    let reused = 0;
+    let fetched = 0;
     for (let i = 0; i < tree.length; i += FILE_BATCH) {
       const batch: RepoFileDoc[] = tree.slice(i, i + FILE_BATCH).map((e) => ({
         _id: new ObjectId(),
@@ -275,7 +289,7 @@ export function createSyncRunner({
         size: e.size,
         sha: e.sha,
         isBinary: isBinaryPath(e.path),
-        isLarge: e.size > MAX_FILE_BYTES,
+        isLarge: e.size > MAX_FILE_BYTES || MINIFIED.test(e.path),
         content: null,
         gen: newGen,
       }));
@@ -284,6 +298,14 @@ export function createSyncRunner({
         BLOB_CONCURRENCY,
         async (f) => {
           check();
+          const old = prev.get(f.path);
+          if (old && old.sha === f.sha) {
+            f.content = old.content;
+            f.isBinary = old.isBinary;
+            reused++;
+            return;
+          }
+          fetched++;
           const text = await github.getBlob(token, full, f.sha);
           if (text === null) f.isBinary = true;
           else f.content = text;
@@ -315,6 +337,7 @@ export function createSyncRunner({
       await progress(40 + Math.floor((45 * Math.min(i + FILE_BATCH, tree.length)) / tree.length));
     }
 
+    logger.info({ projectId: pid, reused, fetched }, "blobs reused vs fetched");
     for (const f of keyFiles) {
       add({
         type: "file",

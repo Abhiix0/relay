@@ -36,6 +36,15 @@ describe("chunker", () => {
   });
 });
 
+describe("chunker cap", () => {
+  it("splits chunks over 6000 chars and keeps startLine", () => {
+    const text = ["a", "b".repeat(14000), "c"].join("\n");
+    const chunks = chunk(text);
+    expect(chunks.every((c) => c.text.length <= 6000)).toBe(true);
+    expect(chunks.map((c) => c.startLine)).toEqual([1, 2, 2, 2]);
+  });
+});
+
 describe("secrets", () => {
   it("excludes secret files and vendor dirs", () => {
     for (const p of [".env", ".env.local", "a.pem", "k/server.key", "id_rsa", "x/my-secret.txt", "node_modules/x", "a/dist/b.js", "vendor/y.go"]) {

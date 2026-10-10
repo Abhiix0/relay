@@ -72,7 +72,7 @@ export interface GithubClient {
   /** decoded text, or null when the blob is binary */
   getBlob(token: string, full: string, sha: string): Promise<string | null>;
   listCommits(token: string, full: string, limit: number): Promise<GithubCommit[]>;
-  /** excludes pull requests */
+  /** excludes pull requests; pages (100 each, max 3) until `limit` items */
   listIssues(token: string, full: string, limit: number): Promise<GithubThread[]>;
   listPulls(token: string, full: string, limit: number): Promise<GithubThread[]>;
   getReadme(token: string, full: string): Promise<GithubReadme | null>;
@@ -257,22 +257,31 @@ export function createGithubClient(): GithubClient {
       const raw = (await (await check(res)).json()) as {
         sha: string;
         html_url: string;
-        commit: { message: string; author: { name: string; date: string } | null };
+        commit: {
+          message: string;
+          author: { name: string; date: string } | null;
+          committer: { date: string } | null;
+        };
       }[];
       return raw.map((c) => ({
         sha: c.sha,
         message: c.commit.message,
         url: c.html_url,
         authorName: c.commit.author?.name ?? "unknown",
-        date: new Date(c.commit.author?.date ?? 0),
+        date: new Date(c.commit.author?.date ?? c.commit.committer?.date ?? Date.now()),
       }));
     },
     async listIssues(token, full, limit) {
-      const raw = await getJson<RawThread[]>(
-        `${API}/repos/${full}/issues?state=all&per_page=${limit}`,
-        token,
-      );
-      return raw.filter((t) => !t.pull_request).map(toThread);
+      const out: GithubThread[] = [];
+      for (let page = 1; page <= 3 && out.length < limit; page++) {
+        const raw = await getJson<RawThread[]>(
+          `${API}/repos/${full}/issues?state=all&per_page=100&page=${page}`,
+          token,
+        );
+        out.push(...raw.filter((t) => !t.pull_request).map(toThread));
+        if (raw.length < 100) break;
+      }
+      return out.slice(0, limit);
     },
     async listPulls(token, full, limit) {
       const raw = await getJson<RawThread[]>(

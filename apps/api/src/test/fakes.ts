@@ -90,28 +90,30 @@ export class FakeGithub implements GithubClient {
     if (this.failOn === name) throw this.failWith;
   }
   truncated = false;
+  /** path -> version; bumping changes the sha so the runner sees a modified file */
+  shaVersion = new Map<string, number>();
   /** shas passed to getBlob */
   blobCalls: string[] = [];
   async getTree(): Promise<{ entries: GithubTreeEntry[]; truncated: boolean }> {
     if (this.gate) await this.gate;
     this.maybeFail("getTree");
     return {
-      entries: [...this.files].map(([path, f]) => ({ path, sha: `sha:${path}`, size: f.size })),
+      entries: [...this.files].map(([path, f]) => ({ path, sha: `sha:${path}${this.shaVersion.has(path) ? `#${this.shaVersion.get(path)}` : ""}`, size: f.size })),
       truncated: this.truncated,
     };
   }
   async getBlob(_t: string, _f: string, sha: string): Promise<string | null> {
     this.blobCalls.push(sha);
     this.maybeFail("getBlob");
-    return this.files.get(sha.slice(4))?.content ?? null;
+    return this.files.get(sha.slice(4).split("#")[0] ?? "")?.content ?? null;
   }
   async listCommits(): Promise<GithubCommit[]> {
     this.maybeFail("listCommits");
     return this.commits;
   }
-  async listIssues(): Promise<GithubThread[]> {
+  async listIssues(_t?: string, _f?: string, limit = Infinity): Promise<GithubThread[]> {
     this.maybeFail("listIssues");
-    return this.issues;
+    return this.issues.slice(0, limit);
   }
   async listPulls(): Promise<GithubThread[]> {
     this.maybeFail("listPulls");

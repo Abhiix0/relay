@@ -6,12 +6,29 @@ export interface TextChunk {
   text: string;
 }
 
+export const MAX_CHUNK_CHARS = 6000;
+
 export function chunk(text: string): TextChunk[] {
   if (text.length === 0) return [];
-  const lines = text.split(/\r?\n/);
   const out: TextChunk[] = [];
-  for (let i = 0; i < lines.length; i += CHUNK_LINES) {
-    out.push({ startLine: i + 1, text: lines.slice(i, i + CHUNK_LINES).join("\n") });
-  }
+  let buf: string[] = [];
+  let len = 0;
+  let start = 1;
+  const flush = () => {
+    if (buf.length) out.push({ startLine: start, text: buf.join("\n") });
+    buf = [];
+    len = 0;
+  };
+  text.split(/\r?\n/).forEach((line, i) => {
+    // an overlong line is sliced; every slice keeps that line's number
+    for (let o = 0; o === 0 || o < line.length; o += MAX_CHUNK_CHARS) {
+      const part = line.slice(o, o + MAX_CHUNK_CHARS);
+      if (buf.length >= CHUNK_LINES || (buf.length && len + part.length + 1 > MAX_CHUNK_CHARS)) flush();
+      if (!buf.length) start = i + 1;
+      buf.push(part);
+      len += part.length + 1;
+    }
+  });
+  flush();
   return out;
 }

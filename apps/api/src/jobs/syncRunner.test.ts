@@ -91,6 +91,24 @@ describe("sync runner", () => {
     expect(await c.activityEvents.countDocuments({ projectId: project._id, type: "sync" })).toBe(1);
   });
 
+  it("reuses unchanged blobs, refetches changed ones, skips minified files", async () => {
+    const { github, project, c, sync } = await setup();
+    github.addFile("app.min.js", "x=1");
+    await sync();
+    expect(github.blobCalls).not.toContain("sha:app.min.js");
+    const min = await c.repoFiles.findOne({ projectId: project._id, path: "app.min.js" });
+    expect(min).toMatchObject({ isLarge: true, content: null });
+    expect(await c.chunks.countDocuments({ projectId: project._id, path: "app.min.js" })).toBe(0);
+    github.blobCalls.length = 0;
+    await sync();
+    expect(github.blobCalls).toEqual([]);
+    expect(await c.chunks.countDocuments({ projectId: project._id, path: "src/main.rs" })).toBe(3);
+    github.addFile("README.md", "# changed");
+    github.shaVersion.set("README.md", 1);
+    await sync();
+    expect(github.blobCalls).toEqual(["sha:README.md#1"]);
+  });
+
   it("mid-run failure keeps the previous generation and marks failed", async () => {
     const { github, project, c, sync } = await setup();
     await sync();
