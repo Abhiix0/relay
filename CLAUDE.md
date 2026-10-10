@@ -1,6 +1,6 @@
 # Relay: instructions for Claude Code
 
-Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onboarding plans, and handoff documents. The React frontend is DONE and is the contract. You are building `apps/api` to satisfy it.
+Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onboarding plans, and handoff documents. The React frontend is the contract; `apps/api` satisfies it. Mode: audit-fix. Fix only what the prompt lists, no new features, no new dependencies.
 
 ## Stack
 - Monorepo: pnpm 10.18 workspaces, Node 22. `apps/web` (React 19, Vite 7, TanStack Query, zod 4, strict TS). `apps/api` (Express 5, TS strict, MongoDB native driver, zod 4, pino, Groq SDK).
@@ -32,13 +32,13 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 - Ask returns a complete answer in one response (client fakes streaming). No evidence → `confidence:"insufficient"`, `insufficientEvidence:true`, `sources:[]`, and no LLM call when retrieval returns zero chunks.
 
 ## Validation conventions
-- zod schema per request in the route file. Trim strings. Enforce the length caps from the plan (question 2000, title 200, summary 2000, section body 20000, `fullName` regex `^[\w.-]+/[\w.-]+$`).
+- zod schema per request in the route file. Trim strings. Enforce the length caps (question 2000, title 200, summary 2000, section body 20000, `fullName` regex `^[\w.-]+/[\w.-]+$`).
 - Strip unknown keys. Never accept `id`, `projectId`, `version`, `ownerId` from client bodies.
 - LLM output: strict JSON, zod-validated, one retry, cited source ids must be a subset of retrieved chunk ids.
 - Never index secret files (.env*, *.pem, *.key, id_rsa*, *secret*) or vendor/build dirs (`lib/secrets.ts`).
 
 ## Frontend integration rules
-- Web edits are limited to the auth wiring files listed in the current phase prompt. No visual, layout, copy, or route changes.
+- Edit only web files named in the current prompt. No style, layout, or route changes. Update affected tests. If another web file is needed, stop and name the file and the change.
 - Keep `pnpm test:visual` baselines untouched. Do not regenerate golden images.
 
 ## Commands
@@ -48,18 +48,18 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 - Web only: `pnpm --filter web check|lint|test`
 
 ## Environment (apps/api/.env.example; client-visible vars: none except VITE_USE_MOCKS)
-PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_SCOPE (default `read:user user:email public_repo`), TOKEN_ENCRYPTION_KEY (32 bytes base64), PUBLIC_APP_URL (e.g. http://localhost:5200), GROQ_API_KEY, LLM_MODEL (default llama-3.3-70b-versatile). Validate in `config.ts`; fail fast on boot. Never commit real values.
+PORT=4000, NODE_ENV, MONGODB_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_SCOPE (default `read:user user:email public_repo`), TOKEN_ENCRYPTION_KEY (32 bytes base64), PUBLIC_APP_URL (e.g. http://localhost:5200), GROQ_API_KEY, LLM_MODEL (default openai/gpt-oss-120b). Validate in `config.ts`; fail fast on boot. Never commit real values.
 
 ## Product constraints
 - Evidence-grounded only: every project-specific claim must trace to a retrieved chunk. The agent is read-only (no tools, no GitHub writes).
 - Owner-only projects. No teams, roles, archive, or settings persistence.
 
 ## Rules
-- Implement only what the plan lists. Anything marked NOT REQUIRED stays unbuilt. No speculative endpoints, fields, abstractions, or dependencies.
-- Do not modify existing web source beyond Phase 5. Do not reformat unrelated files.
+- Fix only what the prompt lists. No speculative endpoints, fields, abstractions, or dependencies.
+- Do not reformat unrelated files.
 - Never edit, skip, loosen or delete existing tests or visual baselines to get green. Fix the code. New tests assert the contract; do not weaken assertions or mock away the thing under test.
 - Keep the architecture consistent: new routes follow the route → service → collections pattern, use `loadOwnedProject`, return through `serialize.ts`, and get a contract test that parses the web zod schema plus an isolation test (other user → 404).
-- Work phase by phase in the order of the plan; run the phase's verify command before moving on. Do not re-investigate the frontend; use the contract files above.
+- Run the verify command for what you changed before finishing. Do not re-investigate the frontend; use the contract files above.
 
 ## Token discipline
 - Read only the files named in the prompt. Do not explore the repo.
