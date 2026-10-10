@@ -18,6 +18,11 @@ const ROUTES: [method: Method, path: string][] = [
   ["delete", "/api/v1/projects/:id"],
   ["get", "/api/v1/projects/:id/sync"],
   ["post", "/api/v1/projects/:id/sync"],
+  ["get", "/api/v1/projects/:id/artifacts"],
+  ["get", "/api/v1/projects/:id/artifacts/aaaaaaaaaaaaaaaaaaaaaaaa"],
+  ["get", "/api/v1/projects/:id/activity"],
+  ["get", "/api/v1/projects/:id/repository/tree"],
+  ["get", "/api/v1/projects/:id/repository/files/a.txt"],
 ];
 
 describe("tenant isolation", () => {

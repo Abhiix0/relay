@@ -21,6 +21,7 @@ Purpose: Relay connects to GitHub repos and gives evidence-grounded answers, onb
 ## Data conventions
 - API ids = `_id.toHexString()`. Dates = `toISOString()` (zod `.datetime()` rejects offsets). URLs absolute or null. Convert via `lib/serialize.ts` only.
 - Collections and indexes live in `db/indexes.ts`. Add an index there when you add a query pattern. `chunks` text index has a `projectId` prefix; always query with `projectId` equality.
+- Every read filters the current generation. `repo_files` and `chunks`: `gen = project.syncGeneration`. `artifacts`: `gen in [project.syncGeneration, null]` (null = decision mirrors). Never return rows from other generations.
 - File `language` is a lowercase slug (rust, typescript, markdown, json, toml). `Project.language` keeps GitHub casing.
 
 ## API conventions

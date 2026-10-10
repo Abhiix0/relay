@@ -80,7 +80,7 @@ describe("sync runner", () => {
     expect(chunks.some((x) => x.path === "pnpm-lock.yaml")).toBe(false);
     expect(JSON.stringify(chunks)).not.toContain("TOKEN=abc");
     const types = (await c.artifacts.find({ projectId: project._id }).toArray()).map((a) => a.type).sort();
-    expect(types).toEqual(["commit", "issue", "readme"]);
+    expect(types).toEqual(["commit", "file", "file", "issue", "readme"]);
     const p = (await c.projects.findOne({ _id: project._id }))!;
     expect(p).toMatchObject({ syncStatus: "succeeded", syncGeneration: 1 });
     expect(p.stats).toEqual({ commits: 42, releases: 3, issues: 7, pullRequests: 5, files: 5 });

@@ -1,4 +1,11 @@
-import type { ProjectDoc, SyncJobDoc, UserDoc } from "../db/collections";
+import type {
+  ActivityEventDoc,
+  ArtifactDoc,
+  ProjectDoc,
+  RepoFileDoc,
+  SyncJobDoc,
+  UserDoc,
+} from "../db/collections";
 
 export const iso = (d: Date): string => d.toISOString();
 
@@ -44,4 +51,37 @@ export const toSyncJob = (j: SyncJobDoc) => ({
   error: j.error,
   startedAt: iso(j.startedAt),
   completedAt: j.completedAt ? iso(j.completedAt) : null,
+});
+
+export const toArtifact = (a: ArtifactDoc) => ({
+  id: a._id.toHexString(),
+  projectId: a.projectId.toHexString(),
+  type: a.type,
+  title: a.title,
+  path: a.path,
+  url: a.url,
+  summary: a.summary,
+  createdAt: iso(a.createdAt),
+});
+
+export const toArtifactDetail = (a: ArtifactDoc) => ({ ...toArtifact(a), body: a.body.slice(0, 20000) });
+
+export const toActivity = (e: ActivityEventDoc) => ({
+  id: e._id.toHexString(),
+  projectId: e.projectId.toHexString(),
+  type: e.type,
+  title: e.title,
+  description: e.description,
+  createdAt: iso(e.createdAt),
+});
+
+export const toFileContent = (f: RepoFileDoc) => ({
+  projectId: f.projectId.toHexString(),
+  path: f.path,
+  name: f.name,
+  language: f.language,
+  content: f.isBinary || f.isLarge ? "" : (f.content ?? ""),
+  size: f.size,
+  isBinary: f.isBinary,
+  isLarge: f.isLarge,
 });

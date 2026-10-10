@@ -16,6 +16,7 @@ import { purgeSessions } from "../services/githubErrors";
 
 export const MAX_FILES = 2000;
 export const MAX_FILE_BYTES = 256 * 1024;
+const MAX_KEY_FILES = 60;
 const MAX_GLOBAL = 2;
 const BLOB_CONCURRENCY = 8;
 const FILE_BATCH = 100;
@@ -74,6 +75,15 @@ function priority(path: string): number {
   if (!path.includes("/")) return 1;
   if (lower.startsWith("src/")) return 2;
   return 3;
+}
+
+/** Lower is better; null = not a key file. README, docs, root files, then src entry points. */
+function keyRank(path: string): number | null {
+  const lower = path.toLowerCase();
+  if (/^readme/.test(lower)) return 0;
+  if (lower.startsWith("docs/")) return 1;
+  if (!path.includes("/")) return 2;
+  return /^src\/(?:.*\/)?(?:index|main|app|server)\.[a-z]+$/.test(lower) ? 3 : null;
 }
 
 function isBinaryPath(path: string): boolean {
@@ -232,6 +242,18 @@ export function createSyncRunner({
 
     // 40-90 write the new generation: files + chunks per batch, then artifacts
     const repoUrl = `https://github.com/${full}`;
+    const keyPaths = new Set(
+      tree
+        .filter((e) => !isBinaryPath(e.path) && e.size <= MAX_FILE_BYTES && !isLockfile(e.path))
+        .flatMap((e) => {
+          const rank = keyRank(e.path);
+          return rank === null ? [] : [{ path: e.path, rank }];
+        })
+        .sort((a, b) => a.rank - b.rank || (a.path < b.path ? -1 : 1))
+        .slice(0, MAX_KEY_FILES)
+        .map((k) => k.path),
+    );
+    const keyFiles: RepoFileDoc[] = [];
     for (let i = 0; i < tree.length; i += FILE_BATCH) {
       const batch: RepoFileDoc[] = tree.slice(i, i + FILE_BATCH).map((e) => ({
         _id: new ObjectId(),
@@ -258,6 +280,7 @@ export function createSyncRunner({
       );
       const chunks: ChunkDoc[] = [];
       for (const f of batch) {
+        if (f.content !== null && keyPaths.has(f.path)) keyFiles.push(f);
         if (f.content === null || isLockfile(f.path)) continue;
         for (const ch of chunk(f.content)) {
           chunks.push({
@@ -281,9 +304,23 @@ export function createSyncRunner({
       await progress(40 + Math.floor((45 * Math.min(i + FILE_BATCH, tree.length)) / tree.length));
     }
 
+    for (const f of keyFiles) {
+      add({
+        type: "file",
+        externalId: `file:${f.path}`,
+        title: f.path,
+        path: f.path,
+        url: `${repoUrl}/blob/${branch}/${f.path.split("/").map(encodeURIComponent).join("/")}`,
+        summary: `${f.language ?? "text"} - ${(f.size / 1024).toFixed(1)} KB`,
+        body: (f.content ?? "").slice(0, 20000),
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
     const artifactChunks: ChunkDoc[] = [];
     for (const a of artifacts) {
-      if (a.type === "readme") continue; // already chunked as a file
+      if (a.type === "readme" || a.type === "file") continue; // already chunked as files
       for (const ch of chunk(a.body || a.title)) {
         artifactChunks.push({
           _id: new ObjectId(),

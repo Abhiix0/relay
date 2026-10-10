@@ -72,6 +72,9 @@ export const artifactSchema = z.object({
 });
 export type Artifact = z.infer<typeof artifactSchema>;
 
+export const artifactDetailSchema = artifactSchema.extend({ body: z.string() });
+export type ArtifactDetail = z.infer<typeof artifactDetailSchema>;
+
 /* ── Source / Evidence ────────────────────────────────────── */
 export const sourceSchema = z.object({
   id: z.string(),
@@ -312,7 +315,7 @@ export const githubRepoOptionSchema = z.object({
   language: z.string().nullable(),
   private: z.boolean(),
   defaultBranch: z.string(),
-  pushedAt: z.string(),
+  pushedAt: z.string().nullable(),
   connected: z.boolean(),
   connectedProjectId: z.string().nullable(),
 });

@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { CodeBlock } from "@/components/ui/code-block";
 import { FilePath } from "@/components/ui/file-path";
+import { useArtifact } from "@/lib/api/hooks";
 import type { Artifact } from "@/lib/api/types";
 
 interface ArtifactPreviewProps {
@@ -28,26 +28,7 @@ export function ArtifactPreview({ artifact, projectId }: ArtifactPreviewProps) {
     }
   };
 
-  const sampleSnippet =
-    artifact.type === "file"
-      ? `// Indexed AST symbols for ${artifact.path}
-use std::sync::Arc;
-use petgraph::graph::NodeIndex;
-
-pub struct TaskGraphBuilder {
-    workspace_root: PathBuf,
-    dag: petgraph::Graph<TaskNode, DependencyEdge>,
-}
-
-impl TaskGraphBuilder {
-    pub fn new(root: PathBuf) -> Self {
-        Self { workspace_root: root, dag: Default::default() }
-    }
-}`
-      : `### Architecture Note
-Summary: ${artifact.summary}
-Created: ${new Date(artifact.createdAt).toLocaleDateString()}
-Status: Grounded in AST and Git Blame`;
+  const { data, isLoading, error } = useArtifact(projectId, artifact.id);
 
   return (
     <Card className="border-border bg-surface-accent h-full flex flex-col">
@@ -95,10 +76,26 @@ Status: Grounded in AST and Git Blame`;
       </CardHeader>
 
       <CardContent className="p-4 sm:p-5 flex-1 overflow-auto">
-        <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted mb-2">
-          Evidence Snippet & AST Symbols
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted">Content</div>
+          {artifact.type === "file" && artifact.path && (
+            <Link
+              to={`/app/projects/${projectId}/files?file=${encodeURIComponent(artifact.path)}`}
+              className="text-[11px] font-mono text-copper underline"
+            >
+              Open in file browser
+            </Link>
+          )}
         </div>
-        <CodeBlock code={sampleSnippet} />
+        {isLoading ? (
+          <div className="text-xs text-text-muted font-mono">Loading…</div>
+        ) : error ? (
+          <div className="text-xs text-error font-mono">
+            {error instanceof Error ? error.message : "Failed to load artifact."}
+          </div>
+        ) : (
+          <pre className="text-xs font-mono text-paper whitespace-pre-wrap break-words">{data?.body}</pre>
+        )}
       </CardContent>
     </Card>
   );

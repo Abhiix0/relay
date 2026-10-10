@@ -17,7 +17,7 @@ export function ExplorerPage() {
 
   const { data: artifacts = [], isLoading, error, refetch } = useProjectArtifacts(id, selectedType, search);
 
-  const types = ["all", "file", "pr", "commit", "decision"];
+  const types = ["all", "file", "issue", "pr", "commit", "readme", "decision"];
   const activeArtifact = artifacts.find((a) => a.id === selectedId) || artifacts[0];
 
   const getIcon = (type: string) => {
@@ -43,10 +43,10 @@ export function ExplorerPage() {
             Codebase & Evidence Navigation
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-normal text-paper">
-            Explorer & AST Browser
+            Explorer
           </h1>
           <p className="text-xs text-text-muted mt-1">
-            Browse indexed source files, structural decisions, and historical git blame deltas.
+            Browse indexed files, issues, pull requests, commits and recorded decisions.
           </p>
         </div>
 

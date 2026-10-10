@@ -4,6 +4,7 @@ import { queryKeys } from "./query-keys";
 import type {
   ActivityEvent,
   Artifact,
+  ArtifactDetail,
   AskAnswer,
   Decision,
   GithubReposResponse,
@@ -88,6 +89,14 @@ export function useProjectArtifacts(id?: string, type?: string, query?: string) 
       return api.get<Artifact[]>(`/projects/${id}/artifacts${qs ? `?${qs}` : ""}`);
     },
     enabled: Boolean(id),
+  });
+}
+
+export function useArtifact(projectId?: string, artifactId?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.artifacts(projectId || ""), "detail", artifactId] as const,
+    queryFn: () => api.get<ArtifactDetail>(`/projects/${projectId}/artifacts/${artifactId}`),
+    enabled: Boolean(projectId && artifactId),
   });
 }
 
