@@ -31,6 +31,13 @@ const ROUTES: [method: Method, path: string][] = [
   ["get", "/api/v1/projects/:id/onboarding/data"],
   ["get", "/api/v1/projects/:id/onboarding"],
   ["patch", "/api/v1/projects/:id/onboarding/items/abc"],
+  ["get", "/api/v1/projects/:id/handoffs"],
+  ["get", "/api/v1/projects/:id/handoffs?version=1"],
+  ["get", "/api/v1/projects/:id/handoffs/current"],
+  ["post", "/api/v1/projects/:id/handoffs/generate"],
+  ["patch", "/api/v1/projects/:id/handoffs/current"],
+  ["post", "/api/v1/projects/:id/handoffs/versions"],
+  ["post", "/api/v1/projects/:id/handoffs"],
 ];
 
 describe("tenant isolation", () => {

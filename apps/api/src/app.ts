@@ -13,6 +13,7 @@ import { authRouter } from "./routes/auth";
 import { decisionsRouter } from "./routes/decisions";
 import { explorerRouter } from "./routes/explorer";
 import { githubReposRouter } from "./routes/githubRepos";
+import { handoffsRouter } from "./routes/handoffs";
 import { onboardingRouter } from "./routes/onboarding";
 import { projectsRouter } from "./routes/projects";
 import { searchRouter } from "./routes/search";
@@ -82,6 +83,7 @@ export function createApp(deps: AppDeps): Express {
   router.use(searchRouter(deps.db));
   router.use(decisionsRouter(deps.db));
   router.use(onboardingRouter(deps.db));
+  router.use(handoffsRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(askRouter(deps.db, deps.llm ?? createGroqClient()));
   router.use(notFoundHandler);
   app.use("/api/v1", router);

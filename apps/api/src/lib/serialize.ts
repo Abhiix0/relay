@@ -3,6 +3,7 @@ import type {
   ArtifactDoc,
   AskAnswerDoc,
   DecisionDoc,
+  HandoffDoc,
   OnboardingPlanDoc,
   ProjectAnalysisDoc,
   ProjectDoc,
@@ -128,6 +129,17 @@ export const toOnboardingData = (p: ProjectDoc, a: ProjectAnalysisDoc | null, ha
     structureAnalyzed: a !== null,
     handoffReady,
   },
+});
+
+export const toHandoff = (h: HandoffDoc) => ({
+  id: h._id.toHexString(),
+  projectId: h.projectId.toHexString(),
+  title: h.title,
+  summary: h.summary,
+  sections: h.sections,
+  version: h.version,
+  createdAt: iso(h.createdAt),
+  updatedAt: iso(h.updatedAt),
 });
 
 export const toAskAnswer =(a: AskAnswerDoc) => ({

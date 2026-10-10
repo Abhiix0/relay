@@ -27,7 +27,7 @@ const SYSTEM = `You answer questions about a software repository using ONLY the 
 - Respond with JSON only: {"answer": string, "citedEvidence": ["E1", ...], "confidence": "high"|"medium"|"low"|"insufficient"}.
 - citedEvidence lists only labels of evidence blocks you actually used.`;
 
-const toSource = (c: ChunkDoc): SourceValue => ({
+export const toSource = (c: ChunkDoc): SourceValue => ({
   id: `src_${c._id.toHexString()}`,
   type: c.type,
   path: c.path,
