@@ -72,6 +72,9 @@ export const artifactSchema = z.object({
 });
 export type Artifact = z.infer<typeof artifactSchema>;
 
+export const artifactDetailSchema = artifactSchema.extend({ body: z.string() });
+export type ArtifactDetail = z.infer<typeof artifactDetailSchema>;
+
 /* ── Source / Evidence ────────────────────────────────────── */
 export const sourceSchema = z.object({
   id: z.string(),
@@ -290,6 +293,7 @@ export const searchResultItemSchema = z.object({
   snippet: z.string(),
   matchedText: z.string().optional(),
   language: z.string().nullable(),
+  url: z.string().nullable().optional(),
 });
 export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
 
@@ -301,3 +305,25 @@ export const searchResultsSchema = z.object({
   totalCount: z.number(),
 });
 export type SearchResults = z.infer<typeof searchResultsSchema>;
+
+/* ── GitHub Repo Picker ───────────────────────────────────── */
+export const githubRepoOptionSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  name: z.string(),
+  owner: z.string(),
+  description: z.string().nullable(),
+  language: z.string().nullable(),
+  private: z.boolean(),
+  defaultBranch: z.string(),
+  pushedAt: z.string().nullable(),
+  connected: z.boolean(),
+  connectedProjectId: z.string().nullable(),
+});
+export type GithubRepoOption = z.infer<typeof githubRepoOptionSchema>;
+
+export const githubReposResponseSchema = z.object({
+  repos: z.array(githubRepoOptionSchema),
+  canAccessPrivate: z.boolean(),
+});
+export type GithubReposResponse = z.infer<typeof githubReposResponseSchema>;

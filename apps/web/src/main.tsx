@@ -15,6 +15,7 @@ import "@fontsource/jetbrains-mono/600.css";
 // Import styles
 import "@/styles/globals.css";
 
+
 const root = document.getElementById("root");
 
 if (!root) {

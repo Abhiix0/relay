@@ -120,7 +120,7 @@ export function ProjectsListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects..."
-              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-1.5 text-xs text-paper placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
+              className="w-full rounded border border-border bg-surface-accent pl-9 pr-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-copper font-mono"
             />
           </div>
 

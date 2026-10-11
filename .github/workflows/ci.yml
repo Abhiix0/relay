@@ -48,6 +48,12 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Cache MongoDB binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: ${{ runner.os }}-mongo-binaries
+
       - name: Run tests
         run: pnpm test
 

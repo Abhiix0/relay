@@ -14,7 +14,8 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { RelayMark } from "@/components/ui/relay-mark";
 import { StatusPill } from "@/components/ui/status-pill";
-import { useCurrentUser, useProjects } from "@/lib/api/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser, useLogout, useProjects } from "@/lib/api/hooks";
 import { CommandPalette } from "./CommandPalette";
 
 interface AppHeaderProps {
@@ -25,6 +26,8 @@ interface AppHeaderProps {
 export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const logout = useLogout();
   const { data: user } = useCurrentUser();
   const { data: projects = [] } = useProjects();
 
@@ -171,7 +174,14 @@ export function AppHeader({ currentProjectId, onMobileMenuToggle }: AppHeaderPro
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border/40" />
                 <DropdownMenuItem
-                  onClick={() => navigate("/sign-in")}
+                  onClick={() =>
+                    logout.mutate(undefined, {
+                      onSettled: () => {
+                        queryClient.clear();
+                        navigate("/sign-in");
+                      },
+                    })
+                  }
                   className="flex items-center gap-2 text-xs text-error cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5" />

@@ -82,6 +82,16 @@ export async function apiFetch<T>(
   );
 
   if (!response.ok) {
+    if (
+      response.status === 401 &&
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.pathname !== "/" &&
+      window.location.pathname !== "/sign-in"
+    ) {
+      window.location.assign("/sign-in");
+    }
+
     let errorMessage = response.statusText || "Request failed";
     if (!isExplicitNonJson && typeof response.json === "function") {
       try {

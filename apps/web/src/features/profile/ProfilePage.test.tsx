@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import * as apiHooks from "@/lib/api/hooks";
 import { ProfilePage } from "./ProfilePage";
@@ -10,8 +11,20 @@ vi.mock("@/lib/api/hooks", async () => {
     ...actual,
     useCurrentUser: vi.fn(),
     useProjects: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+    useLogout: () => ({ mutate: vi.fn(), isPending: false }),
   };
 });
+
+function renderWithClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>{ui}</BrowserRouter>
+    </QueryClientProvider>
+  );
+}
 
 describe("ProfilePage", () => {
   it("renders user details when data is present", () => {
@@ -26,11 +39,7 @@ describe("ProfilePage", () => {
       isLoading: false,
     } as unknown as ReturnType<typeof apiHooks.useCurrentUser>);
 
-    render(
-      <BrowserRouter>
-        <ProfilePage />
-      </BrowserRouter>
-    );
+    renderWithClient(<ProfilePage />);
 
     expect(screen.getByText("Developer Profile")).toBeInTheDocument();
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
@@ -44,11 +53,7 @@ describe("ProfilePage", () => {
       isLoading: false,
     } as unknown as ReturnType<typeof apiHooks.useCurrentUser>);
 
-    render(
-      <BrowserRouter>
-        <ProfilePage />
-      </BrowserRouter>
-    );
+    renderWithClient(<ProfilePage />);
 
     expect(screen.getByText("Developer Profile")).toBeInTheDocument();
     expect(screen.getByText("Developer")).toBeInTheDocument();

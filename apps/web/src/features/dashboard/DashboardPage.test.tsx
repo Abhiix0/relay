@@ -72,6 +72,7 @@ describe("DashboardPage Component", () => {
 
     expect(screen.getByText("Total Projects")).toBeInTheDocument();
     expect(screen.getByText("Open Issues")).toBeInTheDocument();
+    expect(screen.getByText("Sync Failures")).toBeInTheDocument();
     expect(screen.getByText("vercel/turbo")).toBeInTheDocument();
   });
 });

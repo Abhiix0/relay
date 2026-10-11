@@ -4,8 +4,10 @@ import { queryKeys } from "./query-keys";
 import type {
   ActivityEvent,
   Artifact,
+  ArtifactDetail,
   AskAnswer,
   Decision,
+  GithubReposResponse,
   Handoff,
   OnboardingPlan,
   Project,
@@ -26,6 +28,17 @@ export function useProjects() {
   return useQuery({
     queryKey: queryKeys.projects.all,
     queryFn: () => api.get<Project[]>("/projects"),
+    refetchInterval: (query) =>
+      query.state.data?.some((p) => p.syncStatus === "running") ? 2000 : false,
+  });
+}
+
+export function useGithubRepos(q: string) {
+  return useQuery({
+    queryKey: ["github", "repos", q] as const,
+    queryFn: () =>
+      api.get<GithubReposResponse>(`/github/repos${q ? `?q=${encodeURIComponent(q)}` : ""}`),
+    staleTime: 30_000,
   });
 }
 
@@ -34,6 +47,12 @@ export function useProject(id?: string) {
     queryKey: queryKeys.projects.detail(id || ""),
     queryFn: () => api.get<Project>(`/projects/${id}`),
     enabled: Boolean(id),
+  });
+}
+
+export function useLogout() {
+  return useMutation({
+    mutationFn: () => api.post<undefined>("/auth/logout"),
   });
 }
 
@@ -70,6 +89,14 @@ export function useProjectArtifacts(id?: string, type?: string, query?: string) 
       return api.get<Artifact[]>(`/projects/${id}/artifacts${qs ? `?${qs}` : ""}`);
     },
     enabled: Boolean(id),
+  });
+}
+
+export function useArtifact(projectId?: string, artifactId?: string) {
+  return useQuery({
+    queryKey: [...queryKeys.projects.artifacts(projectId || ""), "detail", artifactId] as const,
+    queryFn: () => api.get<ArtifactDetail>(`/projects/${projectId}/artifacts/${artifactId}`),
+    enabled: Boolean(projectId && artifactId),
   });
 }
 
@@ -263,7 +290,7 @@ export function useRepositoryTree(id?: string) {
 export function useFileContent(id?: string, filePath?: string) {
   return useQuery({
     queryKey: [...queryKeys.projects.detail(id || ""), "repository", "files", filePath] as const,
-    queryFn: () => api.get<import("./types").FileContent>(`/projects/${id}/repository/files/${filePath}`),
+    queryFn: () => api.get<import("./types").FileContent>(`/projects/${id}/repository/files/${filePath?.split("/").map(encodeURIComponent).join("/")}`),
     enabled: Boolean(id && filePath),
   });
 }

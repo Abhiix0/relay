@@ -55,7 +55,7 @@ export function HandoffEvidence({ sources, projectId, insufficientEvidence = fal
         </div>
         
         <div className="bg-sun/10 border border-sun/20 rounded p-3 space-y-2">
-          <p className="text-xs text-paper leading-relaxed">
+          <p className="text-xs text-text leading-relaxed">
             This section could not be generated confidently from the indexed project context.
           </p>
           <p className="text-xs text-text-muted leading-relaxed">
@@ -67,7 +67,7 @@ export function HandoffEvidence({ sources, projectId, insufficientEvidence = fal
               size="sm"
               variant="ghost"
               onClick={handleAskAboutEvidence}
-              className="text-xs font-mono text-sun hover:text-paper"
+              className="text-xs font-mono text-sun hover:text-text"
             >
               Ask AI for guidance
             </Button>

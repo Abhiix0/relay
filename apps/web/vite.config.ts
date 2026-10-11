@@ -10,6 +10,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // 5173 sits in a common Windows Hyper-V excluded range (EACCES on listen).
+  // Bind `localhost` (not 127.0.0.1) so the cookie host matches PUBLIC_APP_URL.
+  server: {
+    host: 'localhost',
+    port: 5200,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: false,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

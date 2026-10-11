@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useSyncStatus, useTriggerSync } from "@/lib/api/hooks";
+import { queryKeys } from "@/lib/api/query-keys";
 import type { Project } from "@/lib/api/types";
 
 interface ProjectHeroProps {
@@ -13,6 +15,9 @@ interface ProjectHeroProps {
 export function ProjectHero({ project }: ProjectHeroProps) {
   const triggerSync = useTriggerSync(project.id);
   const { data: syncJob, refetch: refetchSyncStatus } = useSyncStatus(project.id);
+
+  const queryClient = useQueryClient();
+  const wasRunning = useRef(false);
 
   const isSyncing = project.syncStatus === "running" || syncJob?.status === "running";
 
@@ -26,6 +31,34 @@ export function ProjectHero({ project }: ProjectHeroProps) {
 
     return () => clearInterval(interval);
   }, [isSyncing, refetchSyncStatus]);
+
+  // Live updates (also catches webhook-triggered syncs). Any failure closes the stream and the polling above carries on.
+  useEffect(() => {
+    if (typeof EventSource === "undefined") return;
+    const source = new EventSource(`/api/v1/projects/${project.id}/events`);
+    source.addEventListener("sync", () => {
+      refetchSyncStatus();
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(project.id) });
+    });
+    source.onerror = () => source.close();
+    return () => source.close();
+  }, [project.id, refetchSyncStatus, queryClient]);
+
+  // Refresh everything a finished sync may have changed.
+  useEffect(() => {
+    const running = syncJob?.status === "running";
+    if (wasRunning.current && !running) {
+      for (const queryKey of [
+        queryKeys.projects.detail(project.id),
+        queryKeys.projects.all,
+        queryKeys.projects.artifacts(project.id),
+        queryKeys.projects.activity(project.id),
+      ]) {
+        queryClient.invalidateQueries({ queryKey });
+      }
+    }
+    wasRunning.current = running;
+  }, [syncJob?.status, project.id, queryClient]);
 
   const getSyncStatus = (
     status: Project["syncStatus"]
@@ -100,6 +133,12 @@ export function ProjectHero({ project }: ProjectHeroProps) {
               </div>
               <Progress value={syncJob.progress} variant="copper" className="h-1.5" />
             </div>
+          )}
+
+          {syncJob?.status === "failed" && syncJob.error && (
+            <p role="alert" className="text-xs text-error font-mono">
+              {syncJob.error}
+            </p>
           )}
         </div>
 

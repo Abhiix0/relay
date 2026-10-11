@@ -13,48 +13,10 @@ export const signInSchema = z.object({
 
 export type SignInInput = z.infer<typeof signInSchema>;
 
-export interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
-  token: string;
+export async function signInWithEmail(_data: SignInInput): Promise<never> {
+  throw new Error("Email sign-in is not available. Continue with GitHub.");
 }
 
-/**
- * Local auth stub that resolves after 600ms.
- */
-export async function signInWithEmail(data: SignInInput): Promise<AuthResponse> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  // If password is "fail", trigger an error state for testing
-  if (data.password === "error123") {
-    throw new Error("Invalid email or password");
-  }
-
-  return {
-    user: {
-      id: "usr_mock_1",
-      email: data.email,
-      name: data.email.split("@")[0] || "User",
-    },
-    token: "mock_jwt_token",
-  };
-}
-
-/**
- * Local GitHub OAuth stub that resolves after 600ms.
- */
-export async function signInWithGithub(): Promise<AuthResponse> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  return {
-    user: {
-      id: "usr_mock_github",
-      email: "developer@github.com",
-      name: "GitHub Developer",
-    },
-    token: "mock_github_jwt_token",
-  };
+export async function signInWithGithub(): Promise<void> {
+  window.location.assign("/api/v1/auth/github");
 }

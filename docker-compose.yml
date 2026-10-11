@@ -1,6 +1,30 @@
-version: '3.8'
-
 services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    env_file:
+      - path: apps/api/.env
+        required: false
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/relay
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
   web:
     build:
       context: .
@@ -10,11 +34,12 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
-    
-    # Health check
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  mongo_data:

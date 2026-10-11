@@ -7,15 +7,22 @@ interface HandoffEmptyStateProps {
   projectId: string;
   onGenerate: () => void;
   isGenerating?: boolean;
+  error?: string;
 }
 
-export function HandoffEmptyState({ projectId, onGenerate, isGenerating = false }: HandoffEmptyStateProps) {
+export function HandoffEmptyState({ projectId, onGenerate, isGenerating = false, error }: HandoffEmptyStateProps) {
   return (
     <EmptyState
       title="No handoff documentation generated"
       description="Create a comprehensive engineering handoff document based on your repository's architecture, key files, and implementation patterns."
       action={
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-col items-center gap-3">
+          {error && (
+            <p role="alert" className="text-xs text-red-500">
+              {error}
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
           <Button
             onClick={onGenerate}
             disabled={isGenerating}
@@ -47,6 +54,7 @@ export function HandoffEmptyState({ projectId, onGenerate, isGenerating = false 
               Ask AI for guidance
             </Link>
           </Button>
+          </div>
         </div>
       }
     />

@@ -114,3 +114,5 @@ baseline/current/
 baseline/diff/
 baseline/.playwright-results/
 baseline/.playwright-report/
+
+apps/api/.env

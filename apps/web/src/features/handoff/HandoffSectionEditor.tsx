@@ -67,7 +67,7 @@ export function HandoffSectionEditor({
                   id={`heading-${section.id}`}
                   value={heading}
                   onChange={(e) => setHeading(e.target.value)}
-                  className="bg-surface border-border text-paper text-sm font-mono"
+                  className="bg-surface border-border text-text text-sm font-mono"
                   placeholder="Enter section heading..."
                 />
               </div>
@@ -80,7 +80,7 @@ export function HandoffSectionEditor({
                   id={`body-${section.id}`}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  className="bg-surface border-border text-paper text-xs min-h-[120px] leading-relaxed font-sans"
+                  className="bg-surface border-border text-text text-xs min-h-[120px] leading-relaxed font-sans"
                   placeholder="Enter section content... Use plain text or Markdown formatting."
                 />
               </div>
@@ -95,7 +95,7 @@ export function HandoffSectionEditor({
                   size="sm"
                   variant="ghost"
                   onClick={handleCancel}
-                  className="text-xs font-mono text-text-muted hover:text-paper"
+                  className="text-xs font-mono text-text-muted hover:text-text"
                 >
                   <X className="h-3.5 w-3.5 mr-1" />
                   Cancel
@@ -116,7 +116,7 @@ export function HandoffSectionEditor({
           <>
             {/* View Mode */}
             <div className="flex items-start justify-between gap-3">
-              <h3 className="text-sm font-semibold text-paper font-mono flex-1">
+              <h3 className="text-sm font-semibold text-text font-mono flex-1">
                 {section.heading}
               </h3>
               <Button
@@ -130,7 +130,7 @@ export function HandoffSectionEditor({
               </Button>
             </div>
 
-            <div className="text-xs text-paper leading-relaxed whitespace-pre-line font-sans">
+            <div className="text-xs text-text leading-relaxed whitespace-pre-line font-sans">
               {section.body}
             </div>
           </>

@@ -12,6 +12,7 @@ import {
   useUpdateHandoff,
   useCreateHandoffVersion,
 } from "@/lib/api/hooks";
+import { ApiError } from "@/lib/api/client";
 import type { HandoffSection } from "@/lib/api/types";
 import { HandoffSectionEditor } from "./HandoffSectionEditor";
 import { HandoffVersionHistory } from "./HandoffVersionHistory";
@@ -96,7 +97,8 @@ export function HandoffPage() {
 
   const isLoading = isLoadingVersions || isLoadingCurrent || generateMutation.isPending;
 
-  if (error) {
+  // 404 on the current handoff means none exists yet, not a failure
+  if (error && !(error instanceof ApiError && error.status === 404)) {
     return (
       <AppShell>
         <ErrorState
@@ -134,6 +136,7 @@ export function HandoffPage() {
             projectId={id || ""}
             onGenerate={handleGenerate}
             isGenerating={generateMutation.isPending}
+            error={generateMutation.error?.message}
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

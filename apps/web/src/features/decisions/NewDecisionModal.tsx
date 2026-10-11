@@ -35,7 +35,7 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
       {
         title: title.trim(),
         summary: summary.trim(),
-        rationale: rationale.trim() || "Approved consensus by engineering leads.",
+        rationale: rationale.trim(),
         sources: [],
       },
       {
@@ -78,7 +78,7 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
               placeholder="ADR-00X: Short title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-surface-accent border-border text-paper text-sm font-mono"
+              className="bg-surface-accent border-border text-text text-sm font-mono"
               required
             />
           </div>
@@ -92,7 +92,7 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
               placeholder="What choice was made?"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
-              className="bg-surface-accent border-border text-paper text-sm"
+              className="bg-surface-accent border-border text-text text-sm"
               required
             />
           </div>
@@ -106,7 +106,7 @@ export function NewDecisionModal({ projectId }: NewDecisionModalProps) {
               placeholder="Why this direction was chosen over alternatives..."
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
-              className="bg-surface-accent border-border text-paper text-xs"
+              className="bg-surface-accent border-border text-text text-xs"
               rows={4}
             />
           </div>
