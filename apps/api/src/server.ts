@@ -20,7 +20,7 @@ try {
   await ensureIndexes(handle.db);
   const github = createGithubClient();
   const llm = createGroqClient();
-  const embedder = createLocalEmbedder();
+  const embedder = config.EMBEDDINGS_ENABLED ? createLocalEmbedder() : undefined;
   const syncRunner = createSyncRunner({
     db: handle.db,
     github,
