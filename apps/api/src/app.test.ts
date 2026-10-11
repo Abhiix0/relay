@@ -2,9 +2,11 @@ import express from "express";
 import type { Db } from "mongodb";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import pino from "pino";
 import { z } from "zod";
 import { projectSchema } from "@web-types/types";
 import { createApp } from "./app";
+import { resetConfig } from "./config";
 import { AppError } from "./lib/errors";
 import { errorHandler } from "./middleware/error";
 import { FakeGithub } from "./test/fakes";
@@ -38,6 +40,36 @@ describe("app foundation", () => {
     const res = await request(app).get("/api/v1/nope");
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ message: "Not found", code: "not_found" });
+  });
+
+  it("sends no-store on API responses and the 404 handler", async () => {
+    const ok = await request(app).get("/api/v1/healthz");
+    expect(ok.headers["cache-control"]).toBe("no-store");
+    const nf = await request(app).get("/api/v1/nope");
+    expect(nf.headers["cache-control"]).toBe("no-store");
+  });
+
+  it.each([
+    ["true", true],
+    ["false", false],
+  ])("LOG_CLIENT_IP=%s -> client ip logged: %s", async (value, logged) => {
+    process.env.LOG_CLIENT_IP = value;
+    resetConfig();
+    const lines: string[] = [];
+    const logger = pino({ level: "info" }, { write: (s: string) => void lines.push(s) });
+    try {
+      await request(createApp({ db, github: new FakeGithub(), logger }))
+        .get("/api/v1/healthz")
+        .set("X-Forwarded-For", "9.9.9.9")
+        .set("Cookie", "relay_sid=secret-cookie");
+    } finally {
+      delete process.env.LOG_CLIENT_IP;
+      resetConfig();
+    }
+    const out = lines.join("");
+    expect(out.includes("9.9.9.9")).toBe(logged);
+    expect(out).toContain('"path":"/api/v1/healthz"');
+    expect(out).not.toContain("secret-cookie");
   });
 
   it("echoes X-Request-Id and generates one otherwise", async () => {

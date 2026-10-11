@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: relay-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    plan: standard
+    healthCheckPath: /api/v1/healthz
+    autoDeployTrigger: checksPass
+    maxShutdownDelaySeconds: 60
+    numInstances: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "3"
+      - key: EMBEDDINGS_ENABLED
+        value: "true"
+      - key: LOG_CLIENT_IP
+        value: "false"
+      - key: LLM_MODEL
+        value: openai/gpt-oss-120b
+      - key: GITHUB_SCOPE
+        value: read:user user:email public_repo
+      - key: MAX_PROJECTS_PER_USER
+        value: "10"
+      - key: MONGODB_URI
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false
+      - key: PUBLIC_APP_URL
+        sync: false
+      - key: GITHUB_CALLBACK_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false

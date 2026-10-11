@@ -52,7 +52,8 @@ export interface AppDeps {
 
 export function createApp(deps: AppDeps): Express {
   const app = express();
-  app.set("trust proxy", loadConfig().TRUST_PROXY);
+  const { TRUST_PROXY, LOG_CLIENT_IP: logClientIp } = loadConfig();
+  app.set("trust proxy", TRUST_PROXY);
   app.disable("x-powered-by");
 
   const logger =
@@ -72,6 +73,7 @@ export function createApp(deps: AppDeps): Express {
           id: req.id,
           method: req.method,
           path: stripQuery(req.originalUrl ?? req.url),
+          ...(logClientIp && { ip: req.ip, xForwardedFor: req.headers["x-forwarded-for"] }),
         }),
       },
     }),
@@ -82,6 +84,10 @@ export function createApp(deps: AppDeps): Express {
   app.use(express.json({ limit: "1mb" }));
 
   const router = Router();
+  router.use((_req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    next();
+  });
   router.use(perIpJsonLimit(300));
   router.use(requireOrigin);
   router.get("/healthz", async (_req, res) => {

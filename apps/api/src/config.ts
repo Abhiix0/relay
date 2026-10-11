@@ -25,6 +25,7 @@ const schema = z
     TRUST_PROXY: z.coerce.number().int().min(0).default(1),
     LLM_MODEL: z.string().default("openai/gpt-oss-120b"),
     EMBEDDINGS_ENABLED: z.enum(["true", "false"]).default("true").transform((v) => v === "true"),
+    LOG_CLIENT_IP: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   })
   .transform((c) => ({
     ...c,
