@@ -44,7 +44,12 @@ export function SearchResultItem({
   query,
   onResultClick,
 }: SearchResultItemProps) {
-  const meta = TYPE_META[result.type] ?? TYPE_META.file;
+  const meta = TYPE_META[result.type] ?? {
+    icon: FileCode2,
+    color: "text-copper",
+    bg: "bg-copper/10",
+    label: "File",
+  };
   const Icon = meta.icon;
 
   return (

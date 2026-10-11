@@ -5,7 +5,6 @@ import {
   FileCode2,
   FileText,
   Layers,
-  Loader2,
   Search,
   SlidersHorizontal,
   X,
@@ -146,8 +145,7 @@ export function SearchPage() {
               ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search functions, classes, documentation..."
-              autoFocus
+              placeholder="Search for functions, classes, documentation..."
               className="flex-1 bg-transparent pl-11 pr-4 py-4 text-sm text-text placeholder:text-text-muted focus:outline-none font-sans"
             />
             {inputValue && (
@@ -268,7 +266,7 @@ export function SearchPage() {
           {query && !isLoading && searchResults && (
             <div className="flex items-center justify-between py-2 border-b border-border/40">
               <p className="text-xs font-mono text-text-muted">
-                <span className="text-copper font-semibold">{resultCount}</span>{" "}
+                Found{" "}<span className="text-copper font-semibold">{resultCount}</span>{" "}
                 {resultCount === 1 ? "result" : "results"} for{" "}
                 <span className="text-text font-semibold">"{query}"</span>
               </p>
@@ -333,7 +331,7 @@ function SearchEmptyPrompt() {
         </div>
       </div>
       <div className="space-y-2 max-w-sm">
-        <h2 className="text-lg font-serif text-text">Search your codebase</h2>
+        <h2 className="text-lg font-serif text-text">Start searching</h2>
         <p className="text-sm text-text-muted leading-relaxed">
           Type a function, class, keyword, or concept to find matching code,
           documentation, and decisions across all connected repositories.
@@ -366,7 +364,7 @@ function NoResults({ query }: { query: string }) {
       </div>
       <div className="space-y-1.5 max-w-xs">
         <h2 className="text-base font-semibold font-mono text-text">
-          No results for "{query}"
+          No results found for "{query}"
         </h2>
         <p className="text-xs text-text-muted leading-relaxed">
           Try a different keyword, or remove some filters to broaden the search.

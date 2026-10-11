@@ -40,6 +40,9 @@ export function resetConfig(): void {
 }
 
 function tryLoadEnv(): void {
+  // Tests must use the deterministic schema defaults rather than a developer's
+  // local .env (which may contain real service credentials).
+  if (isTest) return;
   if (typeof process.loadEnvFile !== "function") return;
   const candidates = [
     path.resolve(process.cwd(), ".env"),
