@@ -38,6 +38,21 @@ GitHub OAuth app: Settings, Developer settings, OAuth Apps. Homepage `http://loc
 | `MAX_PROJECTS_PER_USER` | no | Default 10 |
 | `TRUST_PROXY` | no | Reverse-proxy hops to trust for client IPs, default 1 |
 | `PORT`, `NODE_ENV` | no | 4000, development |
+| `EMBEDDINGS_ENABLED` | no | `true` (default) or `false` to skip the local model |
+| `SYNC_FILE_BATCH`, `EMBED_BATCH` | no | Files per sync batch (25) and chunks per embedding call (8) |
+| `SYNC_MAX_CONCURRENT` | no | Syncs running at once, default 1 |
+| `SYNC_MAX_FILES`, `SYNC_MAX_FILE_BYTES` | no | Per-repo file cap (2000) and per-file size cap (262144) |
+| `SYNC_RSS_LIMIT_MB` | no | Fail a sync when process RSS exceeds this; 0 (default) disables |
+| `LOG_MEMORY` | no | `true`/`false` (default): log memory numbers during sync |
+
+### Small instances (512 MB)
+
+`render.yaml` ships these settings for the Render free plan:
+
+- `EMBEDDINGS_ENABLED=false`: keyword-only search and Ask (no local model in memory)
+- `SYNC_MAX_CONCURRENT=1`, `SYNC_FILE_BATCH=25`, `EMBED_BATCH=8`, `SYNC_MAX_FILES=1000`
+- `SYNC_RSS_LIMIT_MB=420`: a sync that outgrows memory fails with "Repository is too large for this server's memory limit"; the previous index stays live
+- `NODE_OPTIONS=--max-old-space-size=320`, `LOG_MEMORY=true`
 
 The first semantic search or sync downloads the `Xenova/all-MiniLM-L6-v2` model (about 25 MB) and caches it. If that fails, search silently falls back to keyword mode.
 

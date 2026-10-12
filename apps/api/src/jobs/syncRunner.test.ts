@@ -1,13 +1,17 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ObjectId, type Db } from "mongodb";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { Collection, ObjectId, type Db } from "mongodb";
 import { getCollections, type ProjectDoc } from "../db/collections";
 import { deleteProject } from "../services/projectService";
 import { newJob } from "../services/syncService";
 import { GithubAccessError, GithubTransientError } from "../integrations/github";
-import { FakeGithub } from "../test/fakes";
+import { FakeEmbedder, FakeGithub } from "../test/fakes";
 import request from "supertest";
 import { loginAs, makeTestApp, startTestDb, stopTestDb } from "../test/helpers";
 import { createSyncRunner } from "./syncRunner";
+import { resetConfig } from "../config";
+import { keepTop } from "../lib/embedder";
+import { retrieve } from "../services/retrievalService";
+import { searchFiles } from "../services/searchService";
 
 let db: Db;
 beforeAll(async () => {
@@ -332,6 +336,114 @@ describe("sync runner", () => {
       .send(JSON.stringify({ fullName: "a/b", description: "x".repeat(1_100_000) }));
     expect(res.status).toBe(413);
     expect(res.body.message).toBe("Request body too large");
+  });
+});
+
+describe("small-instance memory behavior", () => {
+  /** a runner whose config was read with `env` applied; the env is restored right after */
+  const runnerWith = (github: FakeGithub, env: Record<string, string>, embedder?: FakeEmbedder) => {
+    const saved = Object.fromEntries(Object.keys(env).map((k) => [k, process.env[k]]));
+    Object.assign(process.env, env);
+    resetConfig();
+    const runner = createSyncRunner({ db, github, embedder });
+    for (const [k, v] of Object.entries(saved)) v === undefined ? delete process.env[k] : (process.env[k] = v);
+    resetConfig();
+    return runner;
+  };
+  const runWith = async (env: Record<string, string>, embedder?: FakeEmbedder) => {
+    const ctx = await setup();
+    const runner = runnerWith(ctx.github, env, embedder);
+    const sync = async () => {
+      const job = newJob(ctx.project._id);
+      await ctx.c.syncJobs.insertOne(job);
+      await runner.start(ctx.project._id);
+      return (await ctx.c.syncJobs.findOne({ _id: job._id }))!;
+    };
+    return { ...ctx, sync, runnerWith: (e: Record<string, string>) => runnerWith(ctx.github, e) };
+  };
+
+  it("re-sync queries previous rows per batch and always with a path filter", async () => {
+    const { project, c, sync } = await runWith({ SYNC_FILE_BATCH: "2" }, new FakeEmbedder());
+    await sync();
+    const spy = vi.spyOn(Collection.prototype, "find");
+    try {
+      await sync();
+      const prevQueries = spy.mock.calls
+        .map(([f]) => f as Record<string, unknown>)
+        .filter((f) => f?.gen === 1 && String(f.projectId) === String(project._id));
+      expect(prevQueries.length).toBeGreaterThanOrEqual(6); // 5 files / batch of 2 = 3 batches, files + chunks each
+      for (const f of prevQueries) expect(f.path).toEqual({ $in: expect.any(Array) });
+      for (const f of prevQueries) expect((f.path as { $in: string[] }).$in.length).toBeLessThanOrEqual(2);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await c.chunks.countDocuments({ projectId: project._id, gen: 2, embedding: { $exists: true } })).toBeGreaterThan(0);
+  });
+
+  it("reuses embeddings of unchanged chunks across batches", async () => {
+    const embedder = new FakeEmbedder();
+    const { sync } = await runWith({ SYNC_FILE_BATCH: "2" }, embedder);
+    await sync();
+    embedder.calls.length = 0;
+    await sync();
+    expect(embedder.calls.flat().filter((t) => t.includes("line 5"))).toEqual([]);
+  });
+
+  it("without an embedder a full sync completes with lexical-only chunks", async () => {
+    const { project, c, sync } = await runWith({});
+    expect((await sync()).status).toBe("succeeded");
+    expect(await c.chunks.countDocuments({ projectId: project._id, embedding: { $exists: true } })).toBe(0);
+    const p = (await c.projects.findOne({ _id: project._id }))!;
+    expect((await retrieve(db, p, "widget hello")).length).toBeGreaterThan(0);
+    const res = await searchFiles(db, p.ownerId, project._id.toHexString(), "line 5", null);
+    expect(res).toMatchObject({ mode: "keyword" });
+    expect(res.hits.some((h) => h.filePath === "src/main.rs")).toBe(true);
+  });
+
+  it("RSS limit fails the sync with a safe message and leaves the live generation intact", async () => {
+    const { project, c, sync, runnerWith: limitedRunner } = await runWith({});
+    await sync();
+    const snap = async () => ({
+      files: await c.repoFiles.find({ projectId: project._id }).sort({ path: 1 }).toArray(),
+      chunks: await c.chunks.find({ projectId: project._id }).sort({ path: 1, startLine: 1 }).toArray(),
+      p: (await c.projects.findOne({ _id: project._id }))!,
+    });
+    const before = await snap();
+    const job = newJob(project._id);
+    await c.syncJobs.insertOne(job);
+    await limitedRunner({ SYNC_RSS_LIMIT_MB: "1", LOG_MEMORY: "true" }).start(project._id);
+    const failed = (await c.syncJobs.findOne({ _id: job._id }))!;
+    expect(failed).toMatchObject({ status: "failed", error: "Repository is too large for this server's memory limit" });
+    const after = await snap();
+    expect(after.files).toEqual(before.files);
+    expect(after.chunks).toEqual(before.chunks);
+    expect(after.p).toMatchObject({ syncStatus: "failed", syncGeneration: 1 });
+    expect(await c.chunks.countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
+  });
+
+  it("cursor retrieval and search rank seeded vectors like the full scan", async () => {
+    const { project, c } = await setup();
+    const base = { projectId: project._id, artifactId: null, type: "file" as const, url: "https://github.com/acme/widget", language: null, startLine: 1, gen: 0 };
+    const seed = [
+      ["a.ts", "alpha one", [1, 0, 0]],
+      ["b.ts", "beta two", [0, 1, 0]],
+      ["c.ts", "gamma three", [0.8, 0.6, 0]],
+      ["d.ts", "delta four", [0.6, 0.8, 0]],
+    ] as const;
+    await c.chunks.insertMany(seed.map(([path, text, embedding]) => ({ ...base, _id: new ObjectId(), path, title: path, text, embedding: [...embedding] })));
+    const p = (await c.projects.findOne({ _id: project._id }))!;
+    const embedder = new FakeEmbedder();
+    const got = await retrieve(db, p, "authenticate", { embedder, k: 1 }); // cos: a 1, c .8, d .6, b 0
+    expect(got.map((x) => x.path)).toEqual(["a.ts", "c.ts"]);
+    const res = await searchFiles(db, p.ownerId, project._id.toHexString(), "authenticate", null, undefined, undefined, embedder);
+    expect(res.mode).toBe("semantic");
+    expect(res.hits.map((h) => h.filePath)).toEqual(["a.ts", "c.ts", "d.ts"]);
+  });
+
+  it("keepTop keeps the best n, earliest first on ties", () => {
+    const list: { cos: number; i: number }[] = [];
+    for (let i = 0; i < 20; i++) keepTop(list, { cos: i % 2 ? 0.9 : 0.5, i }, 3);
+    expect(list.sort((a, b) => b.cos - a.cos).slice(0, 3).map((x) => x.i)).toEqual([1, 3, 5]);
   });
 });
 

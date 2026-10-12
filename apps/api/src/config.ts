@@ -26,6 +26,13 @@ const schema = z
     LLM_MODEL: z.string().default("openai/gpt-oss-120b"),
     EMBEDDINGS_ENABLED: z.enum(["true", "false"]).default("true").transform((v) => v === "true"),
     LOG_CLIENT_IP: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
+    SYNC_FILE_BATCH: z.coerce.number().int().min(1).default(25),
+    EMBED_BATCH: z.coerce.number().int().min(1).default(8),
+    SYNC_MAX_CONCURRENT: z.coerce.number().int().min(1).default(1),
+    SYNC_MAX_FILES: z.coerce.number().int().min(1).default(2000),
+    SYNC_MAX_FILE_BYTES: z.coerce.number().int().min(1).default(262144),
+    SYNC_RSS_LIMIT_MB: z.coerce.number().int().min(0).default(0),
+    LOG_MEMORY: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   })
   .transform((c) => ({
     ...c,

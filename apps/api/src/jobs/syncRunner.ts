@@ -8,6 +8,7 @@ import {
   type RepoFileDoc,
 } from "../db/collections";
 import { GithubAccessError, isTransient, type GithubClient } from "../integrations/github";
+import { loadConfig } from "../config";
 import { decrypt } from "../lib/crypto";
 import type { Embedder } from "../lib/embedder";
 import { chunk } from "../lib/chunker";
@@ -20,10 +21,8 @@ import { purgeSessions } from "../services/githubErrors";
 export const MAX_FILES = 2000;
 export const MAX_FILE_BYTES = 256 * 1024;
 const MAX_KEY_FILES = 60;
-const MAX_GLOBAL = 2;
 const BLOB_CONCURRENCY = 8;
-const FILE_BATCH = 100;
-const EMBED_BATCH = 32;
+const MB = 1024 * 1024;
 const MINIFIED = /\.(?:min\.js|min\.css|map|snap)$/i;
 const BINARY_EXT = new Set(
   "png jpg jpeg gif webp ico pdf zip gz tar woff woff2 ttf eot mp3 mp4 mov wasm".split(" "),
@@ -61,6 +60,7 @@ const noopAfterSync = async (): Promise<void> => {};
 
 class Aborted extends Error {}
 class RepoNotFound extends Error {}
+class TooLarge extends Error {}
 
 function healthLabel(overall: number): string {
   return overall >= 75 ? "Healthy" : overall >= 50 ? "Needs attention" : "At risk";
@@ -146,6 +146,7 @@ export function createSyncRunner({
   embedder,
 }: SyncRunnerDeps): SyncRunner {
   const github = withRetry(rawGithub, retryDelayMs);
+  const cfg = loadConfig();
   const c = getCollections(db);
   const controllers = new Map<string, AbortController>();
   const running = new Map<string, Promise<void>>();
@@ -153,7 +154,7 @@ export function createSyncRunner({
   let active = 0;
 
   const acquire = async (): Promise<void> => {
-    if (active < MAX_GLOBAL) {
+    if (active < cfg.SYNC_MAX_CONCURRENT) {
       active++;
       return;
     }
@@ -189,6 +190,15 @@ export function createSyncRunner({
       await c.syncJobs.updateOne({ _id: jobId }, { $set: { progress: n } });
     };
 
+    const logMemory = (stage: string) => {
+      if (!cfg.LOG_MEMORY) return;
+      const m = process.memoryUsage();
+      logger.info(
+        { projectId: pid, stage, rssMB: Math.round(m.rss / MB), heapUsedMB: Math.round(m.heapUsed / MB), externalMB: Math.round(m.external / MB), arrayBuffersMB: Math.round(m.arrayBuffers / MB) },
+        "sync memory",
+      );
+    };
+    logMemory("start");
     await dropGen(projectId, newGen); // leftovers from a crashed run would collide with this one
     const user = await c.users.findOne({ _id: project.ownerId });
     if (!user) throw new GithubAccessError(401, "revoked");
@@ -210,13 +220,13 @@ export function createSyncRunner({
     // 10-40 fetch everything (tree listing, text sources, stats) before writing anything
     const { entries, truncated } = await github.getTree(token, full, branch);
     const eligible = entries.filter((e) => !isExcludedPath(e.path));
-    if (truncated || eligible.length > MAX_FILES) {
+    if (truncated || eligible.length > cfg.SYNC_MAX_FILES) {
       logger.warn({ projectId: pid }, "file cap hit; indexing a prioritized subset");
     }
     const tree = eligible
       .map((e, i) => ({ e, i, p: priority(e.path) }))
       .sort((a, b) => a.p - b.p || a.i - b.i)
-      .slice(0, MAX_FILES)
+      .slice(0, cfg.SYNC_MAX_FILES)
       .map((x) => x.e);
     await progress(15);
 
@@ -287,7 +297,7 @@ export function createSyncRunner({
     const repoUrl = `https://github.com/${full}`;
     const keyPaths = new Set(
       tree
-        .filter((e) => !isBinaryPath(e.path) && e.size <= MAX_FILE_BYTES && !isLockfile(e.path))
+        .filter((e) => !isBinaryPath(e.path) && e.size <= cfg.SYNC_MAX_FILE_BYTES && !isLockfile(e.path))
         .flatMap((e) => {
           const rank = keyRank(e.path);
           return rank === null ? [] : [{ path: e.path, rank }];
@@ -297,30 +307,13 @@ export function createSyncRunner({
         .map((k) => k.path),
     );
     const keyFiles: RepoFileDoc[] = [];
-    // unchanged sha => reuse last generation's content instead of refetching the blob
-    const prev = new Map(
-      (
-        await c.repoFiles
-          .find(
-            { projectId, gen: project.syncGeneration },
-            { projection: { path: 1, sha: 1, content: 1, isBinary: 1 } },
-          )
-          .toArray()
-      ).map((f) => [f.path, f]),
-    );
-    // unchanged chunk text keeps its previous embedding, so incremental syncs only embed what changed
-    const prevEmbeddings = new Map<string, { text: string; embedding: number[] }>();
-    if (embedder) {
-      const rows = await c.chunks
-        .find(
-          { projectId, gen: project.syncGeneration, type: "file", embedding: { $exists: true } },
-          { projection: { path: 1, startLine: 1, text: 1, embedding: 1 } },
-        )
-        .toArray();
-      for (const r of rows) if (r.embedding) prevEmbeddings.set(`${r.path}:${r.startLine}`, { text: r.text, embedding: r.embedding });
-    }
     let embedderUp = embedder !== undefined;
-    const embedChunks = async (list: ChunkDoc[]): Promise<void> => {
+    let embeddedOnce = false;
+    // `prevEmbeddings` holds only the current batch's previous vectors (unchanged chunk text keeps its embedding)
+    const embedChunks = async (
+      list: ChunkDoc[],
+      prevEmbeddings = new Map<string, { text: string; embedding: number[] }>(),
+    ): Promise<void> => {
       if (!embedder || !embedderUp) return;
       const todo = list.filter((ch) => {
         const old = prevEmbeddings.get(`${ch.path}:${ch.startLine}`);
@@ -328,12 +321,16 @@ export function createSyncRunner({
         return !ch.embedding;
       });
       try {
-        for (let i = 0; i < todo.length; i += EMBED_BATCH) {
+        for (let i = 0; i < todo.length; i += cfg.EMBED_BATCH) {
           check();
-          const vectors = await embedder.embed(todo.slice(i, i + EMBED_BATCH).map((ch) => ch.text));
+          const vectors = await embedder.embed(todo.slice(i, i + cfg.EMBED_BATCH).map((ch) => ch.text));
           vectors.forEach((v, j) => {
             (todo[i + j] as ChunkDoc).embedding = v;
           });
+          if (!embeddedOnce) {
+            embeddedOnce = true;
+            logMemory("first embedding batch");
+          }
         }
       } catch (err) {
         if (err instanceof Aborted) throw err;
@@ -343,8 +340,31 @@ export function createSyncRunner({
     };
     let reused = 0;
     let fetched = 0;
-    for (let i = 0; i < tree.length; i += FILE_BATCH) {
-      const batch: RepoFileDoc[] = tree.slice(i, i + FILE_BATCH).map((e) => ({
+    for (let i = 0; i < tree.length; i += cfg.SYNC_FILE_BATCH) {
+      const batchEntries = tree.slice(i, i + cfg.SYNC_FILE_BATCH);
+      const batchPaths = batchEntries.map((e) => e.path);
+      // unchanged sha => reuse last generation's content instead of refetching the blob
+      const prev = new Map(
+        (
+          await c.repoFiles
+            .find(
+              { projectId, gen: project.syncGeneration, path: { $in: batchPaths } },
+              { projection: { path: 1, sha: 1, content: 1, isBinary: 1 } },
+            )
+            .toArray()
+        ).map((f) => [f.path, f]),
+      );
+      const prevEmbeddings = new Map<string, { text: string; embedding: number[] }>();
+      if (embedder) {
+        const rows = await c.chunks
+          .find(
+            { projectId, gen: project.syncGeneration, type: "file", path: { $in: batchPaths }, embedding: { $exists: true } },
+            { projection: { path: 1, startLine: 1, text: 1, embedding: 1 } },
+          )
+          .toArray();
+        for (const r of rows) if (r.embedding) prevEmbeddings.set(`${r.path}:${r.startLine}`, { text: r.text, embedding: r.embedding });
+      }
+      const batch: RepoFileDoc[] = batchEntries.map((e) => ({
         _id: new ObjectId(),
         projectId,
         path: e.path,
@@ -353,7 +373,7 @@ export function createSyncRunner({
         size: e.size,
         sha: e.sha,
         isBinary: isBinaryPath(e.path),
-        isLarge: e.size > MAX_FILE_BYTES || MINIFIED.test(e.path),
+        isLarge: e.size > cfg.SYNC_MAX_FILE_BYTES || MINIFIED.test(e.path),
         content: null,
         gen: newGen,
       }));
@@ -395,11 +415,13 @@ export function createSyncRunner({
           });
         }
       }
-      await embedChunks(chunks);
+      await embedChunks(chunks, prevEmbeddings);
       check();
       await insertBatched((d) => c.repoFiles.insertMany(d), batch);
       await insertBatched((d) => c.chunks.insertMany(d), chunks);
-      await progress(40 + Math.floor((45 * Math.min(i + FILE_BATCH, tree.length)) / tree.length));
+      await progress(40 + Math.floor((45 * Math.min(i + cfg.SYNC_FILE_BATCH, tree.length)) / tree.length));
+      logMemory("file batch");
+      if (cfg.SYNC_RSS_LIMIT_MB > 0 && process.memoryUsage().rss > cfg.SYNC_RSS_LIMIT_MB * MB) throw new TooLarge();
     }
 
     logger.info({ projectId: pid, reused, fetched }, "blobs reused vs fetched");
@@ -475,6 +497,7 @@ export function createSyncRunner({
       },
     );
     state.committed = true;
+    logMemory("end");
 
     // post-commit cleanup; gen:null rows (decision mirrors) never match $lt
     try {
@@ -534,6 +557,7 @@ export function createSyncRunner({
       );
       let message = "Sync failed due to an unexpected error";
       if (err instanceof RepoNotFound) message = "Repository not found or not accessible";
+      else if (err instanceof TooLarge) message = "Repository is too large for this server's memory limit";
       else if (err instanceof GithubAccessError) {
         if (err.kind === "revoked") {
           message = "GitHub access revoked. Sign in again to resync.";

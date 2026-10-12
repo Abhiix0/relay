@@ -116,14 +116,13 @@ async function semanticProject(
   const recent = since
     ? await artifacts.find({ projectId: p._id, gen: { $in: [p.syncGeneration, null] }, updatedAt: { $gte: since } }, { projection: { _id: 1 } }).toArray()
     : null;
-  const vectors = await chunks
-    .find(
-      { ...scopeOf(p, language, type), embedding: { $exists: true }, ...(recent && { artifactId: { $in: recent.map((a) => a._id) } }) },
-      { projection: { embedding: 1, path: 1, artifactId: 1 } },
-    )
-    .toArray();
+  const vectors = chunks.find(
+    { ...scopeOf(p, language, type), embedding: { $exists: true }, ...(recent && { artifactId: { $in: recent.map((a) => a._id) } }) },
+    { projection: { embedding: 1, path: 1, artifactId: 1 } },
+  );
+  // streamed: only the best (id, cos) per source is retained, never the vectors
   const best = new Map<string, { id: ChunkDoc["_id"]; cos: number }>();
-  for (const v of vectors) {
+  for await (const v of vectors) {
     const cos = v.embedding ? cosine(qv, v.embedding) : 0;
     const source = v.path ?? v.artifactId?.toHexString() ?? v._id.toHexString();
     if (cos >= MIN_COSINE && cos > (best.get(source)?.cos ?? 0)) best.set(source, { id: v._id, cos });

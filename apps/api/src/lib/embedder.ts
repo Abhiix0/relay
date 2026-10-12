@@ -13,7 +13,13 @@ export function createLocalEmbedder(): Embedder {
   return {
     async embed(texts) {
       extractor ??= import("@huggingface/transformers")
-        .then((m) => m.pipeline("feature-extraction", MODEL) as unknown as Promise<Extractor>)
+        .then(
+          (m) =>
+            m.pipeline("feature-extraction", MODEL, {
+              dtype: "q8",
+              session_options: { intraOpNumThreads: 1, interOpNumThreads: 1, enableCpuMemArena: false, enableMemPattern: false },
+            }) as unknown as Promise<Extractor>,
+        )
         .catch((err: unknown) => {
           extractor = undefined;
           throw err;
@@ -23,7 +29,16 @@ export function createLocalEmbedder(): Embedder {
   };
 }
 
-export const cosine = (a: number[], b: number[]): number => {
+/** Adds to a running top-n (best first, stable on ties); prunes lazily so memory stays O(n). */
+export function keepTop<T extends { cos: number }>(list: T[], item: T, n: number): void {
+  list.push(item);
+  if (list.length > 2 * n) {
+    list.sort((a, b) => b.cos - a.cos);
+    list.length = n;
+  }
+}
+
+export const cosine =(a: number[], b: number[]): number => {
   let dot = 0;
   for (let i = 0; i < a.length; i++) dot += (a[i] ?? 0) * (b[i] ?? 0);
   return dot;

@@ -1,6 +1,6 @@
 import type { Db } from "mongodb";
 import { getCollections, type ChunkDoc, type ProjectDoc } from "../db/collections";
-import { cosine, type Embedder } from "../lib/embedder";
+import { cosine, keepTop, type Embedder } from "../lib/embedder";
 
 const CHUNK_CHARS = 1200;
 const TOTAL_CHARS = 9000;
@@ -70,14 +70,13 @@ export async function retrieve(
     try {
       const [qv] = await embedder.embed([query]);
       // shortcut: brute-force cosine in process, fine to ~20k chunks per project; move to a vector index beyond that
-      const vectors = await chunks
-        .find({ ...scope, embedding: { $exists: true } }, { projection: { embedding: 1 } })
-        .toArray();
-      const top = vectors
-        .map((v) => ({ id: v._id, cos: qv && v.embedding ? cosine(qv, v.embedding) : 0 }))
-        .filter((v) => v.cos >= MIN_COSINE)
-        .sort((a, b) => b.cos - a.cos)
-        .slice(0, k * 2);
+      const kept: { id: ChunkDoc["_id"]; cos: number }[] = [];
+      const cursor = chunks.find({ ...scope, embedding: { $exists: true } }, { projection: { embedding: 1 } });
+      for await (const v of cursor) {
+        const cos = qv && v.embedding ? cosine(qv, v.embedding) : 0;
+        if (cos >= MIN_COSINE) keepTop(kept, { id: v._id, cos }, k * 2);
+      }
+      const top = kept.sort((a, b) => b.cos - a.cos).slice(0, k * 2);
       const docs = new Map(
         (await chunks.find({ _id: { $in: top.map((t) => t.id) } }).toArray()).map((d) => [d._id.toHexString(), d]),
       );

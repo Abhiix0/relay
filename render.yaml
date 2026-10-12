@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile.api
     dockerContext: .
-    plan: standard
+    plan: free
     healthCheckPath: /api/v1/healthz
     autoDeployTrigger: checksPass
     maxShutdownDelaySeconds: 60
@@ -14,7 +14,22 @@ services:
         value: production
       - key: TRUST_PROXY
         value: "3"
+      # 512 MB free-instance settings: keyword-only search, one small sync at a time, capped heap
       - key: EMBEDDINGS_ENABLED
+        value: "false"
+      - key: SYNC_MAX_CONCURRENT
+        value: "1"
+      - key: SYNC_FILE_BATCH
+        value: "25"
+      - key: EMBED_BATCH
+        value: "8"
+      - key: SYNC_MAX_FILES
+        value: "1000"
+      - key: SYNC_RSS_LIMIT_MB
+        value: "420"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=320"
+      - key: LOG_MEMORY
         value: "true"
       - key: LOG_CLIENT_IP
         value: "false"
