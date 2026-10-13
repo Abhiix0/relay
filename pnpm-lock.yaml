@@ -59,6 +59,9 @@ importers:
       pino-http:
         specifier: ^10.0.0
         version: 10.5.0
+      tar-stream:
+        specifier: 3.2.2
+        version: 3.2.2
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -72,6 +75,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.0
         version: 6.0.3
+      '@types/tar-stream':
+        specifier: 3.1.5
+        version: 3.1.5
       mongodb-memory-server:
         specifier: ^10.0.0
         version: 10.4.3
@@ -1887,6 +1893,9 @@ packages:
 
   '@types/supertest@6.0.3':
     resolution: {integrity: sha512-8WzXq62EXFhJ7QsH3Ocb/iKQ/Ty9ZVWnVzoTKc9tyyFRRF3a74Tk2+TLFgaFFw364Ere+npzHKEJ6ga2LzIL7w==}
+
+  '@types/tar-stream@3.1.5':
+    resolution: {integrity: sha512-zCUA6CSDw0t2cpQiZixpyzfubpeuVZmBr5wztvuCG4bhy7reX/9wGXdZxEzz2CjMFLQ32UPR/01jzUUSRJeCeQ==}
 
   '@types/webidl-conversions@7.0.3':
     resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
@@ -5696,6 +5705,10 @@ snapshots:
     dependencies:
       '@types/methods': 1.1.4
       '@types/superagent': 8.1.11
+
+  '@types/tar-stream@3.1.5':
+    dependencies:
+      '@types/node': 24.7.0
 
   '@types/webidl-conversions@7.0.3': {}
 

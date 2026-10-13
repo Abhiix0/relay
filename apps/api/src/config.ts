@@ -31,6 +31,7 @@ const schema = z
     SYNC_MAX_CONCURRENT: z.coerce.number().int().min(1).default(1),
     SYNC_MAX_FILES: z.coerce.number().int().min(1).default(2000),
     SYNC_MAX_FILE_BYTES: z.coerce.number().int().min(1).default(262144),
+    SYNC_MAX_REPO_KB: z.coerce.number().int().min(1).default(51200),
     SYNC_RSS_LIMIT_MB: z.coerce.number().int().min(0).default(0),
     LOG_MEMORY: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   })

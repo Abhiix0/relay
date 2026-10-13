@@ -99,18 +99,18 @@ describe("sync runner", () => {
     const { github, project, c, sync } = await setup();
     github.addFile("app.min.js", "x=1");
     await sync();
-    expect(github.blobCalls).not.toContain("sha:app.min.js");
+    expect(github.streamed).not.toContain("app.min.js");
     const min = await c.repoFiles.findOne({ projectId: project._id, path: "app.min.js" });
     expect(min).toMatchObject({ isLarge: true, content: null });
     expect(await c.chunks.countDocuments({ projectId: project._id, path: "app.min.js" })).toBe(0);
-    github.blobCalls.length = 0;
     await sync();
     expect(github.blobCalls).toEqual([]);
+    const readme = () => c.repoFiles.findOne({ projectId: project._id, path: "README.md", gen: 3 });
     expect(await c.chunks.countDocuments({ projectId: project._id, path: "src/main.rs" })).toBe(3);
     github.addFile("README.md", "# changed");
-    github.shaVersion.set("README.md", 1);
     await sync();
-    expect(github.blobCalls).toEqual(["sha:README.md#1"]);
+    expect(github.blobCalls).toEqual([]);
+    expect(await readme()).toMatchObject({ content: "# changed" });
   });
 
   it("mid-run failure keeps the previous generation and marks failed", async () => {
@@ -312,8 +312,9 @@ describe("sync runner", () => {
   it("does not fetch blobs for binary extensions", async () => {
     const { github, sync } = await setup();
     await sync();
-    expect(github.blobCalls).not.toContain("sha:logo.png");
-    expect(github.blobCalls).toContain("sha:src/main.rs");
+    expect(github.streamed).not.toContain("logo.png");
+    expect(github.streamed).toContain("src/main.rs");
+    expect(github.blobCalls).toEqual([]);
   });
 
   it("refreshes description and default branch from the repository", async () => {
@@ -419,6 +420,37 @@ describe("small-instance memory behavior", () => {
     expect(after.chunks).toEqual(before.chunks);
     expect(after.p).toMatchObject({ syncStatus: "failed", syncGeneration: 1 });
     expect(await c.chunks.countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
+  });
+
+  it("size gate fails before downloading and leaves the live generation untouched", async () => {
+    const { github, project, c, sync } = await runWith({});
+    await sync();
+    const before = await c.repoFiles.find({ projectId: project._id }).sort({ path: 1 }).toArray();
+    github.streamed.length = 0;
+    github.addRepo("acme/widget", { sizeKb: 3 * 1024 });
+    const gated = runnerWith(github, { SYNC_MAX_REPO_KB: "2048" });
+    const job = newJob(project._id);
+    await c.syncJobs.insertOne(job);
+    await gated.start(project._id);
+    expect(await c.syncJobs.findOne({ _id: job._id })).toMatchObject({ status: "failed", error: "Repository is too large for this server (limit 2 MB)" });
+    expect(github.streamed).toEqual([]);
+    expect(await c.repoFiles.find({ projectId: project._id }).sort({ path: 1 }).toArray()).toEqual(before);
+    expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(1);
+  });
+
+  it("abort mid-stream leaves only the old generation", async () => {
+    const { github, project, c, runner, sync } = await runWith({ SYNC_FILE_BATCH: "1" });
+    await sync();
+    const before = await c.chunks.countDocuments({ projectId: project._id, gen: 1 });
+    github.afterYield = () => void runner.abort(project._id);
+    await c.syncJobs.insertOne(newJob(project._id));
+    await runner.start(project._id);
+    expect(github.streamed.length).toBeLessThan(5 * 2);
+    expect(await c.chunks.countDocuments({ projectId: project._id, gen: 1 })).toBe(before);
+    for (const col of [c.chunks, c.repoFiles, c.artifacts] as const) {
+      expect(await (col as typeof c.chunks).countDocuments({ projectId: project._id, gen: 2 })).toBe(0);
+    }
+    expect((await c.projects.findOne({ _id: project._id }))?.syncGeneration).toBe(1);
   });
 
   it("cursor retrieval and search rank seeded vectors like the full scan", async () => {

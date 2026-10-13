@@ -19,12 +19,14 @@
     "mongodb": "^6.0.0",
     "pino": "^9.0.0",
     "pino-http": "^10.0.0",
+    "tar-stream": "3.2.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^24.7.0",
     "@types/supertest": "^6.0.0",
+    "@types/tar-stream": "3.1.5",
     "mongodb-memory-server": "^10.0.0",
     "supertest": "^7.0.0",
     "tsup": "^8.0.0",

@@ -20,6 +20,7 @@ const repo = (id: number, full: string): GithubUserRepo => ({
   language: "Rust",
   default_branch: "main",
   private: false,
+  sizeKb: 1,
   pushedAt: "2026-01-02T03:04:05Z",
 });
 const get = (app: ReturnType<typeof makeTestApp>, cookie: string, q = "") =>

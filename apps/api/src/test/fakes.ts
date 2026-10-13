@@ -1,8 +1,10 @@
 import type { ZodType } from "zod";
 import type { LlmClient } from "../integrations/llm";
 import type { Embedder } from "../lib/embedder";
+import { gitBlobSha } from "../lib/gitSha";
 import type {
   GithubClient,
+  GithubFile,
   GithubCommit,
   GithubReadme,
   GithubRepo,
@@ -61,6 +63,7 @@ export class FakeGithub implements GithubClient {
       language: "Rust",
       default_branch: "main",
       private: false,
+      sizeKb: 10,
       ...overrides,
     };
     this.repos.set(fullName.toLowerCase(), repo);
@@ -93,22 +96,42 @@ export class FakeGithub implements GithubClient {
     if (this.failOn === name && this.failCount-- > 0) throw this.failWith;
   }
   truncated = false;
-  /** path -> version; bumping changes the sha so the runner sees a modified file */
-  shaVersion = new Map<string, number>();
-  /** shas passed to getBlob */
+  /** shas passed to getBlob (the runner no longer calls it) */
   blobCalls: string[] = [];
+  /** paths iterateFiles yielded, in order */
+  streamed: string[] = [];
+  /** runs after each yielded file, e.g. to abort mid-stream */
+  afterYield: ((path: string) => void) | null = null;
+  private shaOf(path: string): string {
+    return gitBlobSha(Buffer.from(this.files.get(path)?.content ?? "x"));
+  }
   async getTree(): Promise<{ entries: GithubTreeEntry[]; truncated: boolean }> {
     if (this.gate) await this.gate;
     this.maybeFail("getTree");
     return {
-      entries: [...this.files].map(([path, f]) => ({ path, sha: `sha:${path}${this.shaVersion.has(path) ? `#${this.shaVersion.get(path)}` : ""}`, size: f.size })),
+      entries: [...this.files].map(([path, f]) => ({ path, sha: this.shaOf(path), size: f.size })),
       truncated: this.truncated,
     };
   }
   async getBlob(_t: string, _f: string, sha: string): Promise<string | null> {
     this.blobCalls.push(sha);
     this.maybeFail("getBlob");
-    return this.files.get(sha.slice(4).split("#")[0] ?? "")?.content ?? null;
+    return [...this.files].find(([path]) => this.shaOf(path) === sha)?.[1].content ?? null;
+  }
+  async *iterateFiles(
+    _t: string,
+    _f: string,
+    _ref: string,
+    { allowed, maxBytes, signal }: { allowed: Set<string>; maxBytes: number; signal?: AbortSignal },
+  ): AsyncGenerator<GithubFile> {
+    this.maybeFail("iterateFiles");
+    for (const [path, f] of this.files) {
+      if (signal?.aborted) throw new Error("aborted");
+      if (!allowed.has(path) || f.size > maxBytes) continue;
+      this.streamed.push(path);
+      yield { path, size: f.size, sha: this.shaOf(path), content: f.content, isBinary: f.content === null };
+      this.afterYield?.(path);
+    }
   }
   async listCommits(): Promise<GithubCommit[]> {
     this.maybeFail("listCommits");

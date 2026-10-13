@@ -7,7 +7,7 @@ import {
   type ProjectDoc,
   type RepoFileDoc,
 } from "../db/collections";
-import { GithubAccessError, isTransient, type GithubClient } from "../integrations/github";
+import { GithubAccessError, isTransient, type GithubClient, type GithubFile, type GithubTreeEntry } from "../integrations/github";
 import { loadConfig } from "../config";
 import { decrypt } from "../lib/crypto";
 import type { Embedder } from "../lib/embedder";
@@ -21,7 +21,6 @@ import { purgeSessions } from "../services/githubErrors";
 export const MAX_FILES = 2000;
 export const MAX_FILE_BYTES = 256 * 1024;
 const MAX_KEY_FILES = 60;
-const BLOB_CONCURRENCY = 8;
 const MB = 1024 * 1024;
 const MINIFIED = /\.(?:min\.js|min\.css|map|snap)$/i;
 const BINARY_EXT = new Set(
@@ -61,6 +60,7 @@ const noopAfterSync = async (): Promise<void> => {};
 class Aborted extends Error {}
 class RepoNotFound extends Error {}
 class TooLarge extends Error {}
+class RepoTooBig extends Error {}
 
 function healthLabel(overall: number): string {
   return overall >= 75 ? "Healthy" : overall >= 50 ? "Needs attention" : "At risk";
@@ -102,14 +102,6 @@ function isBinaryPath(path: string): boolean {
   return dot !== -1 && BINARY_EXT.has(path.slice(dot + 1).toLowerCase());
 }
 
-async function pool<T>(items: T[], size: number, fn: (item: T) => Promise<void>): Promise<void> {
-  let next = 0;
-  const worker = async () => {
-    while (next < items.length) await fn(items[next++] as T);
-  };
-  await Promise.all(Array.from({ length: Math.min(size, items.length) }, worker));
-}
-
 async function insertBatched<T extends object>(
   insert: (docs: T[]) => Promise<unknown>,
   docs: T[],
@@ -123,6 +115,7 @@ function withRetry(github: GithubClient, delayMs: number): GithubClient {
     get(target, key, receiver) {
       const fn: unknown = Reflect.get(target, key, receiver);
       if (typeof fn !== "function") return fn;
+      if (key === "iterateFiles") return fn.bind(target); // a half-read stream cannot be replayed
       return async (...args: unknown[]) => {
         for (let attempt = 0; ; attempt++) {
           try {
@@ -215,6 +208,7 @@ export function createSyncRunner({
     const repo = await github.getRepo(token, full);
     if (!repo) throw new RepoNotFound();
     const branch = repo.default_branch;
+    if (repo.sizeKb > cfg.SYNC_MAX_REPO_KB) throw new RepoTooBig();
     await progress(10);
 
     // 10-40 fetch everything (tree listing, text sources, stats) before writing anything
@@ -340,8 +334,30 @@ export function createSyncRunner({
     };
     let reused = 0;
     let fetched = 0;
-    for (let i = 0; i < tree.length; i += cfg.SYNC_FILE_BATCH) {
-      const batchEntries = tree.slice(i, i + cfg.SYNC_FILE_BATCH);
+    const fetchable = new Set(
+      tree
+        .filter((e) => !isBinaryPath(e.path) && e.size <= cfg.SYNC_MAX_FILE_BYTES && !MINIFIED.test(e.path) && !isLockfile(e.path))
+        .map((e) => e.path),
+    );
+    const byPath = new Map(tree.map((e) => [e.path, e]));
+    type Item = { e: GithubTreeEntry; file: GithubFile | null };
+    // listed-only rows first, then the streamed files, then selected files the tarball never yielded
+    async function* items(): AsyncGenerator<Item> {
+      for (const e of tree) if (!fetchable.has(e.path)) yield { e, file: null };
+      const seen = new Set<string>();
+      if (fetchable.size > 0) {
+        for await (const file of github.iterateFiles(token, full, branch, { allowed: fetchable, maxBytes: cfg.SYNC_MAX_FILE_BYTES, signal })) {
+          const e = byPath.get(file.path);
+          if (!e) continue;
+          seen.add(file.path);
+          yield { e, file };
+        }
+      }
+      for (const p of fetchable) if (!seen.has(p)) yield { e: byPath.get(p) as GithubTreeEntry, file: null };
+    }
+    let done = 0;
+    const processBatch = async (batchItems: Item[]): Promise<void> => {
+      const batchEntries = batchItems.map((x) => x.e);
       const batchPaths = batchEntries.map((e) => e.path);
       // unchanged sha => reuse last generation's content instead of refetching the blob
       const prev = new Map(
@@ -364,37 +380,34 @@ export function createSyncRunner({
           .toArray();
         for (const r of rows) if (r.embedding) prevEmbeddings.set(`${r.path}:${r.startLine}`, { text: r.text, embedding: r.embedding });
       }
-      const batch: RepoFileDoc[] = batchEntries.map((e) => ({
+      const batch: RepoFileDoc[] = batchItems.map(({ e, file }) => ({
         _id: new ObjectId(),
         projectId,
         path: e.path,
         name: e.path.split("/").pop() ?? e.path,
         language: detectLanguage(e.path),
         size: e.size,
-        sha: e.sha,
+        sha: file?.sha ?? e.sha,
         isBinary: isBinaryPath(e.path),
         isLarge: e.size > cfg.SYNC_MAX_FILE_BYTES || MINIFIED.test(e.path),
         content: null,
         gen: newGen,
       }));
-      await pool(
-        batch.filter((f) => !f.isBinary && !f.isLarge && !isLockfile(f.path)),
-        BLOB_CONCURRENCY,
-        async (f) => {
-          check();
-          const old = prev.get(f.path);
-          if (old && old.sha === f.sha) {
-            f.content = old.content;
-            f.isBinary = old.isBinary;
-            reused++;
-            return;
-          }
-          fetched++;
-          const text = await github.getBlob(token, full, f.sha);
-          if (text === null) f.isBinary = true;
-          else f.content = redactSecrets(text);
-        },
-      );
+      batch.forEach((f, k) => {
+        const file = batchItems[k]?.file;
+        if (!file) return;
+        check();
+        const old = prev.get(f.path);
+        if (old && old.sha === f.sha) {
+          f.content = old.content;
+          f.isBinary = old.isBinary;
+          reused++;
+          return;
+        }
+        fetched++;
+        if (file.isBinary || file.content === null) f.isBinary = true;
+        else f.content = redactSecrets(file.content);
+      });
       const chunks: ChunkDoc[] = [];
       for (const f of batch) {
         if (f.content !== null && keyPaths.has(f.path)) keyFiles.push(f);
@@ -419,10 +432,25 @@ export function createSyncRunner({
       check();
       await insertBatched((d) => c.repoFiles.insertMany(d), batch);
       await insertBatched((d) => c.chunks.insertMany(d), chunks);
-      await progress(40 + Math.floor((45 * Math.min(i + cfg.SYNC_FILE_BATCH, tree.length)) / tree.length));
+      done += batchItems.length;
+      await progress(40 + Math.floor((45 * done) / tree.length));
       logMemory("file batch");
       if (cfg.SYNC_RSS_LIMIT_MB > 0 && process.memoryUsage().rss > cfg.SYNC_RSS_LIMIT_MB * MB) throw new TooLarge();
+    };
+    let pending: Item[] = [];
+    try {
+      for await (const item of items()) {
+        pending.push(item);
+        if (pending.length < cfg.SYNC_FILE_BATCH) continue;
+        const ready = pending;
+        pending = [];
+        await processBatch(ready);
+      }
+    } catch (err) {
+      check(); // an abort destroys the stream; report it as an abort, not a failure
+      throw err;
     }
+    if (pending.length > 0) await processBatch(pending);
 
     logger.info({ projectId: pid, reused, fetched }, "blobs reused vs fetched");
     for (const f of keyFiles) {
@@ -557,6 +585,7 @@ export function createSyncRunner({
       );
       let message = "Sync failed due to an unexpected error";
       if (err instanceof RepoNotFound) message = "Repository not found or not accessible";
+      else if (err instanceof RepoTooBig) message = `Repository is too large for this server (limit ${Math.round(cfg.SYNC_MAX_REPO_KB / 1024)} MB)`;
       else if (err instanceof TooLarge) message = "Repository is too large for this server's memory limit";
       else if (err instanceof GithubAccessError) {
         if (err.kind === "revoked") {

@@ -42,6 +42,7 @@ GitHub OAuth app: Settings, Developer settings, OAuth Apps. Homepage `http://loc
 | `SYNC_FILE_BATCH`, `EMBED_BATCH` | no | Files per sync batch (25) and chunks per embedding call (8) |
 | `SYNC_MAX_CONCURRENT` | no | Syncs running at once, default 1 |
 | `SYNC_MAX_FILES`, `SYNC_MAX_FILE_BYTES` | no | Per-repo file cap (2000) and per-file size cap (262144) |
+| `SYNC_MAX_REPO_KB` | no | Refuse repos whose GitHub-reported size exceeds this many KB (51200) |
 | `SYNC_RSS_LIMIT_MB` | no | Fail a sync when process RSS exceeds this; 0 (default) disables |
 | `LOG_MEMORY` | no | `true`/`false` (default): log memory numbers during sync |
 

@@ -8,6 +8,7 @@ describe("sync memory settings", () => {
     ["SYNC_MAX_CONCURRENT", 1, "2", 2, "0"],
     ["SYNC_MAX_FILES", 2000, "1000", 1000, "abc"],
     ["SYNC_MAX_FILE_BYTES", 262144, "1024", 1024, "-1"],
+    ["SYNC_MAX_REPO_KB", 51200, "20480", 20480, "0"],
     ["SYNC_RSS_LIMIT_MB", 0, "420", 420, "-5"],
     ["LOG_MEMORY", false, "true", true, "yes"],
   ];

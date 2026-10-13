@@ -24,7 +24,13 @@ services:
       - key: EMBED_BATCH
         value: "8"
       - key: SYNC_MAX_FILES
-        value: "1000"
+        value: "600"
+      - key: SYNC_MAX_FILE_BYTES
+        value: "131072"
+      - key: SYNC_MAX_REPO_KB
+        value: "20480"
+      - key: MALLOC_ARENA_MAX
+        value: "2"
       - key: SYNC_RSS_LIMIT_MB
         value: "420"
       - key: NODE_OPTIONS

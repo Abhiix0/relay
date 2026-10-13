@@ -1,4 +1,9 @@
+import { pipeline, Readable } from "node:stream";
+import type { ReadableStream as WebReadableStream } from "node:stream/web";
+import { createGunzip } from "node:zlib";
+import tar from "tar-stream";
 import { loadConfig } from "../config";
+import { gitBlobSha } from "../lib/gitSha";
 
 export interface GithubUser {
   id: number;
@@ -16,6 +21,18 @@ export interface GithubRepo {
   language: string | null;
   default_branch: string;
   private: boolean;
+  /** GitHub-reported repository size in KB */
+  sizeKb: number;
+}
+
+export interface GithubFile {
+  path: string;
+  size: number;
+  /** git blob sha of the bytes */
+  sha: string;
+  /** utf8 text, null when binary */
+  content: string | null;
+  isBinary: boolean;
 }
 
 export type GithubUserRepo = GithubRepo & { pushedAt: string | null };
@@ -83,6 +100,13 @@ export interface GithubClient {
   ): Promise<{ entries: GithubTreeEntry[]; truncated: boolean }>;
   /** decoded text, or null when the blob is binary */
   getBlob(token: string, full: string, sha: string): Promise<string | null>;
+  /** streams the tarball; only regular files in `allowed` and at most `maxBytes` are read, one at a time */
+  iterateFiles(
+    token: string,
+    full: string,
+    ref: string,
+    opts: { allowed: Set<string>; maxBytes: number; signal?: AbortSignal },
+  ): AsyncIterable<GithubFile>;
   listCommits(token: string, full: string, limit: number): Promise<GithubCommit[]>;
   /** excludes pull requests; pages (100 each, max 3) until `limit` items */
   listIssues(token: string, full: string, limit: number): Promise<GithubThread[]>;
@@ -103,7 +127,8 @@ const headers = (token: string) => ({
 });
 
 function ghFetch(url: string, init: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
-  return fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+  const timeout = AbortSignal.timeout(timeoutMs);
+  return fetch(url, { ...init, signal: init.signal ? AbortSignal.any([init.signal, timeout]) : timeout });
 }
 
 async function getJson<T>(url: string, token: string, timeoutMs?: number): Promise<T> {
@@ -228,6 +253,7 @@ export function createGithubClient(): GithubClient {
         language: string | null;
         default_branch: string;
         private: boolean;
+        size: number;
       };
       return {
         id: r.id,
@@ -238,6 +264,7 @@ export function createGithubClient(): GithubClient {
         language: r.language,
         default_branch: r.default_branch,
         private: r.private,
+        sizeKb: r.size,
       };
     },
     async getTree(token, full, branch) {
@@ -261,6 +288,47 @@ export function createGithubClient(): GithubClient {
       const b = await getJson<{ content: string }>(`${API}/repos/${full}/git/blobs/${sha}`, token);
       const buf = Buffer.from(b.content, "base64");
       return buf.includes(0) ? null : buf.toString("utf8");
+    },
+    async *iterateFiles(token, full, ref, { allowed, maxBytes, signal }) {
+      const url = `${API}/repos/${full}/tarball/${encodeURIComponent(ref)}`;
+      const stop = new AbortController();
+      const sig = signal ? AbortSignal.any([signal, stop.signal]) : stop.signal;
+      let body: Readable | undefined;
+      const gunzip = createGunzip();
+      const extract = tar.extract();
+      try {
+        let res = await ghFetch(url, { headers: headers(token), redirect: "manual", signal: sig }, 300_000);
+        if (res.status >= 300 && res.status < 400) {
+          await res.body?.cancel();
+          const next = new URL(res.headers.get("location") ?? "", url);
+          if (next.protocol !== "https:") throw new Error("GitHub tarball redirect rejected");
+          // the redirect target is another host (codeload): no Authorization header
+          res = await ghFetch(next.toString(), { headers: { "User-Agent": "relay-api" }, signal: sig }, 300_000);
+        }
+        await check(res);
+        if (!res.body) throw new Error("GitHub tarball had no body");
+        body = Readable.fromWeb(res.body as WebReadableStream);
+        pipeline(body, gunzip, extract, () => undefined); // errors destroy every stream and surface in the loop below
+        for await (const entry of extract) {
+          sig.throwIfAborted();
+          const { name, size, type } = entry.header;
+          const path = name.split("/").slice(1).join("/"); // drop the single top-level directory
+          if (type !== "file" || !allowed.has(path) || size > maxBytes) {
+            entry.resume();
+            continue;
+          }
+          const parts: Buffer[] = [];
+          for await (const part of entry) parts.push(part as Buffer);
+          const buf = Buffer.concat(parts);
+          const isBinary = buf.includes(0);
+          yield { path, size: buf.byteLength, sha: gitBlobSha(buf), content: isBinary ? null : buf.toString("utf8"), isBinary };
+        }
+      } finally {
+        stop.abort();
+        body?.destroy();
+        gunzip.destroy();
+        extract.destroy();
+      }
     },
     async listCommits(token, full, limit) {
       const res = await ghFetch(`${API}/repos/${full}/commits?per_page=${limit}`, {
@@ -330,6 +398,7 @@ export function createGithubClient(): GithubClient {
             language: string | null;
             default_branch: string;
             private: boolean;
+            size: number;
             pushed_at: string | null;
           }[]
         >(
@@ -346,6 +415,7 @@ export function createGithubClient(): GithubClient {
             language: r.language,
             default_branch: r.default_branch,
             private: r.private,
+            sizeKb: r.size,
             pushedAt: r.pushed_at,
           });
         }
